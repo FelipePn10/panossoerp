@@ -1,17 +1,19 @@
 package config
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	ServerPort  string
-	DatabaseURL string
+	ServerPort  string `mapstructure:"SERVER_ADDR"`
+	DatabaseURL string `mapstructure:"DATABASE_URL"`
+	JWTSecret   string `mapstructure:"JWT_SECRET"`
+	Env         string `mapstructure:"ENV"`
 }
 
-func Load() *Config {
+func Load() (*Config, error) {
 	viper.SetConfigFile(".env")
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
@@ -22,13 +24,16 @@ func Load() *Config {
 		"DATABASE_URL",
 		"postgres://panossoerp:panossoerp_10203040@localhost:5432/panossoerpdatabase?sslmode=disable",
 	)
+	viper.SetDefault("ENV", "development")
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Println("Warning: .env file not found, using environment variables")
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			return nil, fmt.Errorf("erro ao ler config: %w", err)
+		}
 	}
-
-	return &Config{
-		ServerPort:  viper.GetString("SERVER_ADDR"),
-		DatabaseURL: viper.GetString("DATABASE_URL"),
+	var cfg Config
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return nil, fmt.Errorf("erro ao fazer parse da config: %w", err)
 	}
+	return &cfg, nil
 }

@@ -10,8 +10,10 @@ import (
 
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
-	"github.com/go-chi/chi"
+	httpmw "github.com/FelipePn10/panossoerp/internal/interfaces/middleware"
 	"github.com/go-chi/chi/middleware"
+	chimw "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 )
 
 type application struct {
@@ -24,7 +26,7 @@ func (app *application) traceMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+		ww := chimw.NewWrapResponseWriter(w, r.ProtoMajor)
 
 		next.ServeHTTP(ww, r)
 
@@ -43,10 +45,18 @@ func (app *application) traceMiddleware(next http.Handler) http.Handler {
 func (app *application) mount() chi.Router {
 	r := chi.NewRouter()
 
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(app.traceMiddleware)
 
-	// Health check global
+	r.Group(func(r chi.Router) {
+		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
+		//r.Get("/", app.)
+	})
+
+	// Health check
 	r.Get("/health", app.healthHandler)
 
 	return r

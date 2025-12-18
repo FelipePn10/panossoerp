@@ -9,7 +9,11 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		slog.Error("failed to load config", "error", err)
+		os.Exit(1)
+	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
@@ -23,7 +27,7 @@ func main() {
 	api := application{
 		config: cfg,
 		logger: logger,
-		//db:     db,
+		db:     db,
 	}
 
 	if err := api.run(api.mount()); err != nil {
