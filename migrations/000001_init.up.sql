@@ -1,0 +1,4 @@
+CREATE TABLE tests (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
