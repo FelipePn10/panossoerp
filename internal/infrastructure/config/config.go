@@ -28,12 +28,12 @@ func Load() (*Config, error) {
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, fmt.Errorf("erro ao ler config: %w", err)
+			return nil, fmt.Errorf("error: %w", err)
 		}
 	}
 	var cfg Config
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("erro ao fazer parse da config: %w", err)
+		return nil, fmt.Errorf("erro parse config: %w", err)
 	}
 	return &cfg, nil
 }

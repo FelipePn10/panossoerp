@@ -6,7 +6,105 @@ package sqlc
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
 )
+
+type ComponentType string
+
+const (
+	ComponentTypeSTRUCTURE ComponentType = "STRUCTURE"
+	ComponentTypeSET       ComponentType = "SET"
+	ComponentTypeITEM      ComponentType = "ITEM"
+)
+
+func (e *ComponentType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ComponentType(s)
+	case string:
+		*e = ComponentType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ComponentType: %T", src)
+	}
+	return nil
+}
+
+type NullComponentType struct {
+	ComponentType ComponentType
+	Valid         bool // Valid is true if ComponentType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullComponentType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ComponentType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ComponentType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullComponentType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ComponentType), nil
+}
+
+type Component struct {
+	ID        uuid.UUID
+	Code      string
+	Name      string
+	Type      ComponentType
+	CreatedAt time.Time
+}
+
+type ComponentMask struct {
+	ID          uuid.UUID
+	ComponentID uuid.UUID
+	Mask        string
+	MaskHash    string
+	BusinessID  string
+	CreatedAt   time.Time
+}
+
+type MaskComposition struct {
+	ParentMaskID uuid.UUID
+	ChildMaskID  uuid.UUID
+	Quantity     string
+}
+
+type MaterialConsumption struct {
+	ComponentMaskID uuid.UUID
+	MaterialID      uuid.UUID
+	Quantity        string
+	Unit            string
+}
+
+type Product struct {
+	ID        uuid.UUID
+	Code      string
+	GroupCode int16
+	Name      string
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type ProductMask struct {
+	ID         uuid.UUID
+	ProductID  uuid.UUID
+	Mask       string
+	MaskHash   string
+	BusinessID string
+	CreatedBy  uuid.UUID
+	CreatedAt  time.Time
+}
 
 type Test struct {
 	ID        int64
