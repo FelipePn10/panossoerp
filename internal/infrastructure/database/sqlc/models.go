@@ -62,6 +62,7 @@ type Component struct {
 	Name      string
 	Type      ComponentType
 	CreatedAt time.Time
+	CreatedBy uuid.UUID
 }
 
 type ComponentMask struct {
@@ -71,6 +72,7 @@ type ComponentMask struct {
 	MaskHash    string
 	BusinessID  string
 	CreatedAt   time.Time
+	CreatedBy   uuid.UUID
 }
 
 type MaskComposition struct {
@@ -109,4 +111,13 @@ type ProductMask struct {
 type Test struct {
 	ID        int64
 	CreatedAt sql.NullTime
+}
+
+type User struct {
+	ID        uuid.UUID
+	Name      string
+	Email     string
+	Password  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

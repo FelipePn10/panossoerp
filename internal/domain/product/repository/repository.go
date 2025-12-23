@@ -9,10 +9,9 @@ import (
 
 type ProductRepository interface {
 	Save(ctx context.Context, product *entity.Product) error
-	FindByID(ctx context.Context, id uuid.UUID) (*entity.Product, error)
+	//FindByID(ctx context.Context, id uuid.UUID) (*entity.Product, error)
 }
 
-// Component Aggregate Root
 type ComponentRepository interface {
 	Save(ctx context.Context, component *entity.Component) error
 	FindByID(ctx context.Context, id uuid.UUID) (*entity.Component, error)

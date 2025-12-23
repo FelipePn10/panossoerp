@@ -20,6 +20,9 @@ type Product struct {
 	Code      string
 	GroupCode int16
 	Name      string
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type ProductMask struct {
