@@ -1,0 +1,27 @@
+package handler
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/FelipePn10/panossoerp/internal/application/dto"
+)
+
+func (h *UserHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
+	var login dto.RegisterUserDTO
+
+	if err := json.NewDecoder(r.Body).Decode(&login); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.registerUC.Execute(
+		r.Context(),
+		login,
+	); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}

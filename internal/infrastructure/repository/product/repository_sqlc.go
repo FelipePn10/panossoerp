@@ -7,10 +7,6 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
-type repositoryProductSQLC struct {
-	q *sqlc.Queries
-}
-
 func (r *repositoryProductSQLC) Save(
 	ctx context.Context,
 	product *entity.Product,

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/auth"
+	contextkey "github.com/FelipePn10/panossoerp/internal/interfaces/http/context"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -48,7 +49,11 @@ func JWT(secret string, logger Logger) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), "user", claims)
+			ctx := context.WithValue(
+				r.Context(),
+				contextkey.UserKey,
+				claims,
+			)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

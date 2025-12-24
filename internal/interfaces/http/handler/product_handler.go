@@ -7,7 +7,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/dto"
 )
 
-func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
+func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateProductDTO
 	json.NewDecoder(r.Body).Decode(&req)
 

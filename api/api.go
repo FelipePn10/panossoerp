@@ -12,6 +12,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
+	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler"
 	httpmw "github.com/FelipePn10/panossoerp/internal/interfaces/middleware"
 	"github.com/go-chi/chi/middleware"
@@ -54,16 +55,30 @@ func (app *application) mount() chi.Router {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(app.traceMiddleware)
 
-	//product
 	queries := app.db.Queries()
-	productRepo := product.NewRepositorySQLC(queries)
-	createProductUC := usecase.NewCreateProductUseCase(productRepo)
-	productHandler := handler.NewCreateProductHandler(createProductUC)
-	r.Post("/products", productHandler.CreateProduct)
+
+	userRepo := user.NewRepositoryUserSQLC(queries)
+	registerUserUC := usecase.NewRegisterUserUseCase(userRepo)
+	loginUserUC := usecase.NewLoginUserUseCase(userRepo)
+
+	userHandler := handler.NewUserHandler(
+		registerUserUC,
+		loginUserUC,
+		app.config.JWTSecret,
+	)
+
+	r.Route("/users", func(r chi.Router) {
+		r.Post("/register", userHandler.RegisterUserHandler)
+		r.Post("/login", userHandler.LoginHandler)
+	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
 
+		productRepo := product.NewRepositorySQLC(queries)
+		createProductUC := usecase.NewCreateProductUseCase(productRepo)
+		productHandler := handler.NewCreateProductHandler(createProductUC)
+		r.Post("/products", productHandler.CreateProduct)
 	})
 
 	// Health check
