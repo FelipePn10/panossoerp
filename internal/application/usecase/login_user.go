@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/FelipePn10/panossoerp/internal/application/dto"
+	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
 	"github.com/FelipePn10/panossoerp/internal/domain/user/repository"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -15,7 +15,7 @@ type LoginUserUseCase struct {
 
 func (uc *LoginUserUseCase) Execute(
 	ctx context.Context,
-	login dto.LoginUserDTO,
+	login request.LoginUserDTO,
 ) (string, error) {
 	user, err := uc.repo.FindByEmail(ctx, login.Email)
 	if err != nil {

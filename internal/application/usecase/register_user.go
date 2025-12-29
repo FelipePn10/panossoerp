@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/FelipePn10/panossoerp/internal/application/dto"
+	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
 	user "github.com/FelipePn10/panossoerp/internal/domain/user/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/user/repository"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ type RegisterUserUseCase struct {
 
 func (uc *RegisterUserUseCase) Execute(
 	ctx context.Context,
-	dto dto.RegisterUserDTO,
+	dto request.RegisterUserDTO,
 ) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
 	if err != nil {

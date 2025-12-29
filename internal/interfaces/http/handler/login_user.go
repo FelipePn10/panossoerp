@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/FelipePn10/panossoerp/internal/application/dto"
+	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/auth"
 )
 
 func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	var login dto.LoginUserDTO
+	var login request.LoginUserDTO
 
 	if err := json.NewDecoder(r.Body).Decode(&login); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)

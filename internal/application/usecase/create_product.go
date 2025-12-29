@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/FelipePn10/panossoerp/internal/application/dto"
+	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
 	"github.com/FelipePn10/panossoerp/internal/domain/product/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	"github.com/FelipePn10/panossoerp/internal/domain/product/valueobject"
@@ -16,7 +16,7 @@ type CreateProductUseCase struct {
 
 func (uc *CreateProductUseCase) Execute(
 	ctx context.Context,
-	dto dto.CreateProductDTO,
+	dto request.CreateProductDTO,
 ) error {
 	now := time.Now()
 

@@ -1,4 +1,4 @@
-package dto
+package request
 
 type RegisterUserDTO struct {
 	Name     string
