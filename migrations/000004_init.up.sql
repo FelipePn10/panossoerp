@@ -1,0 +1,3 @@
+ALTER TABLE products
+ALTER COLUMN group_code TYPE VARCHAR(20)
+USING group_code::VARCHAR;

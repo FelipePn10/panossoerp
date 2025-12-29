@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 type CreateProductDTO struct {
 	Code      string
-	GroupCode int16
+	GroupCode string
 	Name      string
 	CreatedBy uuid.UUID
 }

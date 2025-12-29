@@ -15,7 +15,7 @@ var (
 func NewProduct(
 	id uuid.UUID,
 	code string,
-	groupCode int16,
+	groupCode string,
 	name string,
 	createdBy uuid.UUID,
 ) (*Product, error) {
@@ -25,7 +25,7 @@ func NewProduct(
 		return nil, ErrInvalidCode
 	case name == "":
 		return nil, ErrInvalidName
-	case groupCode <= 0:
+	case groupCode <= "":
 		return nil, ErrInvalidGroupCode
 	case createdBy == uuid.Nil:
 		return nil, errors.New("createdBy cannot be nil UUID")

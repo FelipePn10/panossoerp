@@ -35,7 +35,7 @@ RETURNING id, code, group_code, name, created_by, created_at, updated_at
 type CreateProductParams struct {
 	ID        uuid.UUID
 	Code      string
-	GroupCode int16
+	GroupCode string
 	Name      string
 	CreatedBy uuid.UUID
 }

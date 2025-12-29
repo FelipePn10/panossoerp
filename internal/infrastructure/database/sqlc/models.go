@@ -91,7 +91,7 @@ type MaterialConsumption struct {
 type Product struct {
 	ID        uuid.UUID
 	Code      string
-	GroupCode int16
+	GroupCode string
 	Name      string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
