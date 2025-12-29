@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -33,9 +34,9 @@ RETURNING id, code, group_code, name, created_by, created_at, updated_at
 `
 
 type CreateProductParams struct {
-	ID        uuid.UUID
+	ID        int64
 	Code      string
-	GroupCode string
+	GroupCode sql.NullString
 	Name      string
 	CreatedBy uuid.UUID
 }
@@ -66,7 +67,7 @@ DELETE FROM products
 WHERE id = $1
 `
 
-func (q *Queries) DeleteProduct(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteProduct, id)
 	return err
 }

@@ -2,10 +2,10 @@ package product
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/product/entity"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
-	"github.com/google/uuid"
 )
 
 func (r *repositoryProductSQLC) Save(
@@ -13,13 +13,18 @@ func (r *repositoryProductSQLC) Save(
 	product *entity.Product,
 ) error {
 
-	dbProduct, err := r.q.CreateProduct(ctx, sqlc.CreateProductParams{
-		ID:        product.ID,
-		Code:      product.Code.String(),
-		GroupCode: product.GroupCode,
+	params := sqlc.CreateProductParams{
+		ID:   product.ID,
+		Code: product.Code.String(),
+		GroupCode: sql.NullString{
+			String: product.GroupCode,
+			Valid:  product.GroupCode != "",
+		},
 		Name:      product.Name,
 		CreatedBy: product.CreatedBy,
-	})
+	}
+
+	dbProduct, err := r.q.CreateProduct(ctx, params)
 	if err != nil {
 		return err
 	}
@@ -32,7 +37,7 @@ func (r *repositoryProductSQLC) Save(
 
 func (r *repositoryProductSQLC) Delete(
 	ctx context.Context,
-	id uuid.UUID,
+	id int64,
 ) error {
 	return r.q.DeleteProduct(ctx, id)
 }

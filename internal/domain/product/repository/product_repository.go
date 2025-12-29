@@ -9,7 +9,7 @@ import (
 
 type ProductRepository interface {
 	Save(ctx context.Context, product *entity.Product) error
-	Delete(ctx context.Context, id uuid.UUID) error
+	Delete(ctx context.Context, id int64) error
 	//FindByID(ctx context.Context, id uuid.UUID) (*entity.Product, error)
 }
 

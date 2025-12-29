@@ -3,16 +3,16 @@ package handler
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 )
 
 func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	log.Println("idParam:", idParam)
 
-	id, err := uuid.Parse(idParam)
+	id, err := strconv.ParseInt(idParam, 10, 64)
 
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)

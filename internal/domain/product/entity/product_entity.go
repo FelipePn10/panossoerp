@@ -16,7 +16,7 @@ const (
 )
 
 type Product struct {
-	ID        uuid.UUID
+	ID        int64
 	Code      valueobject.ProductCode
 	GroupCode string
 	Name      string
@@ -26,40 +26,40 @@ type Product struct {
 }
 
 type ProductMask struct {
-	ID         uuid.UUID
-	ProductID  uuid.UUID
-	Mask       string
-	MaskHash   string
-	BusinessID string
-	CreatedBy  uuid.UUID
-	CreatedAt  time.Time
+	ID        int64
+	ProductID int64
+	Mask      string
+	MaskHash  string
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
 }
 
 type Component struct {
-	ID        uuid.UUID
+	ID        int64
 	Code      string
 	Type      ContentType
+	CreatedBy uuid.UUID
 	CreatedAt time.Time
 }
 
 type ComponentMask struct {
-	ID          uuid.UUID
-	ComponentID uuid.UUID
+	ID          int64
+	ComponentID int64
 	Mask        string
 	MaskHash    string
-	BusinessID  string
+	CreatedBy   uuid.UUID
 	CreatedAt   time.Time
 }
 
 type MaskComposition struct {
-	ParentMaskID uuid.UUID
-	ChildMaskID  uuid.UUID
+	ParentMaskID int64
+	ChildMaskID  int64
 	Quantity     valueobject.Quantity
 }
 
 type MaterialConsumption struct {
-	ComponentMaskID uuid.UUID
-	MaterialID      uuid.UUID
+	ComponentMaskID int64
+	MaterialID      int64
 	Quantity        valueobject.Quantity
 	Unit            string
 }

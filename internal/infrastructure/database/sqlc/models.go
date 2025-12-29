@@ -6,92 +6,57 @@ package sqlc
 
 import (
 	"database/sql"
-	"database/sql/driver"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-type ComponentType string
-
-const (
-	ComponentTypeSTRUCTURE ComponentType = "STRUCTURE"
-	ComponentTypeSET       ComponentType = "SET"
-	ComponentTypeITEM      ComponentType = "ITEM"
-)
-
-func (e *ComponentType) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = ComponentType(s)
-	case string:
-		*e = ComponentType(s)
-	default:
-		return fmt.Errorf("unsupported scan type for ComponentType: %T", src)
-	}
-	return nil
+type ComplementA struct {
+	ID    int64
+	Value string
 }
 
-type NullComponentType struct {
-	ComponentType ComponentType
-	Valid         bool // Valid is true if ComponentType is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullComponentType) Scan(value interface{}) error {
-	if value == nil {
-		ns.ComponentType, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.ComponentType.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullComponentType) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.ComponentType), nil
+type ComplementB struct {
+	ID    int64
+	Value string
 }
 
 type Component struct {
-	ID        uuid.UUID
+	ID        int64
 	Code      string
 	Name      string
-	Type      ComponentType
-	CreatedAt time.Time
+	Type      interface{}
 	CreatedBy uuid.UUID
+	CreatedAt time.Time
 }
 
 type ComponentMask struct {
-	ID          uuid.UUID
-	ComponentID uuid.UUID
+	ID          int64
+	ComponentID int64
 	Mask        string
 	MaskHash    string
 	BusinessID  string
-	CreatedAt   time.Time
 	CreatedBy   uuid.UUID
+	CreatedAt   time.Time
 }
 
 type MaskComposition struct {
-	ParentMaskID uuid.UUID
-	ChildMaskID  uuid.UUID
+	ParentMaskID int64
+	ChildMaskID  int64
 	Quantity     string
 }
 
 type MaterialConsumption struct {
-	ComponentMaskID uuid.UUID
-	MaterialID      uuid.UUID
+	ComponentMaskID int64
+	MaterialID      int64
 	Quantity        string
 	Unit            string
 }
 
 type Product struct {
-	ID        uuid.UUID
+	ID        int64
 	Code      string
-	GroupCode string
+	GroupCode sql.NullString
 	Name      string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
@@ -99,18 +64,32 @@ type Product struct {
 }
 
 type ProductMask struct {
-	ID         uuid.UUID
-	ProductID  uuid.UUID
-	Mask       string
-	MaskHash   string
-	BusinessID string
+	ID          int64
+	ProductID   int64
+	ProductCode string
+	Mask        string
+	MaskHash    string
+	BusinessID  string
+	CreatedBy   uuid.UUID
+	CreatedAt   time.Time
+}
+
+type ProductQuestionAnswer struct {
+	ID         int64
+	ProductID  int64
+	QuestionID int64
+	Answer     string
 	CreatedBy  uuid.UUID
 	CreatedAt  time.Time
 }
 
-type Test struct {
-	ID        int64
-	CreatedAt sql.NullTime
+type Question struct {
+	ID            int64
+	Name          string
+	Createdby     uuid.UUID
+	ComplementAID int64
+	ComplementBID int64
+	CreatedAt     time.Time
 }
 
 type User struct {

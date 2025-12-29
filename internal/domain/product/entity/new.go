@@ -2,6 +2,7 @@ package entity
 
 import (
 	"errors"
+	"time"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/product/valueobject"
 	"github.com/google/uuid"
@@ -31,8 +32,9 @@ func NewProduct(
 		return nil, errors.New("createdBy cannot be nil UUID")
 	}
 
+	id := int64(time.Now().UnixNano())
 	return &Product{
-		ID:        uuid.New(),
+		ID:        id,
 		Code:      code,
 		GroupCode: groupCode,
 		Name:      name,
@@ -40,9 +42,9 @@ func NewProduct(
 	}, nil
 }
 
-func ValidateProductDeletion(id uuid.UUID) error {
-	if id == uuid.Nil {
-		return errors.New("id cannot be nil UUID")
+func ValidateProductDeletion(id int64) error {
+	if id == 0 {
+		return errors.New("product id must be greater than zero")
 	}
 	return nil
 }

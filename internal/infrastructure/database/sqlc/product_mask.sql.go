@@ -29,12 +29,12 @@ INSERT INTO product_masks (
     $6,
     NOW()
 )
-RETURNING id, product_id, mask, mask_hash, business_id, created_by, created_at
+RETURNING id, product_id, product_code, mask, mask_hash, business_id, created_by, created_at
 `
 
 type CreateProductMaskParams struct {
-	ID         uuid.UUID
-	ProductID  uuid.UUID
+	ID         int64
+	ProductID  int64
 	Mask       string
 	MaskHash   string
 	BusinessID string
@@ -54,6 +54,7 @@ func (q *Queries) CreateProductMask(ctx context.Context, arg CreateProductMaskPa
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
+		&i.ProductCode,
 		&i.Mask,
 		&i.MaskHash,
 		&i.BusinessID,
@@ -68,7 +69,7 @@ DELETE FROM product_masks
 WHERE id = $1
 `
 
-func (q *Queries) DeleteProductMask(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) DeleteProductMask(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteProductMask, id)
 	return err
 }
