@@ -8,6 +8,12 @@ func NewCreateProductHandler(createProductUC *usecase.CreateProductUseCase) *Pro
 	}
 }
 
+func NewDeleteProductHandler(deleteProductUC *usecase.DeleteProductUseCase) *ProductHandler {
+	return &ProductHandler{
+		deleteProductUC: deleteProductUC,
+	}
+}
+
 func NewUserHandler(
 	registerUC *usecase.RegisterUserUseCase,
 	loginUC *usecase.LoginUserUseCase,

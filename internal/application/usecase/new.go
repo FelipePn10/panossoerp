@@ -13,6 +13,14 @@ func NewCreateProductUseCase(
 	}
 }
 
+func NewDeleteProductUseCase(
+	repo repository.ProductRepository,
+) *DeleteProductUseCase {
+	return &DeleteProductUseCase{
+		repo: repo,
+	}
+}
+
 // func NewSearchByIDProductUseCase(
 // 	repo repository.ProductRepository,
 // ) *SearchByIDProductUseCase {

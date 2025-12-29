@@ -5,6 +5,7 @@ import (
 
 	"github.com/FelipePn10/panossoerp/internal/domain/product/entity"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
+	"github.com/google/uuid"
 )
 
 func (r *repositoryProductSQLC) Save(
@@ -27,6 +28,13 @@ func (r *repositoryProductSQLC) Save(
 	product.UpdatedAt = dbProduct.UpdatedAt
 
 	return nil
+}
+
+func (r *repositoryProductSQLC) Delete(
+	ctx context.Context,
+	id uuid.UUID,
+) error {
+	return r.q.DeleteProduct(ctx, id)
 }
 
 // func (r *repositoryProductSQLC) FindByID(

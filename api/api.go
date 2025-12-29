@@ -53,11 +53,13 @@ func (app *application) mount() chi.Router {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.StripSlashes)
 	r.Use(app.traceMiddleware)
 
 	queries := app.db.Queries()
 
 	userRepo := user.NewRepositoryUserSQLC(queries)
+
 	registerUserUC := usecase.NewRegisterUserUseCase(userRepo)
 	loginUserUC := usecase.NewLoginUserUseCase(userRepo)
 
@@ -73,12 +75,16 @@ func (app *application) mount() chi.Router {
 	})
 
 	productRepo := product.NewRepositorySQLC(queries)
+
 	createProductUC := usecase.NewCreateProductUseCase(productRepo)
-	productHandler := handler.NewCreateProductHandler(createProductUC)
+	deleteProductUC := usecase.NewDeleteProductUseCase(productRepo)
+
+	productCreateHandler := handler.NewCreateProductHandler(createProductUC)
+	productDeleteHandler := handler.NewDeleteProductHandler(deleteProductUC)
 
 	r.Route("/products", func(r chi.Router) {
-		r.Post("/create", productHandler.CreateProduct)
-
+		r.Post("/create", productCreateHandler.CreateProduct)
+		r.Delete("/{id}", productDeleteHandler.DeleteProduct)
 	})
 
 	r.Group(func(r chi.Router) {

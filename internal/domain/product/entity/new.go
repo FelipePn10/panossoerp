@@ -39,3 +39,10 @@ func NewProduct(
 		CreatedBy: createdBy,
 	}, nil
 }
+
+func ValidateProductDeletion(id uuid.UUID) error {
+	if id == uuid.Nil {
+		return errors.New("id cannot be nil UUID")
+	}
+	return nil
+}

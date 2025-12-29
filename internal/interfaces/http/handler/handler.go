@@ -4,6 +4,7 @@ import "github.com/FelipePn10/panossoerp/internal/application/usecase"
 
 type ProductHandler struct {
 	createProductUC *usecase.CreateProductUseCase
+	deleteProductUC *usecase.DeleteProductUseCase
 }
 
 type UserHandler struct {
