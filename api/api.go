@@ -72,13 +72,18 @@ func (app *application) mount() chi.Router {
 		r.Post("/login", userHandler.LoginHandler)
 	})
 
+	productRepo := product.NewRepositorySQLC(queries)
+	createProductUC := usecase.NewCreateProductUseCase(productRepo)
+	productHandler := handler.NewCreateProductHandler(createProductUC)
+
+	r.Route("/products", func(r chi.Router) {
+		r.Post("/create", productHandler.CreateProduct)
+
+	})
+
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
 
-		productRepo := product.NewRepositorySQLC(queries)
-		createProductUC := usecase.NewCreateProductUseCase(productRepo)
-		productHandler := handler.NewCreateProductHandler(createProductUC)
-		r.Post("/products", productHandler.CreateProduct)
 	})
 
 	// Health check
