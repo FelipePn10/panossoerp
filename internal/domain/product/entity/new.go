@@ -3,6 +3,7 @@ package entity
 import (
 	"errors"
 
+	"github.com/FelipePn10/panossoerp/internal/domain/product/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -13,15 +14,14 @@ var (
 )
 
 func NewProduct(
-	id uuid.UUID,
-	code string,
+	code valueobject.ProductCode,
 	groupCode string,
 	name string,
 	createdBy uuid.UUID,
 ) (*Product, error) {
 
 	switch {
-	case code == "":
+	case code == valueobject.ProductCode{}:
 		return nil, ErrInvalidCode
 	case name == "":
 		return nil, ErrInvalidName
@@ -32,7 +32,7 @@ func NewProduct(
 	}
 
 	return &Product{
-		ID:        id,
+		ID:        uuid.New(),
 		Code:      code,
 		GroupCode: groupCode,
 		Name:      name,

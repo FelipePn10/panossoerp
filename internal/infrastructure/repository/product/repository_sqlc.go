@@ -15,7 +15,7 @@ func (r *repositoryProductSQLC) Save(
 
 	dbProduct, err := r.q.CreateProduct(ctx, sqlc.CreateProductParams{
 		ID:        product.ID,
-		Code:      product.Code,
+		Code:      product.Code.String(),
 		GroupCode: product.GroupCode,
 		Name:      product.Name,
 		CreatedBy: product.CreatedBy,
