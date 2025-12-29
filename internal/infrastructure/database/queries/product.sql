@@ -17,3 +17,7 @@ INSERT INTO products (
     NOW()
 )
 RETURNING *;
+
+-- name: DeleteProduct :exec
+DELETE FROM products
+WHERE id = $1;
