@@ -1,22 +1,9 @@
--- name: CreateProductMask :one
-INSERT INTO product_masks (
-    id,
-    product_id,
-    mask,
-    mask_hash,
-    business_id,
-    created_by,
-    created_at
-) VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5,
-    $6,
-    NOW()
-)
-RETURNING *;
+-- name: GetProductMaskByProductID :one
+SELECT *
+FROM product_masks
+WHERE product_id = $1
+ORDER BY created_at DESC
+LIMIT 1;
 
 -- name: DeleteProductMask :exec
 DELETE FROM product_masks

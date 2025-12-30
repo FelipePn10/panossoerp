@@ -1,12 +1,13 @@
 package usecase
 
 import (
-	"github.com/FelipePn10/panossoerp/internal/domain/product/repository"
+	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
+	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	user "github.com/FelipePn10/panossoerp/internal/domain/user/repository"
 )
 
 func NewCreateProductUseCase(
-	repo repository.ProductRepository,
+	repo prdt.ProductRepository,
 ) *CreateProductUseCase {
 	return &CreateProductUseCase{
 		repo: repo,
@@ -14,7 +15,7 @@ func NewCreateProductUseCase(
 }
 
 func NewDeleteProductUseCase(
-	repo repository.ProductRepository,
+	repo prdt.ProductRepository,
 ) *DeleteProductUseCase {
 	return &DeleteProductUseCase{
 		repo: repo,
@@ -29,7 +30,9 @@ func NewDeleteProductUseCase(
 // 	}
 // }
 
-func NewLoginUserUseCase(repo user.UserRepository) *LoginUserUseCase {
+func NewLoginUserUseCase(
+	repo user.UserRepository,
+) *LoginUserUseCase {
 	return &LoginUserUseCase{repo: repo}
 }
 
@@ -37,4 +40,10 @@ func NewRegisterUserUseCase(
 	repo user.UserRepository,
 ) *RegisterUserUseCase {
 	return &RegisterUserUseCase{repo: repo}
+}
+
+func NewQuestionUserUseCase(
+	repo qst.QuestionsRepository,
+) *CreateQuestion {
+	return &CreateQuestion{repo: repo}
 }

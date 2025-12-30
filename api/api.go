@@ -12,6 +12,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
+	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler"
 	httpmw "github.com/FelipePn10/panossoerp/internal/interfaces/middleware"
@@ -69,12 +70,12 @@ func (app *application) mount() chi.Router {
 		app.config.JWTSecret,
 	)
 
-	r.Route("/users", func(r chi.Router) {
+	r.Route("/api/users", func(r chi.Router) {
 		r.Post("/register", userHandler.RegisterUserHandler)
 		r.Post("/login", userHandler.LoginHandler)
 	})
 
-	productRepo := product.NewRepositorySQLC(queries)
+	productRepo := product.NewRepositoryProductSQLC(queries)
 
 	createProductUC := usecase.NewCreateProductUseCase(productRepo)
 	deleteProductUC := usecase.NewDeleteProductUseCase(productRepo)
@@ -82,9 +83,17 @@ func (app *application) mount() chi.Router {
 	productCreateHandler := handler.NewCreateProductHandler(createProductUC)
 	productDeleteHandler := handler.NewDeleteProductHandler(deleteProductUC)
 
-	r.Route("/products", func(r chi.Router) {
+	r.Route("/api/products", func(r chi.Router) {
 		r.Post("/create", productCreateHandler.CreateProduct)
 		r.Delete("/{id}", productDeleteHandler.DeleteProduct)
+	})
+
+	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
+	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo)
+	questionCreateHandler := handler.NewQuestionHandler(createQuestionUC)
+
+	r.Route("/api/questions", func(r chi.Router) {
+		r.Post("/create", questionCreateHandler.CreateQuestion)
 	})
 
 	r.Group(func(r chi.Router) {

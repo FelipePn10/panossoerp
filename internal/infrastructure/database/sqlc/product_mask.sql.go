@@ -7,49 +7,28 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
-const createProductMask = `-- name: CreateProductMask :one
-INSERT INTO product_masks (
-    id,
-    product_id,
-    mask,
-    mask_hash,
-    business_id,
-    created_by,
-    created_at
-) VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5,
-    $6,
-    NOW()
-)
-RETURNING id, product_id, product_code, mask, mask_hash, business_id, created_by, created_at
+const deleteProductMask = `-- name: DeleteProductMask :exec
+DELETE FROM product_masks
+WHERE id = $1
 `
 
-type CreateProductMaskParams struct {
-	ID         int64
-	ProductID  int64
-	Mask       string
-	MaskHash   string
-	BusinessID string
-	CreatedBy  uuid.UUID
+func (q *Queries) DeleteProductMask(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteProductMask, id)
+	return err
 }
 
-func (q *Queries) CreateProductMask(ctx context.Context, arg CreateProductMaskParams) (ProductMask, error) {
-	row := q.db.QueryRowContext(ctx, createProductMask,
-		arg.ID,
-		arg.ProductID,
-		arg.Mask,
-		arg.MaskHash,
-		arg.BusinessID,
-		arg.CreatedBy,
-	)
+const getProductMaskByProductID = `-- name: GetProductMaskByProductID :one
+SELECT id, product_id, product_code, mask, mask_hash, business_id, created_by, created_at
+FROM product_masks
+WHERE product_id = $1
+ORDER BY created_at DESC
+LIMIT 1
+`
+
+func (q *Queries) GetProductMaskByProductID(ctx context.Context, productID int64) (ProductMask, error) {
+	row := q.db.QueryRowContext(ctx, getProductMaskByProductID, productID)
 	var i ProductMask
 	err := row.Scan(
 		&i.ID,
@@ -62,14 +41,4 @@ func (q *Queries) CreateProductMask(ctx context.Context, arg CreateProductMaskPa
 		&i.CreatedAt,
 	)
 	return i, err
-}
-
-const deleteProductMask = `-- name: DeleteProductMask :exec
-DELETE FROM product_masks
-WHERE id = $1
-`
-
-func (q *Queries) DeleteProductMask(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteProductMask, id)
-	return err
 }

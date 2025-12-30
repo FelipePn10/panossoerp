@@ -11,16 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type ComplementA struct {
-	ID    int64
-	Value string
-}
-
-type ComplementB struct {
-	ID    int64
-	Value string
-}
-
 type Component struct {
 	ID        int64
 	Code      string
@@ -84,12 +74,17 @@ type ProductQuestionAnswer struct {
 }
 
 type Question struct {
-	ID            int64
-	Name          string
-	Createdby     uuid.UUID
-	ComplementAID int64
-	ComplementBID int64
-	CreatedAt     time.Time
+	ID        int64
+	Name      string
+	Createdby uuid.UUID
+	CreatedAt time.Time
+}
+
+type QuestionOption struct {
+	ID         int64
+	QuestionID int64
+	Value      string
+	CreatedAt  time.Time
 }
 
 type User struct {

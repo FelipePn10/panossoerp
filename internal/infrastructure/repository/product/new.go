@@ -6,7 +6,7 @@ type repositoryProductSQLC struct {
 	q *sqlc.Queries
 }
 
-func NewRepositorySQLC(q *sqlc.Queries) *repositoryProductSQLC {
+func NewRepositoryProductSQLC(q *sqlc.Queries) *repositoryProductSQLC {
 	return &repositoryProductSQLC{
 		q: q,
 	}

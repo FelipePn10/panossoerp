@@ -12,3 +12,7 @@ type UserHandler struct {
 	loginUC    *usecase.LoginUserUseCase
 	jwtSecret  string
 }
+
+type QuestionHandler struct {
+	createQuestionUC *usecase.CreateQuestion
+}

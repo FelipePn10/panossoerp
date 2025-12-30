@@ -1,0 +1,15 @@
+CREATE TABLE complement_a (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    value TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE complement_b (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    value TEXT NOT NULL UNIQUE
+);
+
+ALTER TABLE questions
+ADD COLUMN complement_a_id BIGINT NOT NULL REFERENCES complement_a(id),
+ADD COLUMN complement_b_id BIGINT NOT NULL REFERENCES complement_b(id);
+
+DROP TABLE question_options;
