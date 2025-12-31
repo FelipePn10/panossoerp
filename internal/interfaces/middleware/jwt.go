@@ -17,6 +17,10 @@ type Logger interface {
 func JWT(secret string, logger Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodOptions {
+				next.ServeHTTP(w, r)
+				return
+			}
 
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
@@ -55,6 +59,30 @@ func JWT(secret string, logger Logger) func(http.Handler) http.Handler {
 				claims,
 			)
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func RequireRole(roles ...string) func(http.Handler) http.Handler {
+	roleSet := make(map[string]struct{})
+	for _, r := range roles {
+		roleSet[r] = struct{}{}
+	}
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			claims, ok := r.Context().Value(contextkey.UserKey).(*auth.UserClaims)
+			if !ok {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			if _, allowed := roleSet[claims.Role]; !allowed {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }

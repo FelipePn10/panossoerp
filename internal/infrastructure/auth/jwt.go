@@ -6,6 +6,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const (
+	RoleUser  = "user"
+	RoleAdmin = "admin"
+)
+
 type UserClaims struct {
 	UserID string `json:"sub"`
 	Role   string `json:"role"`

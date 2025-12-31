@@ -70,7 +70,7 @@ func (app *application) mount() chi.Router {
 		app.config.JWTSecret,
 	)
 
-	r.Route("/api/users", func(r chi.Router) {
+	r.Route("/users", func(r chi.Router) {
 		r.Post("/register", userHandler.RegisterUserHandler)
 		r.Post("/login", userHandler.LoginHandler)
 	})
@@ -83,11 +83,6 @@ func (app *application) mount() chi.Router {
 	productCreateHandler := handler.NewCreateProductHandler(createProductUC)
 	productDeleteHandler := handler.NewDeleteProductHandler(deleteProductUC)
 
-	r.Route("/api/products", func(r chi.Router) {
-		r.Post("/create", productCreateHandler.CreateProduct)
-		r.Delete("/{id}", productDeleteHandler.DeleteProduct)
-	})
-
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
 
 	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo)
@@ -96,16 +91,18 @@ func (app *application) mount() chi.Router {
 	questionCreateHandler := handler.NewQuestionHandler(createQuestionUC)
 	questionDeleteHandler := handler.NewDeleteQuestionHandler(deleteQuestionUC)
 
-	r.Route("/api/questions", func(r chi.Router) {
-		r.Post("/create", questionCreateHandler.CreateQuestion)
-		r.Delete("/{id}", questionDeleteHandler.DeleteQuestion)
-	})
-
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
 
+		r.Route("/api/products", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", productCreateHandler.CreateProduct)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", productDeleteHandler.DeleteProduct)
+		})
+		r.Route("/api/questions", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionDeleteHandler.DeleteQuestion)
+		})
 	})
-
 	// Health check
 	r.Get("/health", app.healthHandler)
 
