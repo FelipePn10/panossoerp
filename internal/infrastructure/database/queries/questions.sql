@@ -6,3 +6,12 @@ INSERT INTO questions (
     $1,
     $2
 ) RETURNING *;
+
+-- name: GetQuestionByID :one
+SELECT *
+FROM questions
+WHERE id = $1;
+
+-- name: DeleteQuestion :exec
+DELETE FROM questions
+WHERE id = $1;

@@ -37,3 +37,31 @@ func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) 
 	)
 	return i, err
 }
+
+const deleteQuestion = `-- name: DeleteQuestion :exec
+DELETE FROM questions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteQuestion(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteQuestion, id)
+	return err
+}
+
+const getQuestionByID = `-- name: GetQuestionByID :one
+SELECT id, name, createdby, created_at
+FROM questions
+WHERE id = $1
+`
+
+func (q *Queries) GetQuestionByID(ctx context.Context, id int64) (Question, error) {
+	row := q.db.QueryRowContext(ctx, getQuestionByID, id)
+	var i Question
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Createdby,
+		&i.CreatedAt,
+	)
+	return i, err
+}

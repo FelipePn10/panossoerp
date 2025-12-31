@@ -37,3 +37,11 @@ func NewQuestionHandler(
 		createQuestionUC: createQuestionUC,
 	}
 }
+
+func NewDeleteQuestionHandler(
+	deleteQuestionUC *usecase.DeleteQuestionUseCase,
+) *QuestionHandler {
+	return &QuestionHandler{
+		deleteQuestionUC: deleteQuestionUC,
+	}
+}

@@ -22,3 +22,10 @@ func NewQuestion(
 		CreatedBy: createdBy,
 	}, nil
 }
+
+func ValidateQuestionDeletion(id int64) error {
+	if id <= 0 {
+		return errors.New("product id must be greater than zero")
+	}
+	return nil
+}

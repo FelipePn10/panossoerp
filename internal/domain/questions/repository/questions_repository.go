@@ -8,5 +8,6 @@ import (
 
 type QuestionsRepository interface {
 	Save(ctx context.Context, qst *entity.Question) error
-	//Delete(ctx context.Context, qst *entity.QuestionAnswer)
+	Delete(ctx context.Context, id int64) error
+	//FindByID(ctx context.Context, id int64) (*entity.Question, error)
 }

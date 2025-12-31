@@ -89,11 +89,16 @@ func (app *application) mount() chi.Router {
 	})
 
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
+
 	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo)
+	deleteQuestionUC := usecase.NewDeleteQuestionUseCase(questionRepo)
+
 	questionCreateHandler := handler.NewQuestionHandler(createQuestionUC)
+	questionDeleteHandler := handler.NewDeleteQuestionHandler(deleteQuestionUC)
 
 	r.Route("/api/questions", func(r chi.Router) {
 		r.Post("/create", questionCreateHandler.CreateQuestion)
+		r.Delete("/{id}", questionDeleteHandler.DeleteQuestion)
 	})
 
 	r.Group(func(r chi.Router) {

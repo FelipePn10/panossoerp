@@ -17,3 +17,10 @@ func (r *repositoryQuestionSQLC) Save(
 	})
 	return err
 }
+
+func (r *repositoryQuestionSQLC) Delete(
+	ctx context.Context,
+	id int64,
+) error {
+	return r.q.DeleteQuestion(ctx, id)
+}

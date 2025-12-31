@@ -22,6 +22,14 @@ func NewDeleteProductUseCase(
 	}
 }
 
+func NewDeleteQuestionUseCase(
+	repo qst.QuestionsRepository,
+) *DeleteQuestionUseCase {
+	return &DeleteQuestionUseCase{
+		repo: repo,
+	}
+}
+
 // func NewSearchByIDProductUseCase(
 // 	repo repository.ProductRepository,
 // ) *SearchByIDProductUseCase {
