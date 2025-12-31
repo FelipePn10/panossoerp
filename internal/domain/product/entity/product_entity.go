@@ -17,7 +17,7 @@ const (
 
 type Product struct {
 	ID        int64
-	Code      valueobject.ProductCode
+	Code      string
 	GroupCode string
 	Name      string
 	CreatedBy uuid.UUID

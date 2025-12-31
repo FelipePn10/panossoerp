@@ -3,8 +3,9 @@ package handler
 import "github.com/FelipePn10/panossoerp/internal/application/usecase"
 
 type ProductHandler struct {
-	createProductUC *usecase.CreateProductUseCase
-	deleteProductUC *usecase.DeleteProductUseCase
+	createProductUC            *usecase.CreateProductUseCase
+	deleteProductUC            *usecase.DeleteProductUseCase
+	findProductByNameAndCodeUC *usecase.FindProductByNameAndCode
 }
 
 type UserHandler struct {

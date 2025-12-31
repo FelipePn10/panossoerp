@@ -79,9 +79,11 @@ func (app *application) mount() chi.Router {
 
 	createProductUC := usecase.NewCreateProductUseCase(productRepo)
 	deleteProductUC := usecase.NewDeleteProductUseCase(productRepo)
+	findProductByNameAndCodeUC := usecase.NewFindProductByNameAndCode(productRepo)
 
 	productCreateHandler := handler.NewCreateProductHandler(createProductUC)
 	productDeleteHandler := handler.NewDeleteProductHandler(deleteProductUC)
+	findProductByNameAndCodeHandler := handler.NewFindProductByNameAndCodeHandler(findProductByNameAndCodeUC)
 
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
 
@@ -97,6 +99,7 @@ func (app *application) mount() chi.Router {
 		r.Route("/api/products", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", productCreateHandler.CreateProduct)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", productDeleteHandler.DeleteProduct)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", findProductByNameAndCodeHandler.FindByNameAndCodeHandler)
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)

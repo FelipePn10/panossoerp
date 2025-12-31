@@ -18,6 +18,14 @@ func NewDeleteProductHandler(
 	}
 }
 
+func NewFindProductByNameAndCodeHandler(
+	findProductByNameAndCodeUC *usecase.FindProductByNameAndCode,
+) *ProductHandler {
+	return &ProductHandler{
+		findProductByNameAndCodeUC: findProductByNameAndCodeUC,
+	}
+}
+
 func NewUserHandler(
 	registerUC *usecase.RegisterUserUseCase,
 	loginUC *usecase.LoginUserUseCase,

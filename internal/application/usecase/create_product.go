@@ -26,7 +26,7 @@ func (uc *CreateProductUseCase) Execute(
 	}
 
 	product, err := entity.NewProduct(
-		code,
+		code.String(),
 		dto.GroupCode,
 		dto.Name,
 		dto.CreatedBy,

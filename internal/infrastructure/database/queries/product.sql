@@ -18,6 +18,11 @@ INSERT INTO products (
 )
 RETURNING *;
 
+-- name: FindByNameAndCode :one
+SELECT *
+FROM products
+WHERE name = $1 AND code = $2;
+
 -- name: DeleteProduct :exec
 DELETE FROM products
 WHERE id = $1;

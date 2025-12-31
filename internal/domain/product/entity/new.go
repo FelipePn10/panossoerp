@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/FelipePn10/panossoerp/internal/domain/product/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -15,14 +14,14 @@ var (
 )
 
 func NewProduct(
-	code valueobject.ProductCode,
+	code string,
 	groupCode string,
 	name string,
 	createdBy uuid.UUID,
 ) (*Product, error) {
 
 	switch {
-	case code == valueobject.ProductCode{}:
+	case code == "":
 		return nil, ErrInvalidCode
 	case name == "":
 		return nil, ErrInvalidName
