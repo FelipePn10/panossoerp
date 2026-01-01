@@ -13,6 +13,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
+	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler"
 	httpmw "github.com/FelipePn10/panossoerp/internal/interfaces/middleware"
@@ -75,6 +76,7 @@ func (app *application) mount() chi.Router {
 		r.Post("/login", userHandler.LoginHandler)
 	})
 
+	// product
 	productRepo := product.NewRepositoryProductSQLC(queries)
 
 	createProductUC := usecase.NewCreateProductUseCase(productRepo)
@@ -85,6 +87,7 @@ func (app *application) mount() chi.Router {
 	productDeleteHandler := handler.NewDeleteProductHandler(deleteProductUC)
 	findProductByNameAndCodeHandler := handler.NewFindProductByNameAndCodeHandler(findProductByNameAndCodeUC)
 
+	// question
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
 
 	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo)
@@ -93,6 +96,13 @@ func (app *application) mount() chi.Router {
 	questionCreateHandler := handler.NewQuestionHandler(createQuestionUC)
 	questionDeleteHandler := handler.NewDeleteQuestionHandler(deleteQuestionUC)
 
+	// question option
+	questionOptionRepo := questionsoptions.NewRepositoryQuestionOptionSQLC(queries)
+
+	createQuestionOptionUC := usecase.NewCreateQuestionOptionUseCase(questionOptionRepo)
+	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC)
+
+	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
 
@@ -104,6 +114,9 @@ func (app *application) mount() chi.Router {
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionDeleteHandler.DeleteQuestion)
+			r.Route("/options", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create-option", questionOptionCreateHandler.CreateQuestionOptionHandler)
+			})
 		})
 	})
 	// Health check

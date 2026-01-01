@@ -1,6 +1,8 @@
 package handler
 
-import "github.com/FelipePn10/panossoerp/internal/application/usecase"
+import (
+	"github.com/FelipePn10/panossoerp/internal/application/usecase"
+)
 
 func NewCreateProductHandler(
 	createProductUC *usecase.CreateProductUseCase,
@@ -51,5 +53,13 @@ func NewDeleteQuestionHandler(
 ) *QuestionHandler {
 	return &QuestionHandler{
 		deleteQuestionUC: deleteQuestionUC,
+	}
+}
+
+func NewCreateQuestionOptionHandler(
+	createQuestionOptionUC *usecase.CreateQuestionOptionUseCase,
+) *QuestionOptionHandler {
+	return &QuestionOptionHandler{
+		createQuestionOptionUC: createQuestionOptionUC,
 	}
 }

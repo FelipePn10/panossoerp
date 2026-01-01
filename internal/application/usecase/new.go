@@ -3,6 +3,7 @@ package usecase
 import (
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
+	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
 	user "github.com/FelipePn10/panossoerp/internal/domain/user/repository"
 )
 
@@ -62,4 +63,12 @@ func NewQuestionUserUseCase(
 	repo qst.QuestionsRepository,
 ) *CreateQuestion {
 	return &CreateQuestion{repo: repo}
+}
+
+func NewCreateQuestionOptionUseCase(
+	repo qstops.QuestionsOptionsRepository,
+) *CreateQuestionOptionUseCase {
+	return &CreateQuestionOptionUseCase{
+		repo: repo,
+	}
 }

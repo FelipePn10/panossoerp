@@ -85,6 +85,7 @@ type QuestionOption struct {
 	QuestionID int64
 	Value      string
 	CreatedAt  time.Time
+	Createdby  uuid.UUID
 }
 
 type User struct {
