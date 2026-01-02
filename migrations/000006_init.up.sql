@@ -30,7 +30,7 @@ BEGIN
         NEW.product_id,
         concatenated_mask,
         substr(md5(concatenated_mask), 1, 8),
-        'default_business', -- você pode mudar para parametrizável se quiser
+        'default_business',
         NEW.created_by,
         now()
     );
@@ -39,7 +39,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 4️⃣ Cria novo trigger
 CREATE TRIGGER trigger_generate_product_mask
 AFTER INSERT ON product_question_answers
 FOR EACH ROW
