@@ -18,3 +18,10 @@ func (r *repositoryQuestionOptionsSQLC) Save(
 	})
 	return err
 }
+
+func (r *repositoryQuestionOptionsSQLC) Delete(
+	ctx context.Context,
+	questionid int64,
+) error {
+	return r.q.DeleteQuestionOption(ctx, questionid)
+}

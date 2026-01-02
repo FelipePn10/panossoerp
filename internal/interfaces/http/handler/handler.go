@@ -21,4 +21,5 @@ type QuestionHandler struct {
 
 type QuestionOptionHandler struct {
 	createQuestionOptionUC *usecase.CreateQuestionOptionUseCase
+	deleteQuestionOptionUC *usecase.DeleteQuestionOptionUseCase
 }

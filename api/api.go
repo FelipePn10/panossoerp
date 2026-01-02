@@ -100,7 +100,10 @@ func (app *application) mount() chi.Router {
 	questionOptionRepo := questionsoptions.NewRepositoryQuestionOptionSQLC(queries)
 
 	createQuestionOptionUC := usecase.NewCreateQuestionOptionUseCase(questionOptionRepo)
+	deleteQuestionOptionUC := usecase.NewDeleteQuestionOptionUseCase(questionOptionRepo)
+
 	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC)
+	questionOptionDeleteHandler := handler.NewDeleteQuestionOptionHandler(deleteQuestionOptionUC)
 
 	// routes
 	r.Group(func(r chi.Router) {
@@ -116,6 +119,7 @@ func (app *application) mount() chi.Router {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionDeleteHandler.DeleteQuestion)
 			r.Route("/options", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create-option", questionOptionCreateHandler.CreateQuestionOptionHandler)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionOptionDeleteHandler.DeleteQuestionOption)
 			})
 		})
 	})

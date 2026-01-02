@@ -8,4 +8,5 @@ import (
 
 type QuestionsOptionsRepository interface {
 	Save(ctx context.Context, qstops *entity.QuestionsOptions) error
+	Delete(ctx context.Context, questionid int64) error
 }

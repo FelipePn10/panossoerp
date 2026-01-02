@@ -72,3 +72,10 @@ func NewCreateQuestionOptionUseCase(
 		repo: repo,
 	}
 }
+func NewDeleteQuestionOptionUseCase(
+	repo qstops.QuestionsOptionsRepository,
+) *DeleteQuestionOptionUseCase {
+	return &DeleteQuestionOptionUseCase{
+		repo: repo,
+	}
+}

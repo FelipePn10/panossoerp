@@ -27,7 +27,7 @@ func NewQuestionsOptions(
 
 func ValidateQuestionOptionDeletion(id int64) error {
 	if id <= 0 {
-		return errors.New("product id must be greater than zero")
+		return errors.New("question option id must be greater than zero")
 	}
 	return nil
 }

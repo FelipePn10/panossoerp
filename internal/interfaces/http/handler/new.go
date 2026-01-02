@@ -63,3 +63,11 @@ func NewCreateQuestionOptionHandler(
 		createQuestionOptionUC: createQuestionOptionUC,
 	}
 }
+
+func NewDeleteQuestionOptionHandler(
+	deleteQuestionOptionUC *usecase.DeleteQuestionOptionUseCase,
+) *QuestionOptionHandler {
+	return &QuestionOptionHandler{
+		deleteQuestionOptionUC: deleteQuestionOptionUC,
+	}
+}
