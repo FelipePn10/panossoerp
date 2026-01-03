@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
@@ -76,6 +77,14 @@ func NewDeleteQuestionOptionUseCase(
 	repo qstops.QuestionsOptionsRepository,
 ) *DeleteQuestionOptionUseCase {
 	return &DeleteQuestionOptionUseCase{
+		repo: repo,
+	}
+}
+
+func NewAssociateByQuestionProductUseCase(
+	repo repository.ProductQuestionsRepository,
+) *AssociateByQuestionProductUseCase {
+	return &AssociateByQuestionProductUseCase{
 		repo: repo,
 	}
 }

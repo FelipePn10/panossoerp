@@ -105,6 +105,12 @@ func (app *application) mount() chi.Router {
 	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC)
 	questionOptionDeleteHandler := handler.NewDeleteQuestionOptionHandler(deleteQuestionOptionUC)
 
+	// associate question in product
+	//productByQuestionProductRepo := productquestion.NewProductQuestionRepositorySQLC(queries)
+
+	// associateByQuestionProductUC := usecase.NewAssociateByQuestionProductUseCase(productByQuestionProductRepo)
+	// associateByQuestionProductHandler := handler.NewAssociateByQuestionProductHandler(associateByQuestionProductUC)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -121,6 +127,7 @@ func (app *application) mount() chi.Router {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create-option", questionOptionCreateHandler.CreateQuestionOptionHandler)
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionOptionDeleteHandler.DeleteQuestionOption)
 			})
+			//r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionProductHandler.AssociateQuestions)
 		})
 	})
 	// Health check

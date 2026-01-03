@@ -3,11 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/FelipePn10/panossoerp/internal/domain/product_questions/entity"
+	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/entity"
 )
 
 type ProductQuestionsRepository interface {
-	Create(ctx context.Context, pq *entity.ProductQuestion)
+	Create(ctx context.Context, pq *entity.ProductQuestion) error
 	ExistsByProductAndQuestion(
 		ctx context.Context,
 		productID int64,

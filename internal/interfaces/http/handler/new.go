@@ -71,3 +71,11 @@ func NewDeleteQuestionOptionHandler(
 		deleteQuestionOptionUC: deleteQuestionOptionUC,
 	}
 }
+
+func NewAssociateByQuestionProductHandler(
+	associateByQuestionProductUC *usecase.AssociateByQuestionProductUseCase,
+) *AssociateByQuestionProductHandler {
+	return &AssociateByQuestionProductHandler{
+		associateByQuestionProductUC: associateByQuestionProductUC,
+	}
+}

@@ -23,3 +23,7 @@ type QuestionOptionHandler struct {
 	createQuestionOptionUC *usecase.CreateQuestionOptionUseCase
 	deleteQuestionOptionUC *usecase.DeleteQuestionOptionUseCase
 }
+
+type AssociateByQuestionProductHandler struct {
+	associateByQuestionProductUC *usecase.AssociateByQuestionProductUseCase
+}

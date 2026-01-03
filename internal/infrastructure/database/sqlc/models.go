@@ -64,6 +64,13 @@ type ProductMask struct {
 	CreatedAt   time.Time
 }
 
+type ProductQuestion struct {
+	ProductID  int64
+	QuestionID int64
+	Position   int32
+	CreatedAt  time.Time
+}
+
 type ProductQuestionAnswer struct {
 	ID         int64
 	ProductID  int64
