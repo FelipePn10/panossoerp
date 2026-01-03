@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS release_question_for_product;
