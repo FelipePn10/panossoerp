@@ -1,4 +1,4 @@
--- name: CreateProductQuestion :exec
+-- name: AssociateQuestionProduct :exec
 INSERT INTO product_questions (
     product_id,
     question_id,
@@ -6,7 +6,7 @@ INSERT INTO product_questions (
     created_at
 ) VALUES ($1, $2, $3, $4);
 
--- name: ExistsProductQuestionByProductAndQuestion :one
+-- name: ExistsByProductAndQuestion :one
 SELECT EXISTS (
     SELECT 1
     FROM product_questions
@@ -14,7 +14,7 @@ SELECT EXISTS (
       AND question_id = $2
 );
 
--- name: ExistsProductQuestionByProductAndPosition :one
+-- name: ExistsByProductAndPosition :one
 SELECT EXISTS (
     SELECT 1
     FROM product_questions

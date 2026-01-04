@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-type ProductQuestion struct {
+type AssociateQuestion struct {
 	ProductID  int64
 	QuestionID int64
 	Position   int

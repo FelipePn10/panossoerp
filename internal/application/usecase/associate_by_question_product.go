@@ -15,7 +15,7 @@ var (
 )
 
 type AssociateByQuestionProductUseCase struct {
-	repo repository.ProductQuestionsRepository
+	repo repository.AssociateQuestionsRepository
 }
 
 func (uc *AssociateByQuestionProductUseCase) Execute(
@@ -34,10 +34,10 @@ func (uc *AssociateByQuestionProductUseCase) Execute(
 		return ErrQuestionAlreadyLinked
 	}
 
-	positionUsed, err := uc.repo.ExistsByProductAndPostion(
+	positionUsed, err := uc.repo.ExistsByProductAndPosition(
 		ctx,
 		dto.ProductID,
-		dto.QuestionID,
+		dto.Position,
 	)
 	if err != nil {
 		return err
@@ -55,5 +55,5 @@ func (uc *AssociateByQuestionProductUseCase) Execute(
 		return err
 	}
 
-	return uc.repo.Create(ctx, pq)
+	return uc.repo.Associate(ctx, pq)
 }

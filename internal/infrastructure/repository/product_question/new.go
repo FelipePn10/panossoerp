@@ -2,8 +2,12 @@ package productquestion
 
 import "github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 
-func NewProductQuestionRepositorySQLC(
+type AssociateQuestionProductRepository struct {
+	q *sqlc.Queries
+}
+
+func NewAssociateQuestionProductRepositorySQLC(
 	q *sqlc.Queries,
-) *ProductQuestionRepository {
-	return &ProductQuestionRepository{q: q}
+) *AssociateQuestionProductRepository {
+	return &AssociateQuestionProductRepository{q: q}
 }

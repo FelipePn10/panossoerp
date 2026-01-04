@@ -13,12 +13,12 @@ func New(
 	productID int64,
 	questionId int64,
 	position int,
-) (*ProductQuestion, error) {
+) (*AssociateQuestion, error) {
 	if position <= 0 {
 		return nil, ErrInvalidPosition
 	}
 
-	return &ProductQuestion{
+	return &AssociateQuestion{
 		ProductID:  productID,
 		QuestionID: questionId,
 		Position:   position,

@@ -7,15 +7,11 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
-type ProductQuestionRepository struct {
-	q *sqlc.Queries
-}
-
-func (r *ProductQuestionRepository) Create(
+func (r *AssociateQuestionProductRepository) Associate(
 	ctx context.Context,
-	pq *entity.ProductQuestion,
+	pq *entity.AssociateQuestion,
 ) error {
-	return r.q.CreateProductQuestion(ctx, sqlc.CreateProductQuestionParams{
+	return r.q.AssociateQuestionProduct(ctx, sqlc.AssociateQuestionProductParams{
 		ProductID:  pq.ProductID,
 		QuestionID: pq.QuestionID,
 		Position:   int32(pq.Position),
@@ -23,32 +19,24 @@ func (r *ProductQuestionRepository) Create(
 	})
 }
 
-func (r *ProductQuestionRepository) ExistsByProductAndQuestion(
+func (r *AssociateQuestionProductRepository) ExistsByProductAndQuestion(
 	ctx context.Context,
 	productID int64,
 	questionID int64,
 ) (bool, error) {
-
-	return r.q.ExistsProductQuestionByProductAndQuestion(
-		ctx,
-		sqlc.ExistsProductQuestionByProductAndQuestionParams{
-			ProductID:  productID,
-			QuestionID: questionID,
-		},
-	)
+	return r.q.ExistsByProductAndQuestion(ctx, sqlc.ExistsByProductAndQuestionParams{
+		ProductID:  productID,
+		QuestionID: questionID,
+	})
 }
 
-func (r *ProductQuestionRepository) ExistsByProductAndPosition(
+func (r *AssociateQuestionProductRepository) ExistsByProductAndPosition(
 	ctx context.Context,
 	productID int64,
 	position int,
 ) (bool, error) {
-
-	return r.q.ExistsProductQuestionByProductAndPosition(
-		ctx,
-		sqlc.ExistsProductQuestionByProductAndPositionParams{
-			ProductID: productID,
-			Position:  int32(position),
-		},
-	)
+	return r.q.ExistsByProductAndPosition(ctx, sqlc.ExistsByProductAndPositionParams{
+		ProductID: productID,
+		Position:  int32(position),
+	})
 }

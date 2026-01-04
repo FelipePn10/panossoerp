@@ -12,6 +12,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
+	productquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
@@ -106,10 +107,10 @@ func (app *application) mount() chi.Router {
 	questionOptionDeleteHandler := handler.NewDeleteQuestionOptionHandler(deleteQuestionOptionUC)
 
 	// associate question in product
-	//productByQuestionProductRepo := productquestion.NewProductQuestionRepositorySQLC(queries)
+	productByQuestionProductRepo := productquestion.NewAssociateQuestionProductRepositorySQLC(queries)
 
-	// associateByQuestionProductUC := usecase.NewAssociateByQuestionProductUseCase(productByQuestionProductRepo)
-	// associateByQuestionProductHandler := handler.NewAssociateByQuestionProductHandler(associateByQuestionProductUC)
+	associateByQuestionProductUC := usecase.NewAssociateByQuestionProductUseCase(productByQuestionProductRepo)
+	associateByQuestionProductHandler := handler.NewAssociateByQuestionProductHandler(associateByQuestionProductUC)
 
 	// routes
 	r.Group(func(r chi.Router) {
@@ -127,7 +128,7 @@ func (app *application) mount() chi.Router {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create-option", questionOptionCreateHandler.CreateQuestionOptionHandler)
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionOptionDeleteHandler.DeleteQuestionOption)
 			})
-			//r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionProductHandler.AssociateQuestions)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionProductHandler.AssociateQuestions)
 		})
 	})
 	// Health check

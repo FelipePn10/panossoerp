@@ -6,16 +6,16 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/entity"
 )
 
-type ProductQuestionsRepository interface {
-	Create(ctx context.Context, pq *entity.ProductQuestion) error
+type AssociateQuestionsRepository interface {
+	Associate(ctx context.Context, pq *entity.AssociateQuestion) error
 	ExistsByProductAndQuestion(
 		ctx context.Context,
 		productID int64,
 		questionID int64,
 	) (bool, error)
-	ExistsByProductAndPostion(
+	ExistsByProductAndPosition(
 		ctx context.Context,
 		productID int64,
-		questionID int64,
+		position int,
 	) (bool, error)
 }

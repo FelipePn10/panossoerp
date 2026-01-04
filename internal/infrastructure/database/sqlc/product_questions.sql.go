@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const createProductQuestion = `-- name: CreateProductQuestion :exec
+const associateQuestionProduct = `-- name: AssociateQuestionProduct :exec
 INSERT INTO product_questions (
     product_id,
     question_id,
@@ -19,15 +19,15 @@ INSERT INTO product_questions (
 ) VALUES ($1, $2, $3, $4)
 `
 
-type CreateProductQuestionParams struct {
+type AssociateQuestionProductParams struct {
 	ProductID  int64
 	QuestionID int64
 	Position   int32
 	CreatedAt  time.Time
 }
 
-func (q *Queries) CreateProductQuestion(ctx context.Context, arg CreateProductQuestionParams) error {
-	_, err := q.db.ExecContext(ctx, createProductQuestion,
+func (q *Queries) AssociateQuestionProduct(ctx context.Context, arg AssociateQuestionProductParams) error {
+	_, err := q.db.ExecContext(ctx, associateQuestionProduct,
 		arg.ProductID,
 		arg.QuestionID,
 		arg.Position,
@@ -36,7 +36,7 @@ func (q *Queries) CreateProductQuestion(ctx context.Context, arg CreateProductQu
 	return err
 }
 
-const existsProductQuestionByProductAndPosition = `-- name: ExistsProductQuestionByProductAndPosition :one
+const existsByProductAndPosition = `-- name: ExistsByProductAndPosition :one
 SELECT EXISTS (
     SELECT 1
     FROM product_questions
@@ -45,19 +45,19 @@ SELECT EXISTS (
 )
 `
 
-type ExistsProductQuestionByProductAndPositionParams struct {
+type ExistsByProductAndPositionParams struct {
 	ProductID int64
 	Position  int32
 }
 
-func (q *Queries) ExistsProductQuestionByProductAndPosition(ctx context.Context, arg ExistsProductQuestionByProductAndPositionParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, existsProductQuestionByProductAndPosition, arg.ProductID, arg.Position)
+func (q *Queries) ExistsByProductAndPosition(ctx context.Context, arg ExistsByProductAndPositionParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, existsByProductAndPosition, arg.ProductID, arg.Position)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
 }
 
-const existsProductQuestionByProductAndQuestion = `-- name: ExistsProductQuestionByProductAndQuestion :one
+const existsByProductAndQuestion = `-- name: ExistsByProductAndQuestion :one
 SELECT EXISTS (
     SELECT 1
     FROM product_questions
@@ -66,13 +66,13 @@ SELECT EXISTS (
 )
 `
 
-type ExistsProductQuestionByProductAndQuestionParams struct {
+type ExistsByProductAndQuestionParams struct {
 	ProductID  int64
 	QuestionID int64
 }
 
-func (q *Queries) ExistsProductQuestionByProductAndQuestion(ctx context.Context, arg ExistsProductQuestionByProductAndQuestionParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, existsProductQuestionByProductAndQuestion, arg.ProductID, arg.QuestionID)
+func (q *Queries) ExistsByProductAndQuestion(ctx context.Context, arg ExistsByProductAndQuestionParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, existsByProductAndQuestion, arg.ProductID, arg.QuestionID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err

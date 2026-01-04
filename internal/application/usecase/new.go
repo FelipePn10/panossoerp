@@ -82,7 +82,7 @@ func NewDeleteQuestionOptionUseCase(
 }
 
 func NewAssociateByQuestionProductUseCase(
-	repo repository.ProductQuestionsRepository,
+	repo repository.AssociateQuestionsRepository,
 ) *AssociateByQuestionProductUseCase {
 	return &AssociateByQuestionProductUseCase{
 		repo: repo,
