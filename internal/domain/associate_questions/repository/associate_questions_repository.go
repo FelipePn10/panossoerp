@@ -10,7 +10,7 @@ type AssociateQuestionsRepository interface {
 	Associate(ctx context.Context, pq *entity.AssociateQuestion) error
 	ExistsByProductAndQuestion(
 		ctx context.Context,
-		productID int64,
+		ProductID int64,
 		questionID int64,
 	) (bool, error)
 	ExistsByProductAndPosition(

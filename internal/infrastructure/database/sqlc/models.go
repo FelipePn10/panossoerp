@@ -55,13 +55,19 @@ type Product struct {
 
 type ProductMask struct {
 	ID          int64
-	ProductID   int64
 	ProductCode string
 	Mask        string
 	MaskHash    string
-	BusinessID  string
 	CreatedBy   uuid.UUID
 	CreatedAt   time.Time
+}
+
+type ProductMaskAnswer struct {
+	ID         int64
+	QuestionID int64
+	OptionID   int64
+	Position   int32
+	MaskID     int64
 }
 
 type ProductQuestion struct {

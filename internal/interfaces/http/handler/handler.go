@@ -27,3 +27,7 @@ type QuestionOptionHandler struct {
 type AssociateByQuestionProductHandler struct {
 	associateByQuestionProductUC *usecase.AssociateByQuestionProductUseCase
 }
+
+type GenerateMaskHandler struct {
+	generateMask *usecase.GenerateMaskForProduct
+}
