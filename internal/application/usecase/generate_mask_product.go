@@ -33,7 +33,7 @@ func (uc *GenerateMaskForProduct) Execute(
 		answers = append(answers, answer)
 	}
 
-	mask, err := valueobject.NewProductMask(answers)
+	mask, err := valueobject.NewProductMask(dto.ProductCode, dto.CreatedBy, answers)
 	if err != nil {
 		return err
 	}
@@ -45,5 +45,5 @@ func (uc *GenerateMaskForProduct) Execute(
 		CreatedBy:   dto.CreatedBy,
 	}
 
-	return uc.repo.Generate(ctx, productMask)
+	return uc.repo.Generate(ctx, &productMask)
 }

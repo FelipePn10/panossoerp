@@ -1,7 +1,7 @@
--- name: GetProductMaskByProductID :one
+-- name: GetProductMaskByProductCode :one
 SELECT *
 FROM product_masks
-WHERE product_id = $1
+WHERE product_code = $1
 ORDER BY created_at DESC
 LIMIT 1;
 

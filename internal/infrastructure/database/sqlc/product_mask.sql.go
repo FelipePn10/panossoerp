@@ -19,24 +19,22 @@ func (q *Queries) DeleteProductMask(ctx context.Context, id int64) error {
 	return err
 }
 
-const getProductMaskByProductID = `-- name: GetProductMaskByProductID :one
-SELECT id, product_id, product_code, mask, mask_hash, business_id, created_by, created_at
+const getProductMaskByProductCode = `-- name: GetProductMaskByProductCode :one
+SELECT id, product_code, mask, mask_hash, created_by, created_at
 FROM product_masks
-WHERE product_id = $1
+WHERE product_code = $1
 ORDER BY created_at DESC
 LIMIT 1
 `
 
-func (q *Queries) GetProductMaskByProductID(ctx context.Context, productID int64) (ProductMask, error) {
-	row := q.db.QueryRowContext(ctx, getProductMaskByProductID, productID)
+func (q *Queries) GetProductMaskByProductCode(ctx context.Context, productCode string) (ProductMask, error) {
+	row := q.db.QueryRowContext(ctx, getProductMaskByProductCode, productCode)
 	var i ProductMask
 	err := row.Scan(
 		&i.ID,
-		&i.ProductID,
 		&i.ProductCode,
 		&i.Mask,
 		&i.MaskHash,
-		&i.BusinessID,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)

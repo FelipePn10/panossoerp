@@ -1,6 +1,8 @@
 package valueobject
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"sort"
 	"strconv"
@@ -20,6 +22,7 @@ type ProductMask struct {
 	createdBy   uuid.UUID
 	answers     []MaskAnswer
 	mask        string
+	hash        string
 }
 
 func NewMaskAnswer(questionID, optionID int64, position int) (MaskAnswer, error) {
@@ -50,11 +53,15 @@ func NewProductMask(productCode string, createdBy uuid.UUID, answers []MaskAnswe
 
 	mask := generateMask(answers)
 
+	h := sha256.Sum256([]byte(mask))
+	hash := hex.EncodeToString(h[:])[:8]
+
 	return ProductMask{
 		productCode: productCode,
 		createdBy:   createdBy,
 		answers:     answers,
 		mask:        mask,
+		hash:        hash,
 	}, nil
 }
 
@@ -69,4 +76,24 @@ func generateMask(answers []MaskAnswer) string {
 	}
 
 	return strings.Join(values, "#")
+}
+
+func (pm ProductMask) Value() string {
+	return pm.mask
+}
+
+func (pm ProductMask) Hash() string {
+	return pm.hash
+}
+
+func (ma MaskAnswer) QuestionID() int64 {
+	return ma.questionID
+}
+
+func (ma MaskAnswer) OptionID() int64 {
+	return ma.optionID
+}
+
+func (ma MaskAnswer) Position() int {
+	return ma.position
 }

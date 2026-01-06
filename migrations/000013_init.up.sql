@@ -1,4 +1,4 @@
-CREATE TABLE product_masks (
+CREATE TABLE IF NOT EXISTS product_masks (
     id BIGINT PRIMARY KEY,
     product_code VARCHAR(10) NOT NULL,
     mask TEXT NOT NULL,

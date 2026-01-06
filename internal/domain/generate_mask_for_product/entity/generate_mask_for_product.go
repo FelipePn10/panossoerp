@@ -3,6 +3,7 @@ package entity
 import (
 	"time"
 
+	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -13,4 +14,5 @@ type ProductMask struct {
 	MaskHash    string
 	CreatedBy   uuid.UUID
 	CreatedAt   time.Time
+	Answers     []valueobject.MaskAnswer
 }
