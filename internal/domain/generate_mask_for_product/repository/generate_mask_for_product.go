@@ -8,4 +8,5 @@ import (
 
 type GenerateMaskForProductRepository interface {
 	Generate(ctx context.Context, mask *entity.ProductMask) error
+	GetOptionValue(ctx context.Context, optionID int64) (string, error)
 }

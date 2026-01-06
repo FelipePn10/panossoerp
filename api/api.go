@@ -11,6 +11,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
+	generatemask "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/generate_mask"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
 	productquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
@@ -112,6 +113,12 @@ func (app *application) mount() chi.Router {
 	associateByQuestionProductUC := usecase.NewAssociateByQuestionProductUseCase(productByQuestionProductRepo)
 	associateByQuestionProductHandler := handler.NewAssociateByQuestionProductHandler(associateByQuestionProductUC)
 
+	// generate mask product
+	generateMaskProduct := generatemask.NewRepositoryGenerateMaskSQLC(queries)
+
+	generateMaskProductUC := usecase.NewGenerateMaskProductUseCase(generateMaskProduct)
+	generateMaskProductHandler := handler.NewGeneratMaskProductHandler(generateMaskProductUC)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -129,6 +136,9 @@ func (app *application) mount() chi.Router {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionOptionDeleteHandler.DeleteQuestionOption)
 			})
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionProductHandler.AssociateQuestions)
+		})
+		r.Route("/api/mask", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", generateMaskProductHandler.GenerateMask)
 		})
 	})
 	// Health check

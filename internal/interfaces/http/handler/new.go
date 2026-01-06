@@ -79,3 +79,11 @@ func NewAssociateByQuestionProductHandler(
 		associateByQuestionProductUC: associateByQuestionProductUC,
 	}
 }
+
+func NewGeneratMaskProductHandler(
+	generateMaskProductUC *usecase.GenerateMaskForProductUseCase,
+) *GenerateMaskHandler {
+	return &GenerateMaskHandler{
+		generateMask: generateMaskProductUC,
+	}
+}

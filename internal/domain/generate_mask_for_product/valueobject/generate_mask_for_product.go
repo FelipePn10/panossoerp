@@ -5,16 +5,16 @@ import (
 	"encoding/hex"
 	"errors"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
 )
 
 type MaskAnswer struct {
-	questionID int64
-	optionID   int64
-	position   int
+	questionID  int64
+	optionID    int64
+	optionValue string
+	position    int
 }
 
 type ProductMask struct {
@@ -25,7 +25,7 @@ type ProductMask struct {
 	hash        string
 }
 
-func NewMaskAnswer(questionID, optionID int64, position int) (MaskAnswer, error) {
+func NewMaskAnswer(questionID, optionID int64, position int, value string) (MaskAnswer, error) {
 	if questionID <= 0 {
 		return MaskAnswer{}, errors.New("invalid question id")
 	}
@@ -35,15 +35,19 @@ func NewMaskAnswer(questionID, optionID int64, position int) (MaskAnswer, error)
 	if position <= 0 {
 		return MaskAnswer{}, errors.New("invalid position")
 	}
+	if value == "" {
+		return MaskAnswer{}, errors.New("invalid option value")
+	}
 
 	return MaskAnswer{
-		questionID: questionID,
-		optionID:   optionID,
-		position:   position,
+		questionID:  questionID,
+		optionID:    optionID,
+		optionValue: value,
+		position:    position,
 	}, nil
 }
 
-func NewProductMask(productCode string, createdBy uuid.UUID, answers []MaskAnswer) (ProductMask, error) {
+func NewProductMask(productCode string, answers []MaskAnswer) (ProductMask, error) {
 	if productCode == "" {
 		return ProductMask{}, errors.New("invalid product code")
 	}
@@ -58,7 +62,6 @@ func NewProductMask(productCode string, createdBy uuid.UUID, answers []MaskAnswe
 
 	return ProductMask{
 		productCode: productCode,
-		createdBy:   createdBy,
 		answers:     answers,
 		mask:        mask,
 		hash:        hash,
@@ -72,12 +75,13 @@ func generateMask(answers []MaskAnswer) string {
 
 	values := make([]string, 0, len(answers))
 	for _, a := range answers {
-		values = append(values, strconv.FormatInt(a.optionID, 10))
+		values = append(values, a.optionValue)
 	}
 
 	return strings.Join(values, "#")
 }
 
+// Getters
 func (pm ProductMask) Value() string {
 	return pm.mask
 }

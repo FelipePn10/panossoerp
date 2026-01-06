@@ -1,10 +1,7 @@
 package request
 
-import "github.com/google/uuid"
-
 type GenerateMaskProductRequestDTO struct {
 	ProductCode string            `json:"product_code"`
-	CreatedBy   uuid.UUID         `json:"created_by"`
 	Answers     []MaskAnswerInput `json:"answers"`
 }
 

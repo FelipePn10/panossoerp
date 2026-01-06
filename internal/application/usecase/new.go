@@ -1,7 +1,8 @@
 package usecase
 
 import (
-	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
+	ast "github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
+	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
@@ -82,9 +83,17 @@ func NewDeleteQuestionOptionUseCase(
 }
 
 func NewAssociateByQuestionProductUseCase(
-	repo repository.AssociateQuestionsRepository,
+	repo ast.AssociateQuestionsRepository,
 ) *AssociateByQuestionProductUseCase {
 	return &AssociateByQuestionProductUseCase{
+		repo: repo,
+	}
+}
+
+func NewGenerateMaskProductUseCase(
+	repo repository.GenerateMaskForProductRepository,
+) *GenerateMaskForProductUseCase {
+	return &GenerateMaskForProductUseCase{
 		repo: repo,
 	}
 }
