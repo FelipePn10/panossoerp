@@ -43,7 +43,7 @@ func NewMaskAnswer(questionID, optionID int64, position int) (MaskAnswer, error)
 	}, nil
 }
 
-func NewProductMask(productCode string, createdBy uuid.UUID, answers []MaskAnswer) (ProductMask, error) {
+func NewProductMask(productCode string, answers []MaskAnswer) (ProductMask, error) {
 	if productCode == "" {
 		return ProductMask{}, errors.New("invalid product code")
 	}
@@ -58,7 +58,6 @@ func NewProductMask(productCode string, createdBy uuid.UUID, answers []MaskAnswe
 
 	return ProductMask{
 		productCode: productCode,
-		createdBy:   createdBy,
 		answers:     answers,
 		mask:        mask,
 		hash:        hash,
@@ -78,6 +77,7 @@ func generateMask(answers []MaskAnswer) string {
 	return strings.Join(values, "#")
 }
 
+// Getters
 func (pm ProductMask) Value() string {
 	return pm.mask
 }
