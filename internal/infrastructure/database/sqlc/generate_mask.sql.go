@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+const getOptionValueByID = `-- name: GetOptionValueByID :one
+SELECT value FROM question_options WHERE id = $1
+`
+
+// SQLC query
+func (q *Queries) GetOptionValueByID(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getOptionValueByID, id)
+	var value string
+	err := row.Scan(&value)
+	return value, err
+}
+
 const insertProductMask = `-- name: InsertProductMask :one
 INSERT INTO product_masks (
     product_code, 

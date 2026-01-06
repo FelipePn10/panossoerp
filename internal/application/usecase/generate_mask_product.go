@@ -34,10 +34,16 @@ func (uc *GenerateMaskForProductUseCase) Execute(
 	answers := make([]valueobject.MaskAnswer, 0, len(dto.Answers))
 
 	for _, a := range dto.Answers {
+		optionValue, err := uc.repo.GetOptionValue(ctx, a.OptionID)
+		if err != nil {
+			return err
+		}
+
 		answer, err := valueobject.NewMaskAnswer(
 			a.QuestionID,
 			a.OptionID,
 			a.Position,
+			optionValue,
 		)
 		if err != nil {
 			return err

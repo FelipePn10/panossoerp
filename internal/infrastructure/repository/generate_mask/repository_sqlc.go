@@ -35,3 +35,11 @@ func (r *repositoryGenerateMaskSQLC) Generate(
 	}
 	return nil
 }
+
+func (r *repositoryGenerateMaskSQLC) GetOptionValue(ctx context.Context, optionID int64) (string, error) {
+	value, err := r.q.GetOptionValueByID(ctx, optionID)
+	if err != nil {
+		return "", err
+	}
+	return value, nil
+}
