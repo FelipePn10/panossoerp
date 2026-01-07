@@ -28,6 +28,14 @@ func NewFindProductByNameAndCodeHandler(
 	}
 }
 
+func NewFindQuestionByName(
+	findQuestionByNameUC *usecase.FindQuestionByName,
+) *QuestionHandler {
+	return &QuestionHandler{
+		findQuestionByNameUC: findQuestionByNameUC,
+	}
+}
+
 func NewUserHandler(
 	registerUC *usecase.RegisterUserUseCase,
 	loginUC *usecase.LoginUserUseCase,

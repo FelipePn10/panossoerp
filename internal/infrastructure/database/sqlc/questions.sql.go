@@ -48,6 +48,24 @@ func (q *Queries) DeleteQuestion(ctx context.Context, id int64) error {
 	return err
 }
 
+const findQuestionByNameAndCode = `-- name: FindQuestionByNameAndCode :one
+SELECT id, name, createdby, created_at
+FROM questions
+WHERE name = $1
+`
+
+func (q *Queries) FindQuestionByNameAndCode(ctx context.Context, name string) (Question, error) {
+	row := q.db.QueryRowContext(ctx, findQuestionByNameAndCode, name)
+	var i Question
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Createdby,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getQuestionByID = `-- name: GetQuestionByID :one
 SELECT id, name, createdby, created_at
 FROM questions

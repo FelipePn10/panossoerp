@@ -94,9 +94,11 @@ func (app *application) mount() chi.Router {
 
 	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo)
 	deleteQuestionUC := usecase.NewDeleteQuestionUseCase(questionRepo)
+	findQuestionByNameUC := usecase.NewFindQuestionByName(questionRepo)
 
 	questionCreateHandler := handler.NewQuestionHandler(createQuestionUC)
 	questionDeleteHandler := handler.NewDeleteQuestionHandler(deleteQuestionUC)
+	findQuestionByNameHandler := handler.NewFindQuestionByName(findQuestionByNameUC)
 
 	// question option
 	questionOptionRepo := questionsoptions.NewRepositoryQuestionOptionSQLC(queries)
@@ -131,6 +133,7 @@ func (app *application) mount() chi.Router {
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionDeleteHandler.DeleteQuestion)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", findQuestionByNameHandler.FindQuestionByName)
 			r.Route("/options", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create-option", questionOptionCreateHandler.CreateQuestionOptionHandler)
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionOptionDeleteHandler.DeleteQuestionOption)

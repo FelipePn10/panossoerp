@@ -15,8 +15,9 @@ type UserHandler struct {
 }
 
 type QuestionHandler struct {
-	createQuestionUC *usecase.CreateQuestion
-	deleteQuestionUC *usecase.DeleteQuestionUseCase
+	createQuestionUC     *usecase.CreateQuestion
+	deleteQuestionUC     *usecase.DeleteQuestionUseCase
+	findQuestionByNameUC *usecase.FindQuestionByName
 }
 
 type QuestionOptionHandler struct {

@@ -33,6 +33,14 @@ func NewFindProductByNameAndCode(
 	}
 }
 
+func NewFindQuestionByName(
+	repo qst.QuestionsRepository,
+) *FindQuestionByName {
+	return &FindQuestionByName{
+		repo: repo,
+	}
+}
+
 func NewDeleteQuestionUseCase(
 	repo qst.QuestionsRepository,
 ) *DeleteQuestionUseCase {

@@ -24,3 +24,17 @@ func (r *repositoryQuestionSQLC) Delete(
 ) error {
 	return r.q.DeleteQuestion(ctx, id)
 }
+
+func (r *repositoryQuestionSQLC) FindQuestionByName(
+	ctx context.Context,
+	name string,
+) (*entity.Question, error) {
+	dbQuestion, err := r.q.FindQuestionByNameAndCode(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	return &entity.Question{
+		Name:      dbQuestion.Name,
+		CreatedBy: dbQuestion.Createdby,
+	}, nil
+}
