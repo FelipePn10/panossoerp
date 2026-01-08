@@ -2,8 +2,11 @@ package questions
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/questions/entity"
+	"github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
@@ -31,6 +34,9 @@ func (r *repositoryQuestionSQLC) FindQuestionByName(
 ) (*entity.Question, error) {
 	dbQuestion, err := r.q.FindQuestionByNameAndCode(ctx, name)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, repository.ErrNotFound
+		}
 		return nil, err
 	}
 	return &entity.Question{

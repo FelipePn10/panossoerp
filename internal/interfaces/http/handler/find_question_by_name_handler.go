@@ -1,28 +1,39 @@
 package handler
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
+
+	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 )
+
+var ErrNotFound = errors.New("question not found")
 
 func (h *QuestionHandler) FindQuestionByName(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	ctx := r.Context()
-	name := r.URL.Query().Get("name")
-
+	name := strings.TrimSpace(r.URL.Query().Get("name"))
 	if name == "" {
-		http.Error(w, "name required", http.StatusBadRequest)
+		h.BadRequest(w, "Thw 'name' query parameter is required")
 		return
 	}
 
-	question, err := h.findQuestionByNameUC.Execute(ctx, name)
+	question, err := h.findQuestionByNameUC.Execute(r.Context(), name)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		switch {
+		case errors.Is(err, errorsuc.ErrInvalidQuestionName):
+			h.BadRequest(w, "The 'name' query parameter is required")
+			return
+		case errors.Is(err, errorsuc.ErrQuestionNotFound):
+			h.NotFound(w, "No question found with the given name")
+			return
+		default:
+			h.InternalError(w, err)
+			return
+		}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(question)
+	h.OK(w, question, "Question found")
 }

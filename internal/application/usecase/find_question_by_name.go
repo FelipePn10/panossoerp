@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 	"errors"
+	"strings"
 
+	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 	"github.com/FelipePn10/panossoerp/internal/domain/questions/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 )
@@ -16,8 +18,16 @@ func (uc *FindQuestionByName) Execute(
 	ctx context.Context,
 	name string,
 ) (*entity.Question, error) {
-	if name == "" {
-		return nil, errors.New("name is required")
+	if strings.TrimSpace(name) == "" {
+		return nil, errorsuc.ErrInvalidQuestionName
 	}
-	return uc.repo.FindQuestionByName(ctx, name)
+
+	question, err := uc.repo.FindQuestionByName(ctx, name)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, errorsuc.ErrQuestionNotFound
+		}
+		return nil, err
+	}
+	return question, nil
 }
