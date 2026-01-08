@@ -3,8 +3,10 @@ package product
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/product/entity"
+	"github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
@@ -52,6 +54,9 @@ func (r *repositoryProductSQLC) FindByNameAndCode(
 		Code: code,
 	})
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, repository.ErrNotFound
+		}
 		return nil, err
 	}
 
