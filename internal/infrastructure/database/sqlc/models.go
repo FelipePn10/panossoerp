@@ -11,6 +11,28 @@ import (
 	"github.com/google/uuid"
 )
 
+type Bom struct {
+	ID        int64
+	ProductID int64
+	BomType   string
+	Version   int32
+	Status    string
+	ValidFrom sql.NullTime
+	CreatedAt time.Time
+}
+
+type BomItem struct {
+	ID                int64
+	BomID             int64
+	ComponentID       int64
+	Quantity          string
+	Uom               sql.NullString
+	ScrapPercent      string
+	OperationSequence int32
+	OperationID       int64
+	CreatedAt         time.Time
+}
+
 type Component struct {
 	ID        int64
 	Code      string
@@ -43,14 +65,28 @@ type MaterialConsumption struct {
 	Unit            string
 }
 
+type MrpParameter struct {
+	ProductID    int64
+	PlanningType string
+	LeadTimeDays int32
+	SafetyStock  string
+}
+
+type Operation struct {
+	ID   int64
+	Code string
+	Name string
+}
+
 type Product struct {
-	ID        int64
-	Code      string
-	GroupCode sql.NullString
-	Name      string
-	CreatedBy uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          int64
+	Code        string
+	GroupCode   sql.NullString
+	Name        string
+	CreatedBy   uuid.UUID
+	CreatedAt   time.Time
+	ProductType string
+	Uom         string
 }
 
 type ProductMask struct {
@@ -86,6 +122,16 @@ type ProductQuestionAnswer struct {
 	CreatedAt  time.Time
 }
 
+type ProductionOrder struct {
+	ID                 int64
+	ProductID          int64
+	BomID              int64
+	Quantity           string
+	Status             string
+	CurrentOperationID sql.NullInt64
+	CreatedAt          time.Time
+}
+
 type Question struct {
 	ID        int64
 	Name      string
@@ -99,6 +145,21 @@ type QuestionOption struct {
 	Value      string
 	CreatedAt  time.Time
 	Createdby  uuid.UUID
+}
+
+type Stock struct {
+	ProductID int64
+	Quantity  string
+}
+
+type StockMovement struct {
+	ID            int64
+	ProductID     int64
+	MovementType  string
+	Quantity      string
+	ReferenceType sql.NullString
+	ReferenceID   sql.NullInt64
+	CreatedAt     time.Time
 }
 
 type User struct {

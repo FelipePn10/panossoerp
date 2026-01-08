@@ -20,6 +20,7 @@ type Product struct {
 	Code      string
 	GroupCode string
 	Name      string
+	UOM       string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -18,6 +18,7 @@ func NewProduct(
 	groupCode string,
 	name string,
 	createdBy uuid.UUID,
+	uom string,
 ) (*Product, error) {
 
 	switch {
@@ -37,6 +38,7 @@ func NewProduct(
 		Code:      code,
 		GroupCode: groupCode,
 		Name:      name,
+		UOM:       uom,
 		CreatedBy: createdBy,
 	}, nil
 }

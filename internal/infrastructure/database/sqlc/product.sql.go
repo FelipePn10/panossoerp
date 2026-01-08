@@ -18,19 +18,19 @@ INSERT INTO products (
     code,
     group_code,
     name,
+    uom,
     created_by,
-    created_at,
-    updated_at
+    created_at
 ) VALUES (
     $1,
     $2,
     $3,
     $4,
     $5,
-    NOW(),
+    $6,
     NOW()
 )
-RETURNING id, code, group_code, name, created_by, created_at, updated_at
+RETURNING id, code, group_code, name, created_by, created_at, product_type, uom
 `
 
 type CreateProductParams struct {
@@ -38,6 +38,7 @@ type CreateProductParams struct {
 	Code      string
 	GroupCode sql.NullString
 	Name      string
+	Uom       string
 	CreatedBy uuid.UUID
 }
 
@@ -47,6 +48,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.Code,
 		arg.GroupCode,
 		arg.Name,
+		arg.Uom,
 		arg.CreatedBy,
 	)
 	var i Product
@@ -57,7 +59,8 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Name,
 		&i.CreatedBy,
 		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.ProductType,
+		&i.Uom,
 	)
 	return i, err
 }
@@ -73,7 +76,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 }
 
 const findByNameAndCode = `-- name: FindByNameAndCode :one
-SELECT id, code, group_code, name, created_by, created_at, updated_at
+SELECT id, code, group_code, name, created_by, created_at, product_type, uom
 FROM products
 WHERE name = $1 AND code = $2
 `
@@ -93,7 +96,8 @@ func (q *Queries) FindByNameAndCode(ctx context.Context, arg FindByNameAndCodePa
 		&i.Name,
 		&i.CreatedBy,
 		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.ProductType,
+		&i.Uom,
 	)
 	return i, err
 }
