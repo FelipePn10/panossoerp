@@ -1,26 +1,39 @@
 package handler
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
+
+	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 )
 
-func (h *ProductHandler) FindByNameAndCodeHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	name := r.URL.Query().Get("name")
-	codeStr := r.URL.Query().Get("code")
+func (h *ProductHandler) FindByNameAndCodeHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	name := strings.TrimSpace(r.URL.Query().Get("name"))
+	codeStr := strings.TrimSpace(r.URL.Query().Get("codeStr"))
 
 	if name == "" || codeStr == "" {
-		http.Error(w, "name and code are required", http.StatusBadRequest)
+		h.BadRequest(w, "name and code are required")
 		return
 	}
 
-	product, err := h.findProductByNameAndCodeUC.Execute(ctx, name, codeStr)
+	product, err := h.findProductByNameAndCodeUC.Execute(r.Context(), name, codeStr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		switch {
+		case errors.Is(err, errorsuc.ErrInvalidProductNameAndCodeNotFound):
+			h.BadRequest(w, "The 'name' and 'code' query parameter is required")
+			return
+		case errors.Is(err, errorsuc.ErrProductNotFound):
+			h.NotFound(w, "No product found with the given name and code")
+			return
+		default:
+			h.InternalError(w, err)
+			return
+		}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(product)
+	h.OK(w, product, "Product Found")
 }
