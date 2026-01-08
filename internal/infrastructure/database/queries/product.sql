@@ -4,16 +4,16 @@ INSERT INTO products (
     code,
     group_code,
     name,
+    uom,
     created_by,
-    created_at,
-    updated_at
+    created_at
 ) VALUES (
     $1,
     $2,
     $3,
     $4,
     $5,
-    NOW(),
+    $6,
     NOW()
 )
 RETURNING *;

@@ -23,6 +23,7 @@ func (r *repositoryProductSQLC) Save(
 			Valid:  product.GroupCode != "",
 		},
 		Name:      product.Name,
+		Uom:       product.UOM,
 		CreatedBy: product.CreatedBy,
 	}
 
@@ -32,7 +33,6 @@ func (r *repositoryProductSQLC) Save(
 	}
 
 	product.CreatedAt = dbProduct.CreatedAt
-	product.UpdatedAt = dbProduct.UpdatedAt
 
 	return nil
 }
@@ -65,9 +65,9 @@ func (r *repositoryProductSQLC) FindByNameAndCode(
 		Code:      dbProduct.Code,
 		GroupCode: dbProduct.GroupCode.String,
 		Name:      dbProduct.Name,
+		UOM:       dbProduct.Uom,
 		CreatedBy: dbProduct.CreatedBy,
 		CreatedAt: dbProduct.CreatedAt,
-		UpdatedAt: dbProduct.UpdatedAt,
 	}, nil
 }
 
