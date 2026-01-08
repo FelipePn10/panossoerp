@@ -8,8 +8,6 @@ import (
 	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 )
 
-var ErrNotFound = errors.New("question not found")
-
 func (h *QuestionHandler) FindQuestionByName(
 	w http.ResponseWriter,
 	r *http.Request,
