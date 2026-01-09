@@ -2,7 +2,8 @@ package usecase
 
 import (
 	ast "github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
-	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
+	bom "github.com/FelipePn10/panossoerp/internal/domain/bom/repository"
+	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
@@ -99,9 +100,16 @@ func NewAssociateByQuestionProductUseCase(
 }
 
 func NewGenerateMaskProductUseCase(
-	repo repository.GenerateMaskForProductRepository,
+	repo mask.GenerateMaskForProductRepository,
 ) *GenerateMaskForProductUseCase {
 	return &GenerateMaskForProductUseCase{
+		repo: repo,
+	}
+}
+func NewCreateBomUseCase(
+	repo bom.BomRepository,
+) *CreateBomUseCase {
+	return &CreateBomUseCase{
 		repo: repo,
 	}
 }

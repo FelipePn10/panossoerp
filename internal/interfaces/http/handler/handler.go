@@ -41,3 +41,8 @@ type GenerateMaskHandler struct {
 	*security.BaseHandler
 	generateMask *usecase.GenerateMaskForProductUseCase
 }
+
+type BomHandler struct {
+	*security.BaseHandler
+	createBomUC *usecase.CreateBomUseCase
+}
