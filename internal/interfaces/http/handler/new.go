@@ -95,3 +95,11 @@ func NewGeneratMaskProductHandler(
 		generateMask: generateMaskProductUC,
 	}
 }
+
+func NewCreateBomHandler(
+	createBomUC *usecase.CreateBomUseCase,
+) *BomHandler {
+	return &BomHandler{
+		createBomUC: createBomUC,
+	}
+}
