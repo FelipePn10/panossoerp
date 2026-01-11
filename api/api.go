@@ -12,6 +12,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom"
+	bomitem "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom_item"
 	generatemask "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/generate_mask"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
 	productquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
@@ -128,6 +129,12 @@ func (app *application) mount() chi.Router {
 	createBomUc := usecase.NewCreateBomUseCase(bomRepo)
 	bomHandler := handler.NewCreateBomHandler(createBomUc)
 
+	// bom item
+	bomItemRepo := bomitem.NewRepositoryBomItemSQLC(queries)
+
+	createBomItemUc := usecase.NewCreatBomItemUseCase(bomItemRepo)
+	bomItemHandler := handler.NewCreateBomItemHandler(createBomItemUc)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -151,7 +158,10 @@ func (app *application) mount() chi.Router {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", generateMaskProductHandler.GenerateMask)
 		})
 		r.Route("/api/bom", func(r chi.Router) {
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/creater", bomHandler.Create)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", bomHandler.Create)
+			r.Route("/bom-items", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", bomItemHandler.Create)
+			})
 		})
 	})
 	// Health check

@@ -27,7 +27,7 @@ func (r *repositoryGenerateMaskSQLC) Generate(
 			MaskID:     maskRecord.ID,
 			QuestionID: ans.QuestionID(),
 			OptionID:   ans.OptionID(),
-			Position:   ans.Position(),
+			Position:   int32(ans.Position()),
 		})
 		if err != nil {
 			return err

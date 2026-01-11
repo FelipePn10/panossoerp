@@ -1,0 +1,5 @@
+ALTER TABLE
+CREATE COLUMN operation_sequence
+
+ALTER TABLE
+CREATE CONSTRAINT bom_items_bom_id_component_id_operation_sequence_key;

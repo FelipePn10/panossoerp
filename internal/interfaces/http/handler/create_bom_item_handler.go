@@ -9,29 +9,28 @@ import (
 	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 )
 
-func (h *BomHandler) Create(
+func (h *BomItemHandler) Create(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var req request.CreateBomUseCaseRequestDTO
+	var req request.CreateBomItemsRequestDTO
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.BadRequest(w, "invalid request body")
 		return
 	}
 
-	bom, err := h.createBomUC.Execute(r.Context(), req)
+	bomitem, err := h.createBomItemUC.Execute(r.Context(), req)
 	if err != nil {
 		switch {
-		case errors.Is(err, errorsuc.ErrCreateBom):
-			h.BadRequest(w, "failed create bom")
-		case errors.Is(err, errorsuc.ErrCreateBomNotFound):
-			h.NotFound(w, "try again later.")
+		case errors.Is(err, errorsuc.ErrCreateBomItem):
+			h.BadRequest(w, "falied create bom item")
+		case errors.Is(err, errorsuc.ErrCreateBomItemNotFound):
+			h.NotFound(w, "try again later")
 		default:
 			h.InternalError(w, err)
 			return
 		}
 		return
 	}
-
-	h.OK(w, bom, "Create Bom Success!")
+	h.OK(w, bomitem, "Create Bom Item Success!")
 }
