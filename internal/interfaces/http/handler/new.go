@@ -103,3 +103,11 @@ func NewCreateBomHandler(
 		createBomUC: createBomUC,
 	}
 }
+
+func NewCreateBomItemHandler(
+	createBomItemUC *usecase.CreateBomItemUseCase,
+) *BomItemHandler {
+	return &BomItemHandler{
+		createBomItemUC: createBomItemUC,
+	}
+}

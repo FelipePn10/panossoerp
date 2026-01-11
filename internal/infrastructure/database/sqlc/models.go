@@ -22,15 +22,14 @@ type Bom struct {
 }
 
 type BomItem struct {
-	ID                int64
-	BomID             int64
-	ComponentID       int64
-	Quantity          string
-	Uom               sql.NullString
-	ScrapPercent      string
-	OperationSequence int32
-	OperationID       int64
-	CreatedAt         time.Time
+	ID           int64
+	BomID        int64
+	ComponentID  int64
+	Quantity     string
+	Uom          sql.NullString
+	ScrapPercent string
+	OperationID  int64
+	CreatedAt    time.Time
 }
 
 type Component struct {

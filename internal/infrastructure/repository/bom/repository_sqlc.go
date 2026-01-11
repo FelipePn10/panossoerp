@@ -13,7 +13,6 @@ func (r *repositoryBomSQLC) Create(
 	bom *entity.Bom,
 ) (*entity.Bom, error) {
 	params := sqlc.CreateBomParams{
-		ID:        bom.ProductId,
 		ProductID: bom.ProductId,
 		BomType:   bom.BomType,
 		Version:   int32(bom.Version),

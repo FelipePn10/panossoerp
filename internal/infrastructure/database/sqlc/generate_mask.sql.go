@@ -70,7 +70,7 @@ type InsertProductMaskAnswerParams struct {
 	MaskID     int64
 	QuestionID int64
 	OptionID   int64
-	Position   int
+	Position   int32
 }
 
 func (q *Queries) InsertProductMaskAnswer(ctx context.Context, arg InsertProductMaskAnswerParams) error {
