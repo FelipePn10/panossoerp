@@ -15,6 +15,7 @@ func (r *repositoryBomSQLC) Create(
 	params := sqlc.CreateBomParams{
 		ProductID: bom.ProductId,
 		BomType:   bom.BomType,
+		Mask:      bom.MaskID,
 		Version:   int32(bom.Version),
 		ValidFrom: sql.NullTime{},
 		Status:    bom.Status,
