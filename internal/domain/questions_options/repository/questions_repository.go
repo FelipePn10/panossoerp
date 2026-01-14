@@ -7,6 +7,7 @@ import (
 )
 
 type QuestionsOptionsRepository interface {
-	Save(ctx context.Context, qstops *entity.QuestionsOptions) error
+	Save(ctx context.Context, qstops *entity.QuestionsOptions) (*entity.QuestionsOptions, error)
 	Delete(ctx context.Context, questionid int64) error
+	ExistsByValue(ctx context.Context, value string) (bool, error)
 }

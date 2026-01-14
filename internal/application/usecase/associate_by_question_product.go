@@ -5,6 +5,8 @@ import (
 	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
+	"github.com/FelipePn10/panossoerp/internal/application/ports"
+	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
 )
@@ -16,12 +18,17 @@ var (
 
 type AssociateByQuestionProductUseCase struct {
 	repo repository.AssociateQuestionsRepository
+	auth ports.AuthService
 }
 
 func (uc *AssociateByQuestionProductUseCase) Execute(
 	ctx context.Context,
 	dto request.AssociateByQuestionProductRequestDTO,
 ) error {
+	if !uc.auth.CanAssociateByQuestionProduct(ctx) {
+		return errorsuc.ErrUnauthorized
+	}
+
 	exists, err := uc.repo.ExistsByProductAndQuestion(
 		ctx,
 		dto.ProductID,

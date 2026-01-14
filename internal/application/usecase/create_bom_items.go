@@ -5,19 +5,35 @@ import (
 	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
+	"github.com/FelipePn10/panossoerp/internal/application/ports"
 	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
+	bom "github.com/FelipePn10/panossoerp/internal/domain/bom/repository"
 	"github.com/FelipePn10/panossoerp/internal/domain/bom_items/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/bom_items/repository"
 )
 
 type CreateBomItemUseCase struct {
 	repo repository.BomItemsRepository
+	bom  bom.BomRepository
+	auth ports.AuthService
 }
 
 func (uc *CreateBomItemUseCase) Execute(
 	ctx context.Context,
 	dto request.CreateBomItemsRequestDTO,
 ) (*entity.BomItems, error) {
+	if !uc.auth.CanCreateBomItems(ctx) {
+		return nil, errorsuc.ErrUnauthorized
+	}
+
+	exists, err := uc.bom.ExistsByID(ctx, dto.BomID)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, errorsuc.ErrBomItemAlreadyExists
+	}
+
 	bomItem, err := entity.NewBomItems(
 		dto.BomID,
 		dto.ComponentID,
