@@ -21,6 +21,7 @@ func (uc *CreateBomUseCase) Execute(
 	bom, err := entity.NewBom(
 		dto.ProductId,
 		dto.BomType,
+		dto.MaskId,
 		dto.Version,
 		dto.ValidFrom,
 		dto.Status,

@@ -12,28 +12,26 @@ import (
 
 const createBom = `-- name: CreateBom :one
 INSERT INTO boms (
-    id,
     product_id,
+    mask,
     bom_type,
     version,
     status,
-    valid_from,
-    created_at
+    valid_from
 ) VALUES (
     $1,
     $2,
     $3,
     $4,
     $5,
-    $6,
-    NOW()
+    $6
 )
-RETURNING id, product_id, bom_type, version, status, valid_from, created_at
+RETURNING id, product_id, bom_type, version, status, valid_from, created_at, mask
 `
 
 type CreateBomParams struct {
-	ID        int64
 	ProductID int64
+	Mask      int64
 	BomType   string
 	Version   int32
 	Status    string
@@ -42,8 +40,8 @@ type CreateBomParams struct {
 
 func (q *Queries) CreateBom(ctx context.Context, arg CreateBomParams) (Bom, error) {
 	row := q.db.QueryRowContext(ctx, createBom,
-		arg.ID,
 		arg.ProductID,
+		arg.Mask,
 		arg.BomType,
 		arg.Version,
 		arg.Status,
@@ -58,6 +56,7 @@ func (q *Queries) CreateBom(ctx context.Context, arg CreateBomParams) (Bom, erro
 		&i.Status,
 		&i.ValidFrom,
 		&i.CreatedAt,
+		&i.Mask,
 	)
 	return i, err
 }

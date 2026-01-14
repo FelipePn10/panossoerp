@@ -12,17 +12,23 @@ func (r *repositoryBomItemSQLC) Create(
 	ctx context.Context,
 	bomitems *entity.BomItems,
 ) (*entity.BomItems, error) {
+
 	params := sqlc.CreateBomItemParams{
-		BomID:        bomitems.BomID,
-		ComponentID:  bomitems.ComponentID,
-		Quantity:     bomitems.Quantity.String(),
-		Uom:          sql.NullString{},
-		ScrapPercent: bomitems.ScrapPercent,
-		OperationID:  bomitems.OperationID,
+		BomID:       bomitems.BomID,
+		ComponentID: bomitems.ComponentID,
+		Quantity:    bomitems.Quantity.String(),
+		Uom: sql.NullString{
+			String: bomitems.Uom,
+			Valid:  bomitems.Uom != "",
+		},
+		ScrapPercent:  bomitems.Quantity.String(),
+		OperationID:   bomitems.OperationID,
+		MaskComponent: bomitems.MaskComponent,
 	}
-	_, err := r.q.CreateBomItem(ctx, params)
-	if err != nil {
+
+	if _, err := r.q.CreateBomItem(ctx, params); err != nil {
 		return nil, err
 	}
+
 	return bomitems, nil
 }

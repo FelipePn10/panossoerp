@@ -30,7 +30,6 @@ func (uc *CreateProductUseCase) Execute(
 		dto.GroupCode,
 		dto.Name,
 		dto.CreatedBy,
-		dto.UOM,
 	)
 	if err != nil {
 		return err

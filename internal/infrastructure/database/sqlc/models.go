@@ -19,17 +19,19 @@ type Bom struct {
 	Status    string
 	ValidFrom sql.NullTime
 	CreatedAt time.Time
+	Mask      int64
 }
 
 type BomItem struct {
-	ID           int64
-	BomID        int64
-	ComponentID  int64
-	Quantity     string
-	Uom          sql.NullString
-	ScrapPercent string
-	OperationID  int64
-	CreatedAt    time.Time
+	ID            int64
+	BomID         int64
+	ComponentID   int64
+	Quantity      string
+	Uom           sql.NullString
+	ScrapPercent  string
+	OperationID   int64
+	CreatedAt     time.Time
+	MaskComponent int64
 }
 
 type Component struct {

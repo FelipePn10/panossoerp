@@ -7,20 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type ContentType string
-
-const (
-	ContentStructure ContentType = "STRUCTURE"
-	ContentSet       ContentType = "SET"
-	ContentItem      ContentType = "ITEM"
-)
-
 type Product struct {
 	ID        int64
 	Code      string
 	GroupCode string
 	Name      string
-	UOM       string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -33,23 +24,6 @@ type ProductMask struct {
 	MaskHash  string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
-}
-
-type Component struct {
-	ID        int64
-	Code      string
-	Type      ContentType
-	CreatedBy uuid.UUID
-	CreatedAt time.Time
-}
-
-type ComponentMask struct {
-	ID          int64
-	ComponentID int64
-	Mask        string
-	MaskHash    string
-	CreatedBy   uuid.UUID
-	CreatedAt   time.Time
 }
 
 type MaskComposition struct {

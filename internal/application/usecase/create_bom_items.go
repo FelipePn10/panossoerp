@@ -18,13 +18,14 @@ func (uc *CreateBomItemUseCase) Execute(
 	ctx context.Context,
 	dto request.CreateBomItemsRequestDTO,
 ) (*entity.BomItems, error) {
-	bomitems, err := entity.NewBomItems(
+	bomItem, err := entity.NewBomItems(
 		dto.BomID,
 		dto.ComponentID,
 		dto.Quantity,
 		dto.Uom,
 		dto.ScrapPercent,
 		dto.OperationID,
+		dto.MaskComponent,
 	)
 	if err != nil {
 		if errors.Is(err, repository.ErrInvalidBomItems) {
@@ -32,5 +33,10 @@ func (uc *CreateBomItemUseCase) Execute(
 		}
 		return nil, err
 	}
-	return uc.repo.Create(ctx, bomitems)
+	created, err := uc.repo.Create(ctx, bomItem)
+	if err != nil {
+		return nil, err
+	}
+
+	return created, nil
 }

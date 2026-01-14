@@ -12,14 +12,13 @@ import (
 
 const createBomItem = `-- name: CreateBomItem :one
 INSERT INTO bom_items (
-    id,
     bom_id,
     component_id,
     quantity,
     uom,
     scrap_percent,
     operation_id,
-    created_at
+    mask_component
 ) VALUES (
     $1,
     $2,
@@ -27,31 +26,30 @@ INSERT INTO bom_items (
     $4,
     $5,
     $6,
-    $7,
-    NOW()
+    $7
 )
-RETURNING id, bom_id, component_id, quantity, uom, scrap_percent, operation_id, created_at
+RETURNING id, bom_id, component_id, quantity, uom, scrap_percent, operation_id, created_at, mask_component
 `
 
 type CreateBomItemParams struct {
-	ID           int64
-	BomID        int64
-	ComponentID  int64
-	Quantity     string
-	Uom          sql.NullString
-	ScrapPercent string
-	OperationID  int64
+	BomID         int64
+	ComponentID   int64
+	Quantity      string
+	Uom           sql.NullString
+	ScrapPercent  string
+	OperationID   int64
+	MaskComponent int64
 }
 
 func (q *Queries) CreateBomItem(ctx context.Context, arg CreateBomItemParams) (BomItem, error) {
 	row := q.db.QueryRowContext(ctx, createBomItem,
-		arg.ID,
 		arg.BomID,
 		arg.ComponentID,
 		arg.Quantity,
 		arg.Uom,
 		arg.ScrapPercent,
 		arg.OperationID,
+		arg.MaskComponent,
 	)
 	var i BomItem
 	err := row.Scan(
@@ -63,6 +61,7 @@ func (q *Queries) CreateBomItem(ctx context.Context, arg CreateBomItemParams) (B
 		&i.ScrapPercent,
 		&i.OperationID,
 		&i.CreatedAt,
+		&i.MaskComponent,
 	)
 	return i, err
 }
