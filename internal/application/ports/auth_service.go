@@ -12,4 +12,5 @@ type AuthService interface {
 	CanAssociateByQuestionProduct(ctx context.Context) bool
 	CanCreateQuestion(ctx context.Context) bool
 	CanCreateQuestionOption(ctx context.Context) bool
+	CanDeleteProduct(ctx context.Context) bool
 }

@@ -18,4 +18,5 @@ var (
 	ErrComponentAlreadyExists            = errors.New("component already exists")
 	ErrWarehouseNotFound                 = errors.New("warehouse not found")
 	ErrUnauthorized                      = errors.New("user not authorized")
+	ErrInvalidSearchParams               = errors.New("params invalid")
 )
