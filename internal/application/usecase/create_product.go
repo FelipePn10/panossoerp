@@ -31,7 +31,7 @@ func (uc *CreateProductUseCase) Execute(
 		return nil, err
 	}
 
-	exists, err := uc.repo.ExistsByCode(ctx, code.String())
+	exists, err := uc.repo.ExistsProductByCode(ctx, code.String())
 	if err != nil {
 		return nil, err
 	}

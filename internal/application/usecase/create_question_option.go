@@ -23,7 +23,7 @@ func (uc *CreateQuestionOptionUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	exists, err := uc.repo.ExistsByValue(ctx, dto.Value)
+	exists, err := uc.repo.ExistsQuestionOptionByValue(ctx, dto.Value)
 	if err != nil {
 		return nil, err
 	}

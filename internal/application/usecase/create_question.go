@@ -23,7 +23,7 @@ func (uc *CreateQuestion) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	exists, err := uc.repo.ExistsByName(ctx, dto.Name)
+	exists, err := uc.repo.ExistsQuestionByName(ctx, dto.Name)
 	if err != nil {
 		return nil, err
 	}

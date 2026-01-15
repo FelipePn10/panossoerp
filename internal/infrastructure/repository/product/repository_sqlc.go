@@ -13,7 +13,7 @@ import (
 func (r *repositoryProductSQLC) Save(
 	ctx context.Context,
 	product *entity.Product,
-) error {
+) (*entity.Product, error) {
 
 	params := sqlc.CreateProductParams{
 		ID:   product.ID,
@@ -28,12 +28,18 @@ func (r *repositoryProductSQLC) Save(
 
 	dbProduct, err := r.q.CreateProduct(ctx, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	product.CreatedAt = dbProduct.CreatedAt
+	return &entity.Product{
+		ID:        dbProduct.ID,
+		Code:      dbProduct.Code,
+		GroupCode: dbProduct.GroupCode.String,
+		Name:      dbProduct.Name,
+		CreatedBy: dbProduct.CreatedBy,
+		CreatedAt: dbProduct.CreatedAt,
+	}, nil
 
-	return nil
 }
 
 func (r *repositoryProductSQLC) Delete(
@@ -41,6 +47,20 @@ func (r *repositoryProductSQLC) Delete(
 	id int64,
 ) error {
 	return r.q.DeleteProduct(ctx, id)
+}
+
+func (r *repositoryProductSQLC) ExistsProductByCode(
+	ctx context.Context,
+	code string,
+) (bool, error) {
+	_, err := r.q.ExistsProductByCode(ctx, code)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func (r *repositoryProductSQLC) FindByNameAndCode(

@@ -6,19 +6,26 @@ import (
 	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/questions/entity"
-	"github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
 func (r *repositoryQuestionSQLC) Save(
 	ctx context.Context,
 	qst *entity.Question,
-) error {
-	_, err := r.q.CreateQuestion(ctx, sqlc.CreateQuestionParams{
+) (*entity.Question, error) {
+	params := sqlc.CreateQuestionParams{
 		Name:      qst.Name,
 		Createdby: qst.CreatedBy,
-	})
-	return err
+	}
+	dbQuestion, err := r.q.CreateQuestion(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Question{
+		Name:      dbQuestion.Name,
+		CreatedBy: dbQuestion.Createdby,
+	}, nil
 }
 
 func (r *repositoryQuestionSQLC) Delete(
@@ -32,10 +39,10 @@ func (r *repositoryQuestionSQLC) FindQuestionByName(
 	ctx context.Context,
 	name string,
 ) (*entity.Question, error) {
-	dbQuestion, err := r.q.FindQuestionByNameAndCode(ctx, name)
+	dbQuestion, err := r.q.FindQuestionByName(ctx, name)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, repository.ErrNotFound
+			return nil, err
 		}
 		return nil, err
 	}
@@ -43,4 +50,18 @@ func (r *repositoryQuestionSQLC) FindQuestionByName(
 		Name:      dbQuestion.Name,
 		CreatedBy: dbQuestion.Createdby,
 	}, nil
+}
+
+func (r *repositoryQuestionSQLC) ExistsQuestionByName(
+	ctx context.Context,
+	name string,
+) (bool, error) {
+	_, err := r.q.ExistsQuestionByName(ctx, name)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, err
+		}
+		return false, err
+	}
+	return true, nil
 }

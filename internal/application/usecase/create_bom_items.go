@@ -26,14 +26,6 @@ func (uc *CreateBomItemUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	exists, err := uc.bom.ExistsByID(ctx, dto.BomID)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return nil, errorsuc.ErrBomItemAlreadyExists
-	}
-
 	bomItem, err := entity.NewBomItems(
 		dto.BomID,
 		dto.ComponentID,

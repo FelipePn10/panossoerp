@@ -11,10 +11,10 @@ func (h *QuestionHandler) CreateQuestion(w http.ResponseWriter, r *http.Request)
 	var req request.CreateQuestionRequestDTO
 	json.NewDecoder(r.Body).Decode(&req)
 
-	err := h.createQuestionUC.Execute(r.Context(), req)
+	question, err := h.createQuestionUC.Execute(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	h.OK(w, question, "Created question success")
 }

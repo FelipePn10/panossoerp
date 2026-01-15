@@ -69,6 +69,26 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 	return err
 }
 
+const existsProductByCode = `-- name: ExistsProductByCode :one
+SELECT id, code, group_code, name, created_by, created_at
+FROM products
+WHERE code = $1
+`
+
+func (q *Queries) ExistsProductByCode(ctx context.Context, code string) (Product, error) {
+	row := q.db.QueryRowContext(ctx, existsProductByCode, code)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Code,
+		&i.GroupCode,
+		&i.Name,
+		&i.CreatedBy,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const findByNameAndCode = `-- name: FindByNameAndCode :one
 SELECT id, code, group_code, name, created_by, created_at
 FROM products

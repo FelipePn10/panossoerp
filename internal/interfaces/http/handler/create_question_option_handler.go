@@ -11,10 +11,10 @@ func (h *QuestionOptionHandler) CreateQuestionOptionHandler(w http.ResponseWrite
 	var req request.CreateQuestionOptionRequest
 	json.NewDecoder(r.Body).Decode(&req)
 
-	err := h.createQuestionOptionUC.Execute(r.Context(), req)
+	questionOption, err := h.createQuestionOptionUC.Execute(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	h.OK(w, questionOption, "Created question option success")
 }

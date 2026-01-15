@@ -18,7 +18,7 @@ INSERT INTO questions (
 ) VALUES (
     $1,
     $2
-) RETURNING id, name, createdby, created_at
+) RETURNING id, name, createdby, complement_a_id, complement_b_id, created_at
 `
 
 type CreateQuestionParams struct {
@@ -33,6 +33,8 @@ func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) 
 		&i.ID,
 		&i.Name,
 		&i.Createdby,
+		&i.ComplementAID,
+		&i.ComplementBID,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -48,26 +50,48 @@ func (q *Queries) DeleteQuestion(ctx context.Context, id int64) error {
 	return err
 }
 
-const findQuestionByNameAndCode = `-- name: FindQuestionByNameAndCode :one
-SELECT id, name, createdby, created_at
+const existsQuestionByName = `-- name: ExistsQuestionByName :one
+SELECT id, name, createdby, complement_a_id, complement_b_id, created_at
 FROM questions
 WHERE name = $1
 `
 
-func (q *Queries) FindQuestionByNameAndCode(ctx context.Context, name string) (Question, error) {
-	row := q.db.QueryRowContext(ctx, findQuestionByNameAndCode, name)
+func (q *Queries) ExistsQuestionByName(ctx context.Context, name string) (Question, error) {
+	row := q.db.QueryRowContext(ctx, existsQuestionByName, name)
 	var i Question
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Createdby,
+		&i.ComplementAID,
+		&i.ComplementBID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const findQuestionByName = `-- name: FindQuestionByName :one
+SELECT id, name, createdby, complement_a_id, complement_b_id, created_at
+FROM questions
+WHERE name = $1
+`
+
+func (q *Queries) FindQuestionByName(ctx context.Context, name string) (Question, error) {
+	row := q.db.QueryRowContext(ctx, findQuestionByName, name)
+	var i Question
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Createdby,
+		&i.ComplementAID,
+		&i.ComplementBID,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getQuestionByID = `-- name: GetQuestionByID :one
-SELECT id, name, createdby, created_at
+SELECT id, name, createdby, complement_a_id, complement_b_id, created_at
 FROM questions
 WHERE id = $1
 `
@@ -79,6 +103,8 @@ func (q *Queries) GetQuestionByID(ctx context.Context, id int64) (Question, erro
 		&i.ID,
 		&i.Name,
 		&i.Createdby,
+		&i.ComplementAID,
+		&i.ComplementBID,
 		&i.CreatedAt,
 	)
 	return i, err

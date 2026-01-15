@@ -21,6 +21,11 @@ SELECT *
 FROM products
 WHERE name = $1 AND code = $2;
 
+-- name: ExistsProductByCode :one
+SELECT *
+FROM products
+WHERE code = $1;
+
 -- name: DeleteProduct :exec
 DELETE FROM products
 WHERE id = $1;

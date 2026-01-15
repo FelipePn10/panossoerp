@@ -30,7 +30,7 @@ func (uc *CreateComponentUseCase) Execute(
 		return &entity.Component{}, err
 	}
 
-	exists, err := uc.repo.ExistsByCode(ctx, code.String())
+	exists, err := uc.repo.ExistsComponentByCode(ctx, code.String())
 	if err != nil {
 		return nil, err
 	}
