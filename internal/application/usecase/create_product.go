@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"time"
 
 	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
 	"github.com/FelipePn10/panossoerp/internal/application/ports"
@@ -25,8 +24,7 @@ func (uc *CreateProductUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	now := time.Now()
-	code, err := valueobject.NewProductCode(dto.GroupCode, now)
+	code, err := valueobject.NewProductCode(dto.GroupCode)
 	if err != nil {
 		return nil, err
 	}

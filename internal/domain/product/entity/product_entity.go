@@ -14,7 +14,7 @@ type Product struct {
 	Name      string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
-	UpdatedAt time.Time
+	UpdatedAt time.Time // future removed
 }
 
 type ProductMask struct {

@@ -1,0 +1,46 @@
+package entity
+
+import (
+	"errors"
+
+	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
+	"github.com/google/uuid"
+)
+
+var (
+	ErrInvalidWarehouseID = errors.New("warehouse_id cannot be empty")
+	ErrInvalidName        = errors.New("name cannot be empty")
+	ErrInvalidDesc        = errors.New("description cannot be empty")
+	ErrInvalidUserId      = errors.New("user_id cannot be empty")
+)
+
+func NewItem(
+	warehouse_id int64,
+	name string,
+	desc string,
+	types types.Type,
+	status types.Status,
+	health types.Health,
+	created_by uuid.UUID,
+) (*Item, error) {
+	switch {
+	case warehouse_id < 0:
+		return nil, ErrInvalidWarehouseID
+	case name == "":
+		return nil, ErrInvalidName
+	case desc == "":
+		return nil, ErrInvalidDesc
+	case created_by == uuid.Nil:
+		return nil, ErrInvalidUserId
+	}
+
+	return &Item{
+		WarehouseID: warehouse_id,
+		Name:        name,
+		Desc:        desc,
+		Type:        types,
+		Status:      status,
+		Health:      health,
+		CreatedBy:   created_by,
+	}, nil
+}

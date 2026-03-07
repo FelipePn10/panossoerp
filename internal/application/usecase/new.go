@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/FelipePn10/panossoerp/internal/application/ports"
 	ast "github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
 	bom "github.com/FelipePn10/panossoerp/internal/domain/bom/repository"
 	bomitem "github.com/FelipePn10/panossoerp/internal/domain/bom_items/repository"
@@ -14,17 +15,21 @@ import (
 
 func NewCreateProductUseCase(
 	repo prdt.ProductRepository,
+	auth ports.AuthService,
 ) *CreateProductUseCase {
 	return &CreateProductUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
 
 func NewDeleteProductUseCase(
 	repo prdt.ProductRepository,
+	auth ports.AuthService,
 ) *DeleteProductUseCase {
 	return &DeleteProductUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
 
@@ -74,15 +79,21 @@ func NewRegisterUserUseCase(
 
 func NewQuestionUserUseCase(
 	repo qst.QuestionsRepository,
+	auth ports.AuthService,
 ) *CreateQuestion {
-	return &CreateQuestion{repo: repo}
+	return &CreateQuestion{
+		repo: repo,
+		auth: auth,
+	}
 }
 
 func NewCreateQuestionOptionUseCase(
 	repo qstops.QuestionsOptionsRepository,
+	auth ports.AuthService,
 ) *CreateQuestionOptionUseCase {
 	return &CreateQuestionOptionUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
 func NewDeleteQuestionOptionUseCase(
@@ -95,9 +106,11 @@ func NewDeleteQuestionOptionUseCase(
 
 func NewAssociateByQuestionProductUseCase(
 	repo ast.AssociateQuestionsRepository,
+	auth ports.AuthService,
 ) *AssociateByQuestionProductUseCase {
 	return &AssociateByQuestionProductUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
 
@@ -110,24 +123,30 @@ func NewGenerateMaskProductUseCase(
 }
 func NewCreateBomUseCase(
 	repo bom.BomRepository,
+	auth ports.AuthService,
 ) *CreateBomUseCase {
 	return &CreateBomUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
 
 func NewCreatBomItemUseCase(
 	repo bomitem.BomItemsRepository,
+	auth ports.AuthService,
 ) *CreateBomItemUseCase {
 	return &CreateBomItemUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
 
 func NewCreateComponentUseCase(
 	repo component.ComponentRepository,
+	auth ports.AuthService,
 ) *CreateComponentUseCase {
 	return &CreateComponentUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
