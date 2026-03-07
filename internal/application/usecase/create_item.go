@@ -23,4 +23,5 @@ func (uc *CreateItemUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
+	exists, err := uc.repo.ExistsItemByCode(ctx)
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/FelipePn10/panossoerp/internal/application/usecase"
+	infraauth "github.com/FelipePn10/panossoerp/internal/infrastructure/auth"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom"
@@ -63,6 +64,7 @@ func (app *application) mount() chi.Router {
 	r.Use(app.traceMiddleware)
 
 	queries := app.db.Queries()
+	authService := &infraauth.AuthService{}
 
 	userRepo := user.NewRepositoryUserSQLC(queries)
 
@@ -83,8 +85,8 @@ func (app *application) mount() chi.Router {
 	// product
 	productRepo := product.NewRepositoryProductSQLC(queries)
 
-	createProductUC := usecase.NewCreateProductUseCase(productRepo)
-	deleteProductUC := usecase.NewDeleteProductUseCase(productRepo)
+	createProductUC := usecase.NewCreateProductUseCase(productRepo, authService)
+	deleteProductUC := usecase.NewDeleteProductUseCase(productRepo, authService)
 	findProductByNameAndCodeUC := usecase.NewFindProductByNameAndCode(productRepo)
 
 	productCreateHandler := handler.NewCreateProductHandler(createProductUC)
@@ -94,7 +96,7 @@ func (app *application) mount() chi.Router {
 	// question
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
 
-	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo)
+	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo, authService)
 	deleteQuestionUC := usecase.NewDeleteQuestionUseCase(questionRepo)
 	findQuestionByNameUC := usecase.NewFindQuestionByName(questionRepo)
 
@@ -105,7 +107,7 @@ func (app *application) mount() chi.Router {
 	// question option
 	questionOptionRepo := questionsoptions.NewRepositoryQuestionOptionSQLC(queries)
 
-	createQuestionOptionUC := usecase.NewCreateQuestionOptionUseCase(questionOptionRepo)
+	createQuestionOptionUC := usecase.NewCreateQuestionOptionUseCase(questionOptionRepo, authService)
 	deleteQuestionOptionUC := usecase.NewDeleteQuestionOptionUseCase(questionOptionRepo)
 
 	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC)
@@ -114,7 +116,7 @@ func (app *application) mount() chi.Router {
 	// associate question in product
 	productByQuestionProductRepo := productquestion.NewAssociateQuestionProductRepositorySQLC(queries)
 
-	associateByQuestionProductUC := usecase.NewAssociateByQuestionProductUseCase(productByQuestionProductRepo)
+	associateByQuestionProductUC := usecase.NewAssociateByQuestionProductUseCase(productByQuestionProductRepo, authService)
 	associateByQuestionProductHandler := handler.NewAssociateByQuestionProductHandler(associateByQuestionProductUC)
 
 	// generate mask product
@@ -126,13 +128,13 @@ func (app *application) mount() chi.Router {
 	// bom
 	bomRepo := bom.NewRepostioryBomSQLC(queries)
 
-	createBomUc := usecase.NewCreateBomUseCase(bomRepo)
+	createBomUc := usecase.NewCreateBomUseCase(bomRepo, authService)
 	bomHandler := handler.NewCreateBomHandler(createBomUc)
 
 	// bom item
 	bomItemRepo := bomitem.NewRepositoryBomItemSQLC(queries)
 
-	createBomItemUc := usecase.NewCreatBomItemUseCase(bomItemRepo)
+	createBomItemUc := usecase.NewCreatBomItemUseCase(bomItemRepo, authService)
 	bomItemHandler := handler.NewCreateBomItemHandler(createBomItemUc)
 
 	// routes
