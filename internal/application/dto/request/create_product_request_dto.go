@@ -6,5 +6,4 @@ type CreateProductDTO struct {
 	GroupCode string    `json:"group_code"`
 	Name      string    `json:"name"`
 	CreatedBy uuid.UUID `json:"created_by"`
-	UOM       string    `json:"uom"`
 }

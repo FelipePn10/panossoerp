@@ -15,6 +15,7 @@ var (
 func NewBom(
 	product_id int64,
 	bom_type string,
+	mask_id int64,
 	version int,
 	valid_from time.Time,
 	status string,
@@ -33,6 +34,7 @@ func NewBom(
 	return &Bom{
 		ProductId: product_id,
 		BomType:   bom_type,
+		MaskID:    mask_id,
 		Version:   version,
 		ValidFrom: valid_from,
 		Status:    status,

@@ -16,7 +16,12 @@ WHERE id = $1;
 DELETE FROM questions
 WHERE id = $1;
 
--- name: FindQuestionByNameAndCode :one
+-- name: FindQuestionByName :one
+SELECT *
+FROM questions
+WHERE name = $1;
+
+-- name: ExistsQuestionByName :one
 SELECT *
 FROM questions
 WHERE name = $1;

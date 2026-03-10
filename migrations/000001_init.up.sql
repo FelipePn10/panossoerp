@@ -46,6 +46,8 @@ CREATE TABLE product_masks (
 CREATE TABLE components (
     id BIGINT PRIMARY KEY,
     code VARCHAR(10) NOT NULL,
+    warehouse BIGINT REFERENCES warehouse(id),
+    group_code VARCHAR(20) NOT NULL,
     name TEXT NOT NULL,
     type component_type NOT NULL,
     created_by UUID NOT NULL REFERENCES users(id),

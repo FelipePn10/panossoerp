@@ -111,3 +111,11 @@ func NewCreateBomItemHandler(
 		createBomItemUC: createBomItemUC,
 	}
 }
+
+func NewCreateItemHandler(
+	createItemUc *usecase.CreateItemUseCase,
+) *ItemHandler {
+	return &ItemHandler{
+		createItemUC: createItemUc,
+	}
+}

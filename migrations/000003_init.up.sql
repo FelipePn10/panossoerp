@@ -6,9 +6,3 @@ CREATE TABLE question_options (
     UNIQUE (question_id, value)
 );
 
-ALTER TABLE questions
-DROP COLUMN complement_a_id,
-DROP COLUMN complement_b_id;
-
-DROP TABLE complement_a;
-DROP TABLE complement_b;

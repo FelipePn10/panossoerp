@@ -19,8 +19,11 @@ func (uc *FindProductByNameAndCode) Execute(
 	name string,
 	code string,
 ) (*entity.Product, error) {
-	if strings.TrimSpace(name) == "" || strings.TrimSpace(code) == "" {
-		return nil, errors.New("name and code is required")
+	name = strings.TrimSpace(name)
+	code = strings.TrimSpace(code)
+
+	if name == "" || code == "" {
+		return nil, errorsuc.ErrInvalidSearchParams
 	}
 
 	product, err := uc.repo.FindByNameAndCode(ctx, name, code)

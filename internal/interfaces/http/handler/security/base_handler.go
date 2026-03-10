@@ -1,6 +1,7 @@
 package security
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 )
@@ -38,4 +39,17 @@ func (h *BaseHandler) NotFound(w http.ResponseWriter, message ...string) {
 func (h *BaseHandler) InternalError(w http.ResponseWriter, err error) {
 	slog.Error("internal error", "err", err, "path", http.StatusInternalServerError)
 	WriteError(w, http.StatusInternalServerError, "internal_error", "Something went wrong")
+}
+
+func (h *BaseHandler) UnprocessableEntity(
+	w http.ResponseWriter,
+	message string,
+) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnprocessableEntity)
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"error":  message,
+		"status": http.StatusUnprocessableEntity,
+	})
 }

@@ -18,8 +18,9 @@ func (uc *FindQuestionByName) Execute(
 	ctx context.Context,
 	name string,
 ) (*entity.Question, error) {
-	if strings.TrimSpace(name) == "" {
-		return nil, errorsuc.ErrInvalidQuestionName
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return nil, errorsuc.ErrInvalidSearchParams
 	}
 
 	question, err := uc.repo.FindQuestionByName(ctx, name)

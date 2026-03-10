@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"context"
-	"time"
 
 	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
+	"github.com/FelipePn10/panossoerp/internal/application/ports"
+	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 	"github.com/FelipePn10/panossoerp/internal/domain/product/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	"github.com/FelipePn10/panossoerp/internal/domain/product/valueobject"
@@ -12,17 +13,28 @@ import (
 
 type CreateProductUseCase struct {
 	repo repository.ProductRepository
+	auth ports.AuthService
 }
 
 func (uc *CreateProductUseCase) Execute(
 	ctx context.Context,
 	dto request.CreateProductDTO,
-) error {
-	now := time.Now()
+) (*entity.Product, error) {
+	if !uc.auth.CanCreateProduct(ctx) {
+		return nil, errorsuc.ErrUnauthorized
+	}
 
-	code, err := valueobject.NewProductCode(dto.GroupCode, now)
+	code, err := valueobject.NewProductCode(dto.GroupCode)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	exists, err := uc.repo.ExistsProductByCode(ctx, code.String())
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, errorsuc.ErrProductAlreadyExists
 	}
 
 	product, err := entity.NewProduct(
@@ -30,12 +42,15 @@ func (uc *CreateProductUseCase) Execute(
 		dto.GroupCode,
 		dto.Name,
 		dto.CreatedBy,
-		dto.UOM,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return uc.repo.Save(ctx, product)
+	saved, err := uc.repo.Save(ctx, product)
+	if err != nil {
+		return nil, err
+	}
 
+	return saved, nil
 }

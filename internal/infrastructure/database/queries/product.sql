@@ -4,7 +4,6 @@ INSERT INTO products (
     code,
     group_code,
     name,
-    uom,
     created_by,
     created_at
 ) VALUES (
@@ -13,7 +12,6 @@ INSERT INTO products (
     $3,
     $4,
     $5,
-    $6,
     NOW()
 )
 RETURNING *;
@@ -22,6 +20,11 @@ RETURNING *;
 SELECT *
 FROM products
 WHERE name = $1 AND code = $2;
+
+-- name: ExistsProductByCode :one
+SELECT *
+FROM products
+WHERE code = $1;
 
 -- name: DeleteProduct :exec
 DELETE FROM products

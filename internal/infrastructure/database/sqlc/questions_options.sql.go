@@ -14,31 +14,31 @@ import (
 const createQuestionOption = `-- name: CreateQuestionOption :one
 INSERT INTO question_options (
     question_id,
-    createdby,
+    created_by,
     value
 ) VALUES (
     $1,
     $2,
     $3
 )
-RETURNING id, question_id, value, created_at, createdby
+RETURNING id, question_id, value, created_at, created_by
 `
 
 type CreateQuestionOptionParams struct {
 	QuestionID int64
-	Createdby  uuid.UUID
+	CreatedBy  uuid.UUID
 	Value      string
 }
 
 func (q *Queries) CreateQuestionOption(ctx context.Context, arg CreateQuestionOptionParams) (QuestionOption, error) {
-	row := q.db.QueryRowContext(ctx, createQuestionOption, arg.QuestionID, arg.Createdby, arg.Value)
+	row := q.db.QueryRowContext(ctx, createQuestionOption, arg.QuestionID, arg.CreatedBy, arg.Value)
 	var i QuestionOption
 	err := row.Scan(
 		&i.ID,
 		&i.QuestionID,
 		&i.Value,
 		&i.CreatedAt,
-		&i.Createdby,
+		&i.CreatedBy,
 	)
 	return i, err
 }
@@ -53,8 +53,27 @@ func (q *Queries) DeleteQuestionOption(ctx context.Context, id int64) error {
 	return err
 }
 
+const existsQuestionOptionByValue = `-- name: ExistsQuestionOptionByValue :one
+SELECT id, question_id, value, created_at, created_by
+FROM question_options
+WHERE value = $1
+`
+
+func (q *Queries) ExistsQuestionOptionByValue(ctx context.Context, value string) (QuestionOption, error) {
+	row := q.db.QueryRowContext(ctx, existsQuestionOptionByValue, value)
+	var i QuestionOption
+	err := row.Scan(
+		&i.ID,
+		&i.QuestionID,
+		&i.Value,
+		&i.CreatedAt,
+		&i.CreatedBy,
+	)
+	return i, err
+}
+
 const getQuestionOptionByID = `-- name: GetQuestionOptionByID :one
-SELECT id, question_id, value, created_at, createdby
+SELECT id, question_id, value, created_at, created_by
 FROM question_options
 WHERE id = $1
 `
@@ -67,7 +86,7 @@ func (q *Queries) GetQuestionOptionByID(ctx context.Context, id int64) (Question
 		&i.QuestionID,
 		&i.Value,
 		&i.CreatedAt,
-		&i.Createdby,
+		&i.CreatedBy,
 	)
 	return i, err
 }

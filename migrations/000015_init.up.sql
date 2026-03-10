@@ -85,21 +85,6 @@ CREATE TABLE mrp_parameters (
 ALTER TABLE products
 DROP COLUMN updated_at;
 
-ALTER TABLE products
-ADD COLUMN product_type VARCHAR(20) NOT NULL DEFAULT 'finished',
-ADD COLUMN uom VARCHAR(20);
-
-UPDATE products
-SET uom = 'UN'
-WHERE uom IS NULL;
-
-ALTER TABLE products
-ALTER COLUMN uom SET NOT NULL;
-
-
-
 CREATE INDEX idx_bom_items_bom ON bom_items(bom_id);
 CREATE INDEX idx_stock_movements_product ON stock_movements(product_id);
 CREATE INDEX idx_production_orders_status ON production_orders(status);
-
--- finished | semi_finished | raw_material | indirect

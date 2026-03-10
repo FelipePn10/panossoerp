@@ -19,22 +19,36 @@ type Bom struct {
 	Status    string
 	ValidFrom sql.NullTime
 	CreatedAt time.Time
+	Mask      int64
 }
 
 type BomItem struct {
-	ID           int64
-	BomID        int64
-	ComponentID  int64
-	Quantity     string
-	Uom          sql.NullString
-	ScrapPercent string
-	OperationID  int64
-	CreatedAt    time.Time
+	ID            int64
+	BomID         int64
+	ComponentID   int64
+	Quantity      string
+	Uom           sql.NullString
+	ScrapPercent  string
+	OperationID   int64
+	CreatedAt     time.Time
+	MaskComponent int64
+}
+
+type ComplementA struct {
+	ID    int64
+	Value string
+}
+
+type ComplementB struct {
+	ID    int64
+	Value string
 }
 
 type Component struct {
 	ID        int64
 	Code      string
+	Warehouse sql.NullInt64
+	GroupCode string
 	Name      string
 	Type      interface{}
 	CreatedBy uuid.UUID
@@ -78,14 +92,12 @@ type Operation struct {
 }
 
 type Product struct {
-	ID          int64
-	Code        string
-	GroupCode   sql.NullString
-	Name        string
-	CreatedBy   uuid.UUID
-	CreatedAt   time.Time
-	ProductType string
-	Uom         string
+	ID        int64
+	Code      string
+	GroupCode sql.NullString
+	Name      string
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
 }
 
 type ProductMask struct {
@@ -132,10 +144,12 @@ type ProductionOrder struct {
 }
 
 type Question struct {
-	ID        int64
-	Name      string
-	Createdby uuid.UUID
-	CreatedAt time.Time
+	ID            int64
+	Name          string
+	Createdby     uuid.UUID
+	ComplementAID int64
+	ComplementBID int64
+	CreatedAt     time.Time
 }
 
 type QuestionOption struct {
@@ -143,7 +157,7 @@ type QuestionOption struct {
 	QuestionID int64
 	Value      string
 	CreatedAt  time.Time
-	Createdby  uuid.UUID
+	CreatedBy  uuid.UUID
 }
 
 type Stock struct {

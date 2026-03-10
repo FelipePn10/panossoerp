@@ -12,6 +12,11 @@ type ProductHandler struct {
 	findProductByNameAndCodeUC *usecase.FindProductByNameAndCode
 }
 
+type ItemHandler struct {
+	*security.BaseHandler
+	createItemUC *usecase.CreateItemUseCase
+}
+
 type UserHandler struct {
 	*security.BaseHandler
 	registerUC *usecase.RegisterUserUseCase

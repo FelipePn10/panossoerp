@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/FelipePn10/panossoerp/internal/application/security"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/auth"
 	contextkey "github.com/FelipePn10/panossoerp/internal/interfaces/http/context"
 	"github.com/golang-jwt/jwt/v5"
@@ -53,10 +54,14 @@ func JWT(secret string, logger Logger) func(http.Handler) http.Handler {
 				return
 			}
 
+			user := &security.AuthUser{
+				ID:   claims.UserID,
+				Role: claims.Role,
+			}
 			ctx := context.WithValue(
 				r.Context(),
 				contextkey.UserKey,
-				claims,
+				user,
 			)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -71,13 +76,13 @@ func RequireRole(roles ...string) func(http.Handler) http.Handler {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := r.Context().Value(contextkey.UserKey).(*auth.UserClaims)
+			user, ok := r.Context().Value(contextkey.UserKey).(*security.AuthUser)
 			if !ok {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
 
-			if _, allowed := roleSet[claims.Role]; !allowed {
+			if _, allowed := roleSet[user.Role]; !allowed {
 				http.Error(w, "forbidden", http.StatusForbidden)
 				return
 			}
