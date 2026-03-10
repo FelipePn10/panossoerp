@@ -8,7 +8,7 @@ import (
 type CreateItemDTO struct {
 	WarehouseID int64        `json:"warehouse_id"`
 	Name        string       `json:"name"`
-	Desc        string       `json:"desc"`
+	Description string       `json:"description"`
 	Type        types.Type   `json:"type"`
 	Status      types.Status `json:"status"`
 	Health      types.Health `json:"health"`

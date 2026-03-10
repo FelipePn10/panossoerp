@@ -1,10 +1,10 @@
 -- name: CreateItem :one
 INSERT INTO items (
     id,
-    warehouse_id
+    warehouse_id,
     code,
     name,
-    desc,
+    description,
     type,
     status,
     health,
@@ -20,7 +20,6 @@ INSERT INTO items (
     $7,
     $8,
     $9,
-    $10
     NOW()
 )
 RETURNING *;

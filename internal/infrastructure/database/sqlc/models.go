@@ -65,6 +65,19 @@ type ComponentMask struct {
 	CreatedAt   time.Time
 }
 
+type Item struct {
+	ID          int64
+	WarehouseID int32
+	Code        string
+	Name        string
+	Description string
+	Type        string
+	Status      string
+	Health      string
+	CreatedBy   uuid.UUID
+	CreatedAt   time.Time
+}
+
 type MaskComposition struct {
 	ParentMaskID int64
 	ChildMaskID  int64

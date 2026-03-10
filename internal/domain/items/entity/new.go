@@ -10,14 +10,14 @@ import (
 var (
 	ErrInvalidWarehouseID = errors.New("warehouse_id cannot be empty")
 	ErrInvalidName        = errors.New("name cannot be empty")
-	ErrInvalidDesc        = errors.New("description cannot be empty")
+	ErrInvalidDesciption  = errors.New("description cannot be empty")
 	ErrInvalidUserId      = errors.New("user_id cannot be empty")
 )
 
 func NewItem(
 	warehouse_id int64,
 	name string,
-	desc string,
+	description string,
 	types types.Type,
 	status types.Status,
 	health types.Health,
@@ -28,8 +28,8 @@ func NewItem(
 		return nil, ErrInvalidWarehouseID
 	case name == "":
 		return nil, ErrInvalidName
-	case desc == "":
-		return nil, ErrInvalidDesc
+	case description == "":
+		return nil, ErrInvalidDesciption
 	case created_by == uuid.Nil:
 		return nil, ErrInvalidUserId
 	}
@@ -37,7 +37,7 @@ func NewItem(
 	return &Item{
 		WarehouseID: warehouse_id,
 		Name:        name,
-		Desc:        desc,
+		Description: description,
 		Type:        types,
 		Status:      status,
 		Health:      health,

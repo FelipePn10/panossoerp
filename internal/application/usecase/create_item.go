@@ -26,7 +26,7 @@ func (uc *CreateItemUseCase) Execute(
 	item, err := entity.NewItem(
 		dto.WarehouseID,
 		dto.Name,
-		dto.Desc,
+		dto.Description,
 		dto.Type,
 		dto.Status,
 		dto.Health,
