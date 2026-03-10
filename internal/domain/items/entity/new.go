@@ -16,6 +16,7 @@ var (
 
 func NewItem(
 	warehouse_id int64,
+	code string,
 	name string,
 	description string,
 	types types.Type,
@@ -36,6 +37,7 @@ func NewItem(
 
 	return &Item{
 		WarehouseID: warehouse_id,
+		Code:        code,
 		Name:        name,
 		Description: description,
 		Type:        types,

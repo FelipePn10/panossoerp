@@ -9,6 +9,3 @@ CREATE TABLE IF NOT EXISTS question_options(
   created_by UUID NOT NULL REFERENCES users(id),
   value TEXT NOT NULL
 );
-
-ALTER TABLE question_options
-ADD COLUMN created_by UUID NOT NULL;

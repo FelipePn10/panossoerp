@@ -71,9 +71,9 @@ type Item struct {
 	Code        string
 	Name        string
 	Description string
-	Type        string
-	Status      string
-	Health      string
+	Type        int16
+	Status      int16
+	Health      int16
 	CreatedBy   uuid.UUID
 	CreatedAt   time.Time
 }
