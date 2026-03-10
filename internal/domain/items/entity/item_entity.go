@@ -12,7 +12,7 @@ type Item struct {
 	WarehouseID int64
 	Code        int64
 	Name        string
-	Desc        string
+	Description string
 	// Price
 
 	Type   types.Type
