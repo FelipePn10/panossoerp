@@ -7,6 +7,7 @@ import (
 
 type CreateItemDTO struct {
 	WarehouseID int64        `json:"warehouse_id"`
+	Code        string       `json:"code"`
 	Name        string       `json:"name"`
 	Description string       `json:"description"`
 	Type        types.Type   `json:"type"`

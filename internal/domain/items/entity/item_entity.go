@@ -9,8 +9,8 @@ import (
 
 type Item struct {
 	ID          int64
-	WarehouseID int64
-	Code        int64
+	WarehouseID string
+	Code        string
 	Name        string
 	Description string
 	// Price
