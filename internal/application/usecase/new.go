@@ -7,6 +7,7 @@ import (
 	bomitem "github.com/FelipePn10/panossoerp/internal/domain/bom_items/repository"
 	component "github.com/FelipePn10/panossoerp/internal/domain/component/repository"
 	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
+	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
@@ -136,6 +137,16 @@ func NewCreatBomItemUseCase(
 	auth ports.AuthService,
 ) *CreateBomItemUseCase {
 	return &CreateBomItemUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewCreateItem(
+	repo item.ItemRepository,
+	auth ports.AuthService,
+) *CreateItemUseCase {
+	return &CreateItemUseCase{
 		repo: repo,
 		auth: auth,
 	}

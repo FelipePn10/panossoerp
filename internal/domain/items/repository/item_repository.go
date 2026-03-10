@@ -8,5 +8,4 @@ import (
 
 type ItemRepository interface {
 	Create(ctx context.Context, item *entity.Item) (*entity.Item, error)
-	ExistsItemByCode(ctx context.Context, code int64)
 }

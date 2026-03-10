@@ -24,6 +24,10 @@ func (a *AuthService) CanCreateComponent(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
 
+func (a *AuthService) CanCreateItem(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
 func (a *AuthService) CanCreateProduct(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }

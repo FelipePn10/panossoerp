@@ -23,5 +23,23 @@ func (uc *CreateItemUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	exists, err := uc.repo.ExistsItemByCode(ctx)
+	item, err := entity.NewItem(
+		dto.WarehouseID,
+		dto.Name,
+		dto.Desc,
+		dto.Type,
+		dto.Status,
+		dto.Health,
+		dto.CreatedBy,
+	)
+	if err != nil {
+		return nil, err
+
+	}
+
+	created, err := uc.repo.Create(ctx, item)
+	if err != nil {
+		return nil, err
+	}
+	return created, nil
 }
