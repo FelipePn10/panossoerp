@@ -8,7 +8,7 @@ import (
 )
 
 type Warehouse struct {
-	ID   int64
+	ID   int32
 	Name string
 
 	Items_List []entity.Item

@@ -15,7 +15,7 @@ var (
 )
 
 func NewItem(
-	warehouse_id int64,
+	warehouse_id int32,
 	code string,
 	name string,
 	description string,
