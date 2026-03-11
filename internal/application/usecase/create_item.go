@@ -25,6 +25,7 @@ func (uc *CreateItemUseCase) Execute(
 
 	item, err := entity.NewItem(
 		dto.WarehouseID,
+		dto.Code,
 		dto.Name,
 		dto.Description,
 		dto.Type,
@@ -32,6 +33,7 @@ func (uc *CreateItemUseCase) Execute(
 		dto.Health,
 		dto.CreatedBy,
 	)
+
 	if err != nil {
 		return nil, err
 
