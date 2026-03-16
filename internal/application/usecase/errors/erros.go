@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrQuestionNotFound                  = errors.New("question not found")
 	ErrQuestionOptionAlreadyExists       = errors.New("question option already exists")
+	ErrWarehouseAlreadyExists            = errors.New("warehouse option already exists")
 	ErrQuestionAlreadyExists             = errors.New("question option already exists")
 	ErrInvalidQuestionName               = errors.New("invalid question name")
 	ErrInvalidProductNameAndCodeNotFound = errors.New("name and/or code not found.")

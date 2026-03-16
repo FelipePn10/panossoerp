@@ -3,7 +3,6 @@ package entity
 import (
 	"time"
 
-	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
 	"github.com/FelipePn10/panossoerp/internal/domain/items/entity"
 	"github.com/google/uuid"
 )
@@ -13,7 +12,7 @@ type Warehouse struct {
 	Name        string
 	Description string
 	Code        string
-	Type        types.TypeWarehouse
+	Type        string
 
 	Items_List []entity.Item
 
