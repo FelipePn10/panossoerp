@@ -12,6 +12,7 @@ import (
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
 	user "github.com/FelipePn10/panossoerp/internal/domain/user/repository"
+	warehouse "github.com/FelipePn10/panossoerp/internal/domain/warehouse/repository"
 )
 
 func NewCreateProductUseCase(
@@ -157,6 +158,16 @@ func NewCreateComponentUseCase(
 	auth ports.AuthService,
 ) *CreateComponentUseCase {
 	return &CreateComponentUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewCreateWarehouseUseCase(
+	repo warehouse.WarehouseRepository,
+	auth ports.AuthService,
+) *CreateWarehouseUseCase {
+	return &CreateWarehouseUseCase{
 		repo: repo,
 		auth: auth,
 	}
