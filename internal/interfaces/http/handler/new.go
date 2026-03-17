@@ -119,3 +119,11 @@ func NewCreateItemHandler(
 		createItemUC: createItemUc,
 	}
 }
+
+func NewCreateWarehouseHandler(
+	createWarehouse *usecase.CreateWarehouseUseCase,
+) *WarehouseHandler {
+	return &WarehouseHandler{
+		createWarehouseUC: createWarehouse,
+	}
+}

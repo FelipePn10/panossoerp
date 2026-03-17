@@ -2,15 +2,24 @@ package warehouse
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/warehouse/entity"
+	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
 func (r *repositoryWarehouseSQLC) Create(
 	ctx context.Context,
 	warehouse *entity.Warehouse,
 ) (*entity.Warehouse, error) {
-	params := sqlc.CreateWarehouseParams{}
+	params := sqlc.CreateWarehouseParams{
+		Name:        warehouse.Name,
+		Description: warehouse.Description,
+		Code:        warehouse.Code,
+		Types:       warehouse.Type,
+		CreatedBy:   warehouse.CreatedBy,
+	}
 
 	dbWarehouse, err := r.q.CreateWarehouse(ctx, params)
 	if err != nil {
@@ -18,11 +27,12 @@ func (r *repositoryWarehouseSQLC) Create(
 	}
 
 	return &entity.Warehouse{
-		Name: ,
-		Description: ,
-		Code: ,
-		Type: ,
-		CreatedBy: ,
+		ID:          int32(dbWarehouse.ID),
+		Name:        dbWarehouse.Name,
+		Description: dbWarehouse.Description,
+		Code:        dbWarehouse.Code,
+		Type:        dbWarehouse.Types,
+		CreatedBy:   dbWarehouse.CreatedBy,
 	}, nil
 }
 

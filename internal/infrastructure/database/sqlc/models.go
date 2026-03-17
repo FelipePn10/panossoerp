@@ -196,3 +196,14 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type Warehouse struct {
+	ID          int64
+	Name        string
+	Code        string
+	Description string
+	Types       string
+	Active      bool
+	CreatedAt   time.Time
+	CreatedBy   uuid.UUID
+}

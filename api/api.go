@@ -21,6 +21,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
+	warehouse "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/warehouse"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler"
 	httpmw "github.com/FelipePn10/panossoerp/internal/interfaces/middleware"
 	"github.com/go-chi/chi/middleware"
@@ -128,7 +129,7 @@ func (app *application) mount() chi.Router {
 
 	itemRepo := item.NewRepositoryItemSQLC(queries)
 
-	createItemUc := usecase.NewCreateItem(itemRepo)
+	createItemUc := usecase.NewCreateItem(itemRepo, authService)
 	itemHandler := handler.NewCreateItemHandler(createItemUc)
 
 	// bom
@@ -142,6 +143,11 @@ func (app *application) mount() chi.Router {
 
 	createBomItemUc := usecase.NewCreatBomItemUseCase(bomItemRepo, authService)
 	bomItemHandler := handler.NewCreateBomItemHandler(createBomItemUc)
+
+	// warehouse
+	warehouseRepo := warehouse.NewRepositoryQuestionSQLC(queries)
+	createWarehouseUc := usecase.NewCreateWarehouseUseCase(warehouseRepo, authService)
+	warehouseHandler := handler.NewCreateWarehouseHandler(createWarehouseUc)
 
 	// routes
 	r.Group(func(r chi.Router) {
@@ -173,7 +179,9 @@ func (app *application) mount() chi.Router {
 		})
 		r.Route("/api/items", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", itemHandler.CreateItem)
-
+		})
+		r.Route("/api/warehouse", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", warehouseHandler.CreateWarehouse)
 		})
 	})
 	// Health check
