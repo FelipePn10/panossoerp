@@ -55,3 +55,7 @@ func (a *AuthService) CanCreateQuestionOption(ctx context.Context) bool {
 func (a *AuthService) CanDeleteProduct(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
+
+func (a *AuthService) CanCreateWarehouse(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}

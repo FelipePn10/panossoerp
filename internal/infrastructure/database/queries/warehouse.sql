@@ -1,15 +1,16 @@
 -- name: CreateWarehouse :one
-INSERT INTO questions (
+INSERT INTO warehouse (
     name,
     description,
     code,
     types,
-    createdby
+    created_by
 ) VALUES (
     $1,
-    $2
+    $2,
     $3,
-    $4
+    $4,
+    $5
 ) RETURNING *;
 
 -- name: ExistsWarehouseByName :one

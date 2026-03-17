@@ -56,3 +56,8 @@ type BomItemHandler struct {
 	*security.BaseHandler
 	createBomItemUC *usecase.CreateBomItemUseCase
 }
+
+type WarehouseHandler struct {
+	*security.BaseHandler
+	createWarehouseUC *usecase.CreateWarehouseUseCase
+}
