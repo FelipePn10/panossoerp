@@ -6,10 +6,102 @@ package sqlc
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type WarehouseLocation string
+
+const (
+	WarehouseLocationLINHADEPRODUCAO WarehouseLocation = "LINHA_DE_PRODUCAO"
+	WarehouseLocationNORMAL          WarehouseLocation = "NORMAL"
+)
+
+func (e *WarehouseLocation) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = WarehouseLocation(s)
+	case string:
+		*e = WarehouseLocation(s)
+	default:
+		return fmt.Errorf("unsupported scan type for WarehouseLocation: %T", src)
+	}
+	return nil
+}
+
+type NullWarehouseLocation struct {
+	WarehouseLocation WarehouseLocation
+	Valid             bool // Valid is true if WarehouseLocation is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullWarehouseLocation) Scan(value interface{}) error {
+	if value == nil {
+		ns.WarehouseLocation, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.WarehouseLocation.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullWarehouseLocation) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.WarehouseLocation), nil
+}
+
+type WarehouseType string
+
+const (
+	WarehouseTypeINTERNO     WarehouseType = "INTERNO"
+	WarehouseTypeEXTERNO     WarehouseType = "EXTERNO"
+	WarehouseTypeASSISTENCIA WarehouseType = "ASSISTENCIA"
+	WarehouseTypeREJEICAO    WarehouseType = "REJEICAO"
+	WarehouseTypeINSPECAO    WarehouseType = "INSPECAO"
+	WarehouseTypeRESERVA     WarehouseType = "RESERVA"
+	WarehouseTypeTRANSITO    WarehouseType = "TRANSITO"
+	WarehouseTypeESPECIAL    WarehouseType = "ESPECIAL"
+)
+
+func (e *WarehouseType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = WarehouseType(s)
+	case string:
+		*e = WarehouseType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for WarehouseType: %T", src)
+	}
+	return nil
+}
+
+type NullWarehouseType struct {
+	WarehouseType WarehouseType
+	Valid         bool // Valid is true if WarehouseType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullWarehouseType) Scan(value interface{}) error {
+	if value == nil {
+		ns.WarehouseType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.WarehouseType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullWarehouseType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.WarehouseType), nil
+}
 
 type Bom struct {
 	ID        int64
@@ -198,12 +290,15 @@ type User struct {
 }
 
 type Warehouse struct {
-	ID          int64
-	Name        string
-	Code        string
-	Description string
-	Types       string
-	Active      bool
-	CreatedAt   time.Time
-	CreatedBy   uuid.UUID
+	ID                 int64
+	Code               string
+	Active             bool
+	CreatedAt          time.Time
+	CreatedBy          uuid.UUID
+	Description        string
+	Types              sql.NullString
+	Location           WarehouseLocation
+	Type               WarehouseType
+	Disposition        bool
+	ReservationAllowed bool
 }

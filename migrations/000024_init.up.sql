@@ -1,0 +1,5 @@
+ALTER TABLE warehouse
+ALTER COLUMN location SET NOT NULL,
+ALTER COLUMN type SET NOT NULL,
+ALTER COLUMN disposition SET NOT NULL,
+ALTER COLUMN reservation_allowed SET NOT NULL;
