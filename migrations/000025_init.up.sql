@@ -1,0 +1,2 @@
+ALTER TABLE warehouse
+ALTER COLUMN description SET NOT NULL

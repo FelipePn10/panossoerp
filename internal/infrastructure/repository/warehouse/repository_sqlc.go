@@ -2,11 +2,10 @@ package warehouse
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/warehouse/entity"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
+	"github.com/FelipePn10/panossoerp/internal/infrastructure/mapper"
 )
 
 func (r *repositoryWarehouseSQLC) Create(
@@ -14,38 +13,41 @@ func (r *repositoryWarehouseSQLC) Create(
 	warehouse *entity.Warehouse,
 ) (*entity.Warehouse, error) {
 	params := sqlc.CreateWarehouseParams{
-		Name:        warehouse.Name,
-		Description: warehouse.Description,
-		Code:        warehouse.Code,
-		Types:       warehouse.Type,
-		CreatedBy:   warehouse.CreatedBy,
+		Code:               warehouse.Code,
+		Description:        warehouse.Description,
+		Location:           mapper.WarehouseLocationToDB(warehouse.Location),
+		Type:               mapper.WarehouseTypeToDB(warehouse.Type),
+		Disposition:        warehouse.Disposition,
+		ReservationAllowed: warehouse.ReservationsAllowed,
+		CreatedBy:          warehouse.CreatedBy,
 	}
-
 	dbWarehouse, err := r.q.CreateWarehouse(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &entity.Warehouse{
-		ID:          int32(dbWarehouse.ID),
-		Name:        dbWarehouse.Name,
-		Description: dbWarehouse.Description,
-		Code:        dbWarehouse.Code,
-		Type:        dbWarehouse.Types,
-		CreatedBy:   dbWarehouse.CreatedBy,
+		ID:                  int32(dbWarehouse.ID),
+		Code:                dbWarehouse.Code,
+		Description:         dbWarehouse.Description,
+		Location:            mapper.WarehouseLocationToDomain(dbWarehouse.Location),
+		Type:                mapper.WarehouseTypeToDomain(dbWarehouse.Type),
+		Disposition:         dbWarehouse.Disposition,
+		ReservationsAllowed: dbWarehouse.ReservationAllowed,
+		CreatedBy:           dbWarehouse.CreatedBy,
+		CreatedAt:           dbWarehouse.CreatedAt,
 	}, nil
 }
 
-func (r *repositoryWarehouseSQLC) ExistsWarehouseByName(
+func (r *repositoryWarehouseSQLC) ExistsWarehouseByCode(
 	ctx context.Context,
-	name string,
+	code string,
 ) (bool, error) {
-	_, err := r.q.ExistsWarehouseByName(ctx, name)
+
+	exists, err := r.q.ExistsWarehouseByCode(ctx, code)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, err
-		}
 		return false, err
 	}
-	return true, nil
+
+	return exists, nil
 }

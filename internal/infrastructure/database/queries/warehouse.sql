@@ -1,19 +1,25 @@
 -- name: CreateWarehouse :one
 INSERT INTO warehouse (
-    name,
-    description,
     code,
-    types,
+    description,
+    location,
+    type,
+    disposition,
+    reservation_allowed,
     created_by
 ) VALUES (
     $1,
     $2,
     $3,
     $4,
-    $5
+    $5,
+    $6,
+    $7
 ) RETURNING *;
 
--- name: ExistsWarehouseByName :one
-SELECT *
-FROM questions
-WHERE name = $1;
+-- name: ExistsWarehouseByCode :one
+SELECT EXISTS (
+    SELECT 1
+    FROM warehouse
+    WHERE code = $1
+);

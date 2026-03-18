@@ -3,18 +3,20 @@ package entity
 import (
 	"time"
 
-	"github.com/FelipePn10/panossoerp/internal/domain/items/entity"
+	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
 	"github.com/google/uuid"
 )
 
 type Warehouse struct {
 	ID          int32
-	Name        string
-	Description string
 	Code        string
-	Type        string
+	Description string
 
-	Items_List []entity.Item
+	Location types.TypeLocation
+	Type     types.TypeWarehouse
+
+	Disposition         bool
+	ReservationsAllowed bool
 
 	CreatedBy uuid.UUID
 	CreatedAt time.Time

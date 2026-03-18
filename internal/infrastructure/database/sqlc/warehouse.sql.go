@@ -13,66 +13,72 @@ import (
 
 const createWarehouse = `-- name: CreateWarehouse :one
 INSERT INTO warehouse (
-    name,
-    description,
     code,
-    types,
+    description,
+    location,
+    type,
+    disposition,
+    reservation_allowed,
     created_by
 ) VALUES (
     $1,
     $2,
     $3,
     $4,
-    $5
-) RETURNING id, code, name, active, created_at, created_by, description, types
+    $5,
+    $6,
+    $7
+) RETURNING id, code, active, created_at, created_by, description, types, location, type, disposition, reservation_allowed
 `
 
 type CreateWarehouseParams struct {
-	Name        string
-	Description string
-	Code        string
-	Types       string
-	CreatedBy   uuid.UUID
+	Code               string
+	Description        string
+	Location           WarehouseLocation
+	Type               WarehouseType
+	Disposition        bool
+	ReservationAllowed bool
+	CreatedBy          uuid.UUID
 }
 
 func (q *Queries) CreateWarehouse(ctx context.Context, arg CreateWarehouseParams) (Warehouse, error) {
 	row := q.db.QueryRowContext(ctx, createWarehouse,
-		arg.Name,
-		arg.Description,
 		arg.Code,
-		arg.Types,
+		arg.Description,
+		arg.Location,
+		arg.Type,
+		arg.Disposition,
+		arg.ReservationAllowed,
 		arg.CreatedBy,
 	)
 	var i Warehouse
 	err := row.Scan(
 		&i.ID,
 		&i.Code,
-		&i.Name,
 		&i.Active,
 		&i.CreatedAt,
 		&i.CreatedBy,
 		&i.Description,
 		&i.Types,
+		&i.Location,
+		&i.Type,
+		&i.Disposition,
+		&i.ReservationAllowed,
 	)
 	return i, err
 }
 
-const existsWarehouseByName = `-- name: ExistsWarehouseByName :one
-SELECT id, name, createdby, complement_a_id, complement_b_id, created_at
-FROM questions
-WHERE name = $1
+const existsWarehouseByCode = `-- name: ExistsWarehouseByCode :one
+SELECT EXISTS (
+    SELECT 1
+    FROM warehouse
+    WHERE code = $1
+)
 `
 
-func (q *Queries) ExistsWarehouseByName(ctx context.Context, name string) (Question, error) {
-	row := q.db.QueryRowContext(ctx, existsWarehouseByName, name)
-	var i Question
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Createdby,
-		&i.ComplementAID,
-		&i.ComplementBID,
-		&i.CreatedAt,
-	)
-	return i, err
+func (q *Queries) ExistsWarehouseByCode(ctx context.Context, code string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, existsWarehouseByCode, code)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
