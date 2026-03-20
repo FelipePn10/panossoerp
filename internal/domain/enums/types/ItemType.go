@@ -1,31 +1,28 @@
 package types
 
-type Type int
+import "encoding/json"
+
+type TypeItem int
 
 const (
-	SERVICE = iota
-	RAW_MATERIAL
-	COMPONENT
-	SEMI_FINISHED
-	FINISHED_PRODUCT
-	CONSUMABLE
+	FABRICADO   = iota // Gera ordem de fabricação se tiver roteiro de fabricação e estrutura interna com alguma máteria prima
+	COMPRADO           // Gera irden de compra
+	DE_TERCEIRO        // Item de terceiro em poder da empresa
 )
 
-func (s Type) String() string {
+func (s TypeItem) String() string {
 	switch s {
-	case SERVICE:
-		return "SERVICE"
-	case RAW_MATERIAL:
-		return "RAW_MATERIAL"
-	case COMPONENT:
-		return "COMPONENT"
-	case SEMI_FINISHED:
-		return "SEMI_FINISHED"
-	case FINISHED_PRODUCT:
-		return "FINISHED_PRODUCT"
-	case CONSUMABLE:
-		return "CONSUMABLE"
+	case FABRICADO:
+		return "FABRICADO"
+	case COMPRADO:
+		return "COMPRADO"
+	case DE_TERCEIRO:
+		return "DE_TERCEIRO"
 	default:
 		return "UNKNOWN"
 	}
+}
+
+func (t TypeItem) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.String())
 }
