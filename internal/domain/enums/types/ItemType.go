@@ -6,8 +6,8 @@ type TypeItem int
 
 const (
 	FABRICADO   = iota // Gera ordem de fabricação se tiver roteiro de fabricação e estrutura interna com alguma máteria prima
-	COMPRADO           // Gera irden de compra
-	DE_TERCEIRO        // Item de terceiro em poder da empresa
+	COMPRADO           // Gera ordem de compra
+	DE_TERCEIRO        // Item de terceiro em poder da empresa, nada de ordens
 )
 
 func (s TypeItem) String() string {
