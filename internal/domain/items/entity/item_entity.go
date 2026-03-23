@@ -1,88 +1,125 @@
 package entity
 
 import (
+	"errors"
 	"time"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
+	"github.com/FelipePn10/panossoerp/internal/domain/items/valueobject"
 	"github.com/FelipePn10/panossoerp/internal/domain/machine/entity"
 	"github.com/google/uuid"
 )
 
 type Item struct {
-	ID                   int64
-	Code                 string
-	DescriptionTechnique string
-	Complement           *string
-	Generic              bool // item genérico
-	Configured           bool // configurado -> pode sofrer variações
-	ItemBase             bool // item base que servirá  para outros itens
+	ID         int64
+	Code       valueobject.ItemCode
+	Complement *string
 
+	// Checkbox
+	Nature ItemNature
 	//---- PDM
-	GroupID    int32  // Grupo de um item, ex: CHAPAS, AÇÕS etc
-	ModifierID int32  // Compor a descrição do item, ex: Grupo: CHAPAS Modificador: Chapa Aço Retax
-	Attributes string // "nome" para compor, ex: Grupo: CHAPAS Modificador: Chapa Aço Retax Nome: Retax 5MM
+	PDM PDM
 
 	Situation types.TypeSituationItem
 	Health    types.Health
 
+	// --- Pastas:
+	// Almoxarifado
+	Warehouse Warehouse
+	// Engenharia
+	Engineering Engineering
+	// Planejamento
+	Planning Planning
+	// Planejadores
+	Planners Planners
+	// Suprimentos
+	Supplies Supplies
+	//Status    types.Status
+
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
+}
 
-	// --- Pastas:
+// PDM
+type PDM struct {
+	GroupID    int32                   // Grupo de um item, ex: CHAPAS, AÇÕS etc
+	ModifierID int32                   // Compor a descrição do item, ex: Grupo: CHAPAS Modificador: Chapa Aço Retax
+	Attributes []valueobject.Attribute // "nome" para compor, ex: Grupo: CHAPAS Modificador: Chapa Aço Retax Nome: Retax 5MM
+	// PDM gera a descrição tecnica:
+	DescriptionTechnique string
+}
 
-	// Almoxarifado
-	WarehouseID                     int32
+// Pastas
+type Warehouse struct {
+	WarehouseID                     int
 	UnitOfMeasurement               types.TypeUnitOfMeasurementItem // Qual unidade de medida será armazenada para esse item
 	AutomaticLow                    bool                            // Faz baixa autom?
-	CyclicalCount                   bool                            // Contagem cíclica
-	CyclicalCountConfig             *CyclicalCountConfig
+	CyclicalCountConfig             *valueobject.CyclicalCountConfig
 	MinimumStock                    int32 // Estoque mínimo para alerta de compra
-	AverageMonthlyConsumption       bool  // Calcular consumo médio/mês
-	AverageMonthlyConsumptionManual *int  // Consumo médio mensal inserido manualmente, apenas se AverageMonthlyConsumption for false
+	AverageMonthlyConsumptionManual *int  // Consumo médio mensal inserido manualmente ou se for nil gera um calculo de consumo médio/mês
+}
 
-	// Engenharia
-	ItemBaseCod *int // Somente se ItemBase for false
-	GrossWeight int16
-	NetWeight   int16
+type Engineering struct {
+	ItemBaseCod *int // Somente se ItemBase (checkbox) for false
+	Weight      valueobject.Weight
 
-	Measurements bool // Se true:
-	Length       *int
-	DepthOrWidth *int
-	Height       *int
-	CubicVolume  *int16 // É gerado automaticamente com base no comprimento, profundidade e altura do produto
+	Dimensions *valueobject.Dimensions
 
 	Type       types.TypeItem
 	TypeStruct types.TypeStructItem
-	OEM        bool // componentes ou produtos que são montados sob a marca de outra empresa e revendidos pela empresa contratante do sistema
+	OEM        bool // componentes ou produtos que são fabricados/montados sob a marca de outra empresa e revendidos pela empresa contratante do sistema
+}
 
-	// Planejamento
-	// Para o MRP calcular e gerar ordem de máteria prima, o nivél deve ser LLC 9 e ser GHOST
-	TypeMRP            types.TypeMRPItem
-	LLC                int // niveis 1 para o produto final, 2 há 8 para estruras e conjuntos e 9 sendo para matérias primas
-	ReorderPoint       bool
-	ReorderPointStruct *ReorderPointStruct
-	TankID             int // Setor onde é feito
-	Ghost              bool
+type Planning struct {
+	// Para o MRP calcular e gerar ordem de máteria prima, o nivél deve ser LLC 9 e ser ACTIVE
+	TypeMRP      types.TypeMRPItem
+	LLC          int // niveis 1 para o produto final, 2 há 8 para estruras e conjuntos e 9 sendo para matérias primas
+	ReorderPoint *valueobject.ReorderPoint
+	TankID       *int // Setor onde é feito
+	Ghost        bool
+}
 
-	// Planejadores
-	EmployeeID    *int32 // Funcionário
-	OccupyMachine *bool
-	Machines      []entity.MachineUsage
+type Planners struct {
+	EmployeeID *int32                 // Funcionário
+	MachinesID *[]entity.MachineUsage // maquina
+}
 
-	// Suprimentos
+type Supplies struct {
 	TypeOfUse types.TypeOfUseItem
-
-	//Status    types.Status
 }
 
-type CyclicalCountConfig struct {
-	DaysInterval int // A cada quantos dias contar
-}
+type ItemNature int
 
-type ReorderPointStruct struct {
-	// PR = (TR x CM / CR) + ES
-	TR *int16
-	CM *int16
-	CR *int
-	ES *int16
+const (
+	ItemGeneric ItemNature = iota
+	ItemConfigured
+	ItemBase
+)
+
+func (i *Item) Validate() error {
+	if !i.Code.IsValid() {
+		return errors.New("invalid code")
+	}
+
+	if i.Engineering.Dimensions != nil && !i.Engineering.Dimensions.IsValid() {
+		return errors.New("invalid dimensions")
+	}
+
+	if !i.Engineering.Weight.IsValid() {
+		return errors.New("invalid weight")
+	}
+
+	if i.Planning.ReorderPoint != nil && !i.Planning.ReorderPoint.IsValid() {
+		return errors.New("invalid reorder point")
+	}
+
+	if i.Nature != ItemBase && i.Engineering.ItemBaseCod == nil {
+		return errors.New("item base code required")
+	}
+
+	if i.Nature == ItemBase && i.Engineering.ItemBaseCod != nil {
+		return errors.New("item base cannot have base code")
+	}
+
+	return nil
 }
