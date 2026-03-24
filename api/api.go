@@ -127,6 +127,7 @@ func (app *application) mount() chi.Router {
 	generateMaskProductUC := usecase.NewGenerateMaskProductUseCase(generateMaskProduct)
 	generateMaskProductHandler := handler.NewGeneratMaskProductHandler(generateMaskProductUC)
 
+	// Item
 	itemRepo := item.NewRepositoryItemSQLC(queries)
 
 	createItemUc := usecase.NewCreateItem(itemRepo, authService)
