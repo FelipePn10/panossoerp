@@ -7,59 +7,118 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 )
 
 const createItem = `-- name: CreateItem :one
 INSERT INTO items (
-    id,
     warehouse_id,
     code,
-    name,
-    description,
-    type,
-    status,
+    complement,
+    nature,
+    situation,
     health,
+    pdm_group_id,
+    pdm_modifier_id,
+    pdm_attributes,
+    pdm_description_technique,
+    warehouse_unit_of_measurement,
+    warehouse_automatic_low,
+    warehouse_cyclical_count_config,
+    warehouse_minimum_stock,
+    warehouse_avg_monthly_consumption_manual,
+    engineering_item_base_cod,
+    engineering_weight,
+    engineering_dimensions,
+    engineering_type,
+    engineering_type_struct,
+    engineering_oem,
+    planning_type_mrp,
+    planning_llc,
+    planning_reorder_point,
+    planning_tank_id,
+    planning_ghost,
+    planner_employee_id,
+    supplies_type_of_use,
     created_by,
     created_at
 ) VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5,
-    $6,
-    $7,
-    $8,
-    $9,
-    NOW()
+    $1,  $2,  $3,  $4,  $5,
+    $6,  $7,  $8,  $9,  $10,
+    $11, $12, $13, $14, $15,
+    $16, $17, $18, $19, $20,
+    $21, $22, $23, $24, $25,
+    $26, $27, $28, $29, NOW()
 )
-RETURNING id, warehouse_id, code, name, description, type, status, health, created_by, created_at
+RETURNING id, warehouse_id, code, health, created_by, created_at, complement, nature, situation, pdm_group_id, pdm_modifier_id, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_cod, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_id, planning_ghost, planner_employee_id, supplies_type_of_use
 `
 
 type CreateItemParams struct {
-	ID          int64
-	WarehouseID int32
-	Code        string
-	Name        string
-	Description string
-	Type        int16
-	Status      int16
-	Health      int16
-	CreatedBy   uuid.UUID
+	WarehouseID                          int32
+	Code                                 string
+	Complement                           sql.NullString
+	Nature                               int16
+	Situation                            int16
+	Health                               int16
+	PdmGroupID                           int32
+	PdmModifierID                        int32
+	PdmAttributes                        json.RawMessage
+	PdmDescriptionTechnique              string
+	WarehouseUnitOfMeasurement           int16
+	WarehouseAutomaticLow                bool
+	WarehouseCyclicalCountConfig         pqtype.NullRawMessage
+	WarehouseMinimumStock                int32
+	WarehouseAvgMonthlyConsumptionManual sql.NullInt32
+	EngineeringItemBaseCod               sql.NullInt32
+	EngineeringWeight                    json.RawMessage
+	EngineeringDimensions                pqtype.NullRawMessage
+	EngineeringType                      int16
+	EngineeringTypeStruct                int16
+	EngineeringOem                       bool
+	PlanningTypeMrp                      int16
+	PlanningLlc                          int32
+	PlanningReorderPoint                 pqtype.NullRawMessage
+	PlanningTankID                       sql.NullInt32
+	PlanningGhost                        bool
+	PlannerEmployeeID                    sql.NullInt32
+	SuppliesTypeOfUse                    int16
+	CreatedBy                            uuid.UUID
 }
 
 func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, error) {
 	row := q.db.QueryRowContext(ctx, createItem,
-		arg.ID,
 		arg.WarehouseID,
 		arg.Code,
-		arg.Name,
-		arg.Description,
-		arg.Type,
-		arg.Status,
+		arg.Complement,
+		arg.Nature,
+		arg.Situation,
 		arg.Health,
+		arg.PdmGroupID,
+		arg.PdmModifierID,
+		arg.PdmAttributes,
+		arg.PdmDescriptionTechnique,
+		arg.WarehouseUnitOfMeasurement,
+		arg.WarehouseAutomaticLow,
+		arg.WarehouseCyclicalCountConfig,
+		arg.WarehouseMinimumStock,
+		arg.WarehouseAvgMonthlyConsumptionManual,
+		arg.EngineeringItemBaseCod,
+		arg.EngineeringWeight,
+		arg.EngineeringDimensions,
+		arg.EngineeringType,
+		arg.EngineeringTypeStruct,
+		arg.EngineeringOem,
+		arg.PlanningTypeMrp,
+		arg.PlanningLlc,
+		arg.PlanningReorderPoint,
+		arg.PlanningTankID,
+		arg.PlanningGhost,
+		arg.PlannerEmployeeID,
+		arg.SuppliesTypeOfUse,
 		arg.CreatedBy,
 	)
 	var i Item
@@ -67,13 +126,140 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 		&i.ID,
 		&i.WarehouseID,
 		&i.Code,
-		&i.Name,
-		&i.Description,
-		&i.Type,
-		&i.Status,
 		&i.Health,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Complement,
+		&i.Nature,
+		&i.Situation,
+		&i.PdmGroupID,
+		&i.PdmModifierID,
+		&i.PdmAttributes,
+		&i.PdmDescriptionTechnique,
+		&i.WarehouseUnitOfMeasurement,
+		&i.WarehouseAutomaticLow,
+		&i.WarehouseCyclicalCountConfig,
+		&i.WarehouseMinimumStock,
+		&i.WarehouseAvgMonthlyConsumptionManual,
+		&i.EngineeringItemBaseCod,
+		&i.EngineeringWeight,
+		&i.EngineeringDimensions,
+		&i.EngineeringType,
+		&i.EngineeringTypeStruct,
+		&i.EngineeringOem,
+		&i.PlanningTypeMrp,
+		&i.PlanningLlc,
+		&i.PlanningReorderPoint,
+		&i.PlanningTankID,
+		&i.PlanningGhost,
+		&i.PlannerEmployeeID,
+		&i.SuppliesTypeOfUse,
 	)
 	return i, err
+}
+
+const createItemMachineUsage = `-- name: CreateItemMachineUsage :one
+INSERT INTO item_machine_usages (
+    item_id,
+    machine_id,
+    usage_time
+) VALUES (
+    $1, $2, $3
+)
+RETURNING id, item_id, machine_id, usage_time
+`
+
+type CreateItemMachineUsageParams struct {
+	ItemID    int64
+	MachineID int32
+	UsageTime int32
+}
+
+func (q *Queries) CreateItemMachineUsage(ctx context.Context, arg CreateItemMachineUsageParams) (ItemMachineUsage, error) {
+	row := q.db.QueryRowContext(ctx, createItemMachineUsage, arg.ItemID, arg.MachineID, arg.UsageTime)
+	var i ItemMachineUsage
+	err := row.Scan(
+		&i.ID,
+		&i.ItemID,
+		&i.MachineID,
+		&i.UsageTime,
+	)
+	return i, err
+}
+
+const getItemByID = `-- name: GetItemByID :one
+SELECT id, warehouse_id, code, health, created_by, created_at, complement, nature, situation, pdm_group_id, pdm_modifier_id, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_cod, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_id, planning_ghost, planner_employee_id, supplies_type_of_use FROM items
+WHERE id = $1
+`
+
+func (q *Queries) GetItemByID(ctx context.Context, id int64) (Item, error) {
+	row := q.db.QueryRowContext(ctx, getItemByID, id)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.WarehouseID,
+		&i.Code,
+		&i.Health,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.Complement,
+		&i.Nature,
+		&i.Situation,
+		&i.PdmGroupID,
+		&i.PdmModifierID,
+		&i.PdmAttributes,
+		&i.PdmDescriptionTechnique,
+		&i.WarehouseUnitOfMeasurement,
+		&i.WarehouseAutomaticLow,
+		&i.WarehouseCyclicalCountConfig,
+		&i.WarehouseMinimumStock,
+		&i.WarehouseAvgMonthlyConsumptionManual,
+		&i.EngineeringItemBaseCod,
+		&i.EngineeringWeight,
+		&i.EngineeringDimensions,
+		&i.EngineeringType,
+		&i.EngineeringTypeStruct,
+		&i.EngineeringOem,
+		&i.PlanningTypeMrp,
+		&i.PlanningLlc,
+		&i.PlanningReorderPoint,
+		&i.PlanningTankID,
+		&i.PlanningGhost,
+		&i.PlannerEmployeeID,
+		&i.SuppliesTypeOfUse,
+	)
+	return i, err
+}
+
+const listMachineUsagesByItem = `-- name: ListMachineUsagesByItem :many
+SELECT id, item_id, machine_id, usage_time FROM item_machine_usages
+WHERE item_id = $1
+`
+
+func (q *Queries) ListMachineUsagesByItem(ctx context.Context, itemID int64) ([]ItemMachineUsage, error) {
+	rows, err := q.db.QueryContext(ctx, listMachineUsagesByItem, itemID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ItemMachineUsage
+	for rows.Next() {
+		var i ItemMachineUsage
+		if err := rows.Scan(
+			&i.ID,
+			&i.ItemID,
+			&i.MachineID,
+			&i.UsageTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

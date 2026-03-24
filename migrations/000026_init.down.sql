@@ -1,0 +1,32 @@
+DROP TABLE IF EXISTS item_machine_usages;
+
+ALTER TABLE items DROP COLUMN IF EXISTS supplies_type_of_use;
+ALTER TABLE items DROP COLUMN IF EXISTS planner_employee_id;
+ALTER TABLE items DROP COLUMN IF EXISTS planning_ghost;
+ALTER TABLE items DROP COLUMN IF EXISTS planning_tank_id;
+ALTER TABLE items DROP COLUMN IF EXISTS planning_reorder_point;
+ALTER TABLE items DROP COLUMN IF EXISTS planning_llc;
+ALTER TABLE items DROP COLUMN IF EXISTS planning_type_mrp;
+ALTER TABLE items DROP COLUMN IF EXISTS engineering_oem;
+ALTER TABLE items DROP COLUMN IF EXISTS engineering_type_struct;
+ALTER TABLE items DROP COLUMN IF EXISTS engineering_type;
+ALTER TABLE items DROP COLUMN IF EXISTS engineering_dimensions;
+ALTER TABLE items DROP COLUMN IF EXISTS engineering_weight;
+ALTER TABLE items DROP COLUMN IF EXISTS engineering_item_base_cod;
+ALTER TABLE items DROP COLUMN IF EXISTS warehouse_avg_monthly_consumption_manual;
+ALTER TABLE items DROP COLUMN IF EXISTS warehouse_minimum_stock;
+ALTER TABLE items DROP COLUMN IF EXISTS warehouse_cyclical_count_config;
+ALTER TABLE items DROP COLUMN IF EXISTS warehouse_automatic_low;
+ALTER TABLE items DROP COLUMN IF EXISTS warehouse_unit_of_measurement;
+ALTER TABLE items DROP COLUMN IF EXISTS pdm_description_technique;
+ALTER TABLE items DROP COLUMN IF EXISTS pdm_attributes;
+ALTER TABLE items DROP COLUMN IF EXISTS pdm_modifier_id;
+ALTER TABLE items DROP COLUMN IF EXISTS pdm_group_id;
+ALTER TABLE items DROP COLUMN IF EXISTS situation;
+ALTER TABLE items DROP COLUMN IF EXISTS nature;
+ALTER TABLE items DROP COLUMN IF EXISTS complement;
+
+ALTER TABLE items ADD COLUMN name        VARCHAR;
+ALTER TABLE items ADD COLUMN description VARCHAR;
+ALTER TABLE items ADD COLUMN type        SMALLINT;
+ALTER TABLE items ADD COLUMN status      SMALLINT;

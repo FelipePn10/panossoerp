@@ -16,20 +16,19 @@ var (
 
 func NewItem(
 	code valueobject.ItemCode,
+	complement *string,
 	nature ItemNature,
 	pdm PDM,
+	situation types.TypeSituationItem,
+	health types.Health,
 	warehouse Warehouse,
 	engineering Engineering,
 	planning Planning,
 	planners Planners,
 	supplies Supplies,
-	situation types.TypeSituationItem,
-	health types.Health,
 	createdBy uuid.UUID,
-	complement *string,
 ) (*Item, error) {
 
-	// Guard Clauses (fail fast)
 	if !code.IsValid() {
 		return nil, ErrInvalidCode
 	}
