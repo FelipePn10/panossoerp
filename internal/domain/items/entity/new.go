@@ -2,47 +2,61 @@ package entity
 
 import (
 	"errors"
+	"time"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
+	"github.com/FelipePn10/panossoerp/internal/domain/items/valueobject"
 	"github.com/google/uuid"
 )
 
 var (
-	ErrInvalidWarehouseID = errors.New("warehouse_id cannot be empty")
-	ErrInvalidName        = errors.New("name cannot be empty")
-	ErrInvalidDesciption  = errors.New("description cannot be empty")
-	ErrInvalidUserId      = errors.New("user_id cannot be empty")
+	ErrInvalidCode      = errors.New("invalid code")
+	ErrInvalidCreatedBy = errors.New("created_by cannot be empty")
 )
 
 func NewItem(
-	warehouse_id int32,
-	code string,
-	name string,
-	description string,
-	types types.Type,
-	status types.Status,
+	code valueobject.ItemCode,
+	nature ItemNature,
+	pdm PDM,
+	warehouse Warehouse,
+	engineering Engineering,
+	planning Planning,
+	planners Planners,
+	supplies Supplies,
+	situation types.TypeSituationItem,
 	health types.Health,
-	created_by uuid.UUID,
+	createdBy uuid.UUID,
+	complement *string,
 ) (*Item, error) {
-	switch {
-	case warehouse_id < 0:
-		return nil, ErrInvalidWarehouseID
-	case name == "":
-		return nil, ErrInvalidName
-	case description == "":
-		return nil, ErrInvalidDesciption
-	case created_by == uuid.Nil:
-		return nil, ErrInvalidUserId
+
+	// Guard Clauses (fail fast)
+	if !code.IsValid() {
+		return nil, ErrInvalidCode
 	}
 
-	return &Item{
-		WarehouseID: warehouse_id,
+	if createdBy == uuid.Nil {
+		return nil, ErrInvalidCreatedBy
+	}
+
+	item := &Item{
 		Code:        code,
-		Name:        name,
-		Description: description,
-		Type:        types,
-		Status:      status,
+		Complement:  complement,
+		Nature:      nature,
+		PDM:         pdm,
+		Warehouse:   warehouse,
+		Engineering: engineering,
+		Planning:    planning,
+		Planners:    planners,
+		Supplies:    supplies,
+		Situation:   situation,
 		Health:      health,
-		CreatedBy:   created_by,
-	}, nil
+		CreatedBy:   createdBy,
+		CreatedAt:   time.Now(),
+	}
+
+	if err := item.Validate(); err != nil {
+		return nil, err
+	}
+
+	return item, nil
 }
