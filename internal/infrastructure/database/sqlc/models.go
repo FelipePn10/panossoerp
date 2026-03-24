@@ -7,10 +7,12 @@ package sqlc
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 )
 
 type WarehouseLocation string
@@ -158,16 +160,44 @@ type ComponentMask struct {
 }
 
 type Item struct {
-	ID          int64
-	WarehouseID int32
-	Code        string
-	Name        string
-	Description string
-	Type        int16
-	Status      int16
-	Health      int16
-	CreatedBy   uuid.UUID
-	CreatedAt   time.Time
+	ID                                   int64
+	WarehouseID                          int32
+	Code                                 string
+	Health                               int16
+	CreatedBy                            uuid.UUID
+	CreatedAt                            time.Time
+	Complement                           sql.NullString
+	Nature                               int16
+	Situation                            int16
+	PdmGroupID                           int32
+	PdmModifierID                        int32
+	PdmAttributes                        json.RawMessage
+	PdmDescriptionTechnique              string
+	WarehouseUnitOfMeasurement           int16
+	WarehouseAutomaticLow                bool
+	WarehouseCyclicalCountConfig         pqtype.NullRawMessage
+	WarehouseMinimumStock                int32
+	WarehouseAvgMonthlyConsumptionManual sql.NullInt32
+	EngineeringItemBaseCod               sql.NullInt32
+	EngineeringWeight                    json.RawMessage
+	EngineeringDimensions                pqtype.NullRawMessage
+	EngineeringType                      int16
+	EngineeringTypeStruct                int16
+	EngineeringOem                       bool
+	PlanningTypeMrp                      int16
+	PlanningLlc                          int32
+	PlanningReorderPoint                 pqtype.NullRawMessage
+	PlanningTankID                       sql.NullInt32
+	PlanningGhost                        bool
+	PlannerEmployeeID                    sql.NullInt32
+	SuppliesTypeOfUse                    int16
+}
+
+type ItemMachineUsage struct {
+	ID        int64
+	ItemID    int64
+	MachineID int32
+	UsageTime int32
 }
 
 type MaskComposition struct {

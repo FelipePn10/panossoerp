@@ -15,7 +15,7 @@ CREATE TYPE warehouse_type AS ENUM (
 );
 
 ALTER TABLE warehouse
-DROP COLUMN name,
+DROP COLUMN IF EXISTS name,
 ADD COLUMN location warehouse_location,
 ADD COLUMN type warehouse_type,
 ADD COLUMN disposition BOOLEAN,

@@ -5,7 +5,7 @@ import (
 
 	"github.com/FelipePn10/panossoerp/internal/domain/warehouse/entity"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
-	"github.com/FelipePn10/panossoerp/internal/infrastructure/mapper"
+	mapper "github.com/FelipePn10/panossoerp/internal/infrastructure/mapper/warehouse"
 )
 
 func (r *repositoryWarehouseSQLC) Create(

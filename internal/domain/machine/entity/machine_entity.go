@@ -1,11 +1,8 @@
 package entity
 
-import "time"
-
 type MachineUsage struct {
-	ID        int64
+	ID        int
 	ItemID    int64
 	MachineID int
 	UsageTime int
-	CreatedAt time.Time
 }

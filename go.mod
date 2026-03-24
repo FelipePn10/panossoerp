@@ -10,6 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/viper v1.21.0
+	github.com/sqlc-dev/pqtype v0.3.0
 	golang.org/x/crypto v0.46.0
 )
 
