@@ -7,6 +7,7 @@ import (
 	bomitem "github.com/FelipePn10/panossoerp/internal/domain/bom_items/repository"
 	component "github.com/FelipePn10/panossoerp/internal/domain/component/repository"
 	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
+	group "github.com/FelipePn10/panossoerp/internal/domain/group/repository"
 	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
@@ -168,6 +169,16 @@ func NewCreateWarehouseUseCase(
 	auth ports.AuthService,
 ) *CreateWarehouseUseCase {
 	return &CreateWarehouseUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewCreateGroupUseCase(
+	repo group.GroupRepository,
+	auth ports.AuthService,
+) *CreateGroupUseCase {
+	return &CreateGroupUseCase{
 		repo: repo,
 		auth: auth,
 	}

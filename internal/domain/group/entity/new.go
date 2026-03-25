@@ -1,8 +1,36 @@
 package entity
 
-type Group struct {
-	ID           int32
-	Code         int
-	Description  string
-	EnterpriseID int
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
+
+var (
+	ErrInvalidCode      = errors.New("invalid code")
+	ErrInvalidCreatedBy = errors.New("created_by cannot be empty")
+)
+
+func NewGroup(
+	code int,
+	description string,
+	enterpriseId int,
+	createdBy uuid.UUID,
+) (*Group, error) {
+	if code < 0 {
+		return nil, ErrInvalidCode
+	}
+
+	if createdBy == uuid.Nil {
+		return nil, ErrInvalidCreatedBy
+	}
+
+	group := &Group{
+		Code:         code,
+		Description:  description,
+		EnterpriseID: enterpriseId,
+		CreatedBy:    createdBy,
+	}
+
+	return group, nil
 }

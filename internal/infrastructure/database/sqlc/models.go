@@ -159,6 +159,22 @@ type ComponentMask struct {
 	CreatedAt   time.Time
 }
 
+type Enterprise struct {
+	ID        int64
+	Code      int32
+	Name      string
+	CreatedAt time.Time
+}
+
+type Group struct {
+	ID           int64
+	Code         int32
+	Description  string
+	EnterpriseID int64
+	CreatedBy    uuid.UUID
+	CreatedAt    time.Time
+}
+
 type Item struct {
 	ID                                   int64
 	WarehouseID                          int32

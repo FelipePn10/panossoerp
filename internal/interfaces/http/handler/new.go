@@ -127,3 +127,11 @@ func NewCreateWarehouseHandler(
 		createWarehouseUC: createWarehouse,
 	}
 }
+
+func NewCreateGroupHandler(
+	createGroupUc *usecase.CreateGroupUseCase,
+) *GroupHandler {
+	return &GroupHandler{
+		createGroupUC: createGroupUc,
+	}
+}
