@@ -15,6 +15,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom"
 	bomitem "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom_item"
 	generatemask "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/generate_mask"
+	group "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/group"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
 	productquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
@@ -150,6 +151,11 @@ func (app *application) mount() chi.Router {
 	createWarehouseUc := usecase.NewCreateWarehouseUseCase(warehouseRepo, authService)
 	warehouseHandler := handler.NewCreateWarehouseHandler(createWarehouseUc)
 
+	// group
+	groupRepo := group.NewRepositoryGroupSQLC(queries)
+	createGroupUc := usecase.NewCreateGroupUseCase(groupRepo, authService)
+	groupHandler := handler.NewCreateGroupHandler(createGroupUc)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -183,6 +189,9 @@ func (app *application) mount() chi.Router {
 		})
 		r.Route("/api/warehouse", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", warehouseHandler.CreateWarehouse)
+		})
+		r.Route("/api/group", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", groupHandler.CreateGroup)
 		})
 	})
 	// Health check

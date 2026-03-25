@@ -15,4 +15,5 @@ type AuthService interface {
 	CanDeleteProduct(ctx context.Context) bool
 	CanCreateItem(ctx context.Context) bool
 	CanCreateWarehouse(ctx context.Context) bool
+	CanCreateGroup(ctx context.Context) bool
 }

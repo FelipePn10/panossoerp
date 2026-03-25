@@ -61,3 +61,8 @@ type WarehouseHandler struct {
 	*security.BaseHandler
 	createWarehouseUC *usecase.CreateWarehouseUseCase
 }
+
+type GroupHandler struct {
+	*security.BaseHandler
+	createGroupUC *usecase.CreateGroupUseCase
+}
