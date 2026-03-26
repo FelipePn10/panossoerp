@@ -1,0 +1,34 @@
+package entity
+
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
+
+var (
+	ErrInvalidCode      = errors.New("invalid code")
+	ErrInvalidCreatedBy = errors.New("created_by cannot be empty")
+)
+
+func NewEnterprise(
+	code int,
+	name string,
+	createdBy uuid.UUID,
+) (*Enterprise, error) {
+	if code < 0 {
+		return nil, ErrInvalidCode
+	}
+
+	if createdBy == uuid.Nil {
+		return nil, ErrInvalidCreatedBy
+	}
+
+	enterprise := &Enterprise{
+		Code:      code,
+		Name:      name,
+		CreatedBy: createdBy,
+	}
+
+	return enterprise, nil
+}
