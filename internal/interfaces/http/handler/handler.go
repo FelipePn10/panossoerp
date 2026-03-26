@@ -66,3 +66,8 @@ type GroupHandler struct {
 	*security.BaseHandler
 	createGroupUC *usecase.CreateGroupUseCase
 }
+
+type EnterpriseHandler struct {
+	*security.BaseHandler
+	createEnterpriseUC *usecase.CreateEnterpriseUseCase
+}
