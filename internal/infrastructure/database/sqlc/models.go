@@ -164,6 +164,7 @@ type Enterprise struct {
 	Code      int32
 	Name      string
 	CreatedAt time.Time
+	CreatedBy uuid.UUID
 }
 
 type Group struct {

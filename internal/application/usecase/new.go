@@ -6,6 +6,7 @@ import (
 	bom "github.com/FelipePn10/panossoerp/internal/domain/bom/repository"
 	bomitem "github.com/FelipePn10/panossoerp/internal/domain/bom_items/repository"
 	component "github.com/FelipePn10/panossoerp/internal/domain/component/repository"
+	enterprise "github.com/FelipePn10/panossoerp/internal/domain/enterprise/repository"
 	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
 	group "github.com/FelipePn10/panossoerp/internal/domain/group/repository"
 	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
@@ -179,6 +180,16 @@ func NewCreateGroupUseCase(
 	auth ports.AuthService,
 ) *CreateGroupUseCase {
 	return &CreateGroupUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewCreateEnterpriseUseCase(
+	repo enterprise.EnterpriseRepository,
+	auth ports.AuthService,
+) *CreateEnterpriseUseCase {
+	return &CreateEnterpriseUseCase{
 		repo: repo,
 		auth: auth,
 	}

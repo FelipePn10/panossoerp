@@ -63,3 +63,7 @@ func (a *AuthService) CanCreateWarehouse(ctx context.Context) bool {
 func (a *AuthService) CanCreateGroup(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
+
+func (a *AuthService) CanCreateEnterprise(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}

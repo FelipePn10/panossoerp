@@ -135,3 +135,11 @@ func NewCreateGroupHandler(
 		createGroupUC: createGroupUc,
 	}
 }
+
+func NewCreateEnterpriseHandler(
+	createEnterprisepUc *usecase.CreateEnterpriseUseCase,
+) *EnterpriseHandler {
+	return &EnterpriseHandler{
+		createEnterpriseUC: createEnterprisepUc,
+	}
+}
