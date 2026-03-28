@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -18,7 +19,7 @@ INSERT INTO warehouse (
     location,
     type,
     disposition,
-    reservation_allowed,
+    reservations_allowed,
     created_by
 ) VALUES (
     $1,
@@ -28,57 +29,58 @@ INSERT INTO warehouse (
     $5,
     $6,
     $7
-) RETURNING id, code, active, created_at, created_by, description, types, location, type, disposition, reservation_allowed
+) RETURNING
+    code,
+    description,
+    location,
+    type,
+    disposition,
+    reservations_allowed,
+    created_by,
+    created_at
 `
 
 type CreateWarehouseParams struct {
-	Code               string
-	Description        string
-	Location           WarehouseLocation
-	Type               WarehouseType
-	Disposition        bool
-	ReservationAllowed bool
-	CreatedBy          uuid.UUID
+	Code                int
+	Description         string
+	Location            WarehouseLocation
+	Type                WarehouseType
+	Disposition         bool
+	ReservationsAllowed bool
+	CreatedBy           uuid.UUID
 }
 
-func (q *Queries) CreateWarehouse(ctx context.Context, arg CreateWarehouseParams) (Warehouse, error) {
+type CreateWarehouseRow struct {
+	Code                int
+	Description         string
+	Location            WarehouseLocation
+	Type                WarehouseType
+	Disposition         bool
+	ReservationsAllowed bool
+	CreatedBy           uuid.UUID
+	CreatedAt           time.Time
+}
+
+func (q *Queries) CreateWarehouse(ctx context.Context, arg CreateWarehouseParams) (CreateWarehouseRow, error) {
 	row := q.db.QueryRowContext(ctx, createWarehouse,
 		arg.Code,
 		arg.Description,
 		arg.Location,
 		arg.Type,
 		arg.Disposition,
-		arg.ReservationAllowed,
+		arg.ReservationsAllowed,
 		arg.CreatedBy,
 	)
-	var i Warehouse
+	var i CreateWarehouseRow
 	err := row.Scan(
-		&i.ID,
 		&i.Code,
-		&i.Active,
-		&i.CreatedAt,
-		&i.CreatedBy,
 		&i.Description,
-		&i.Types,
 		&i.Location,
 		&i.Type,
 		&i.Disposition,
-		&i.ReservationAllowed,
+		&i.ReservationsAllowed,
+		&i.CreatedBy,
+		&i.CreatedAt,
 	)
 	return i, err
-}
-
-const existsWarehouseByCode = `-- name: ExistsWarehouseByCode :one
-SELECT EXISTS (
-    SELECT 1
-    FROM warehouse
-    WHERE code = $1
-)
-`
-
-func (q *Queries) ExistsWarehouseByCode(ctx context.Context, code string) (bool, error) {
-	row := q.db.QueryRowContext(ctx, existsWarehouseByCode, code)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
 }

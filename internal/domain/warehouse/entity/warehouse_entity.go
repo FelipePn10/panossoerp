@@ -9,7 +9,7 @@ import (
 
 type Warehouse struct {
 	ID          int32
-	Code        string
+	Code        int
 	Description string
 
 	Location types.TypeLocation

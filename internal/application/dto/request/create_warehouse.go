@@ -6,14 +6,14 @@ import (
 )
 
 type CreateWarehouseRequestDTO struct {
-	Code        string `json:"code"`
+	Code        int    `json:"code"`
 	Description string `json:"description"`
 
 	Location types.TypeLocation  `json:"location"`
 	Type     types.TypeWarehouse `json:"type"`
 
-	Disposition        bool `json:"disposition"`
-	ReservationAllowed bool `json:"reservation_allowed"`
+	Disposition         bool `json:"disposition"`
+	ReservationsAllowed bool `json:"reservations_allowed"`
 
 	CreatedBy uuid.UUID `json:"created_by"`
 }

@@ -5,7 +5,7 @@ INSERT INTO warehouse (
     location,
     type,
     disposition,
-    reservation_allowed,
+    reservations_allowed,
     created_by
 ) VALUES (
     $1,
@@ -15,11 +15,12 @@ INSERT INTO warehouse (
     $5,
     $6,
     $7
-) RETURNING *;
-
--- name: ExistsWarehouseByCode :one
-SELECT EXISTS (
-    SELECT 1
-    FROM warehouse
-    WHERE code = $1
-);
+) RETURNING
+    code,
+    description,
+    location,
+    type,
+    disposition,
+    reservations_allowed,
+    created_by,
+    created_at;

@@ -344,15 +344,13 @@ type User struct {
 }
 
 type Warehouse struct {
-	ID                 int64
-	Code               string
-	Active             bool
-	CreatedAt          time.Time
-	CreatedBy          uuid.UUID
-	Description        string
-	Types              sql.NullString
-	Location           WarehouseLocation
-	Type               WarehouseType
-	Disposition        bool
-	ReservationAllowed bool
+	ID                  int64
+	Code                int
+	CreatedAt           time.Time
+	CreatedBy           uuid.UUID
+	Description         string
+	Location            WarehouseLocation
+	Type                WarehouseType
+	Disposition         bool
+	ReservationsAllowed bool
 }

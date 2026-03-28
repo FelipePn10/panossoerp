@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"strings"
 
 	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
 	"github.com/FelipePn10/panossoerp/internal/application/ports"
@@ -23,22 +22,14 @@ func (uc *CreateWarehouseUseCase) Execute(
 	if !uc.auth.CanCreateWarehouse(ctx) {
 		return nil, errorsuc.ErrUnauthorized
 	}
-	code := strings.TrimSpace(dto.Code)
-	exists, err := uc.repo.ExistsWarehouseByCode(ctx, code)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return nil, errorsuc.ErrWarehouseAlreadyExists
-	}
 
 	warehouse, err := entity.NewWarehouse(
-		code,
+		dto.Code,
 		dto.Description,
 		dto.Location,
 		dto.Type,
 		dto.Disposition,
-		dto.ReservationAllowed,
+		dto.ReservationsAllowed,
 		dto.CreatedBy,
 	)
 	if err != nil {
