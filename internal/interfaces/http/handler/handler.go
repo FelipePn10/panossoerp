@@ -71,3 +71,8 @@ type EnterpriseHandler struct {
 	*security.BaseHandler
 	createEnterpriseUC *usecase.CreateEnterpriseUseCase
 }
+
+type ModifierHandler struct {
+	*security.BaseHandler
+	createModifierUC *usecase.CreateModifierUseCase
+}

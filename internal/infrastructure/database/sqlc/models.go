@@ -164,7 +164,7 @@ type Enterprise struct {
 	Code      int32
 	Name      string
 	CreatedAt time.Time
-	CreatedBy uuid.UUID
+	CreatedBy uuid.NullUUID
 }
 
 type Group struct {
@@ -228,6 +228,13 @@ type MaterialConsumption struct {
 	MaterialID      int64
 	Quantity        string
 	Unit            string
+}
+
+type Modifier struct {
+	ID          int64
+	Description string
+	CreatedBy   uuid.UUID
+	CreatedAt   time.Time
 }
 
 type MrpParameter struct {

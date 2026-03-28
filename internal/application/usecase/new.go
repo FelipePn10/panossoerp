@@ -10,6 +10,7 @@ import (
 	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
 	group "github.com/FelipePn10/panossoerp/internal/domain/group/repository"
 	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
+	modifier "github.com/FelipePn10/panossoerp/internal/domain/modifier/repository"
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
@@ -190,6 +191,16 @@ func NewCreateEnterpriseUseCase(
 	auth ports.AuthService,
 ) *CreateEnterpriseUseCase {
 	return &CreateEnterpriseUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewCreateModifierUseCase(
+	repo modifier.ModifierRepository,
+	auth ports.AuthService,
+) *CreateModifierUseCase {
+	return &CreateModifierUseCase{
 		repo: repo,
 		auth: auth,
 	}

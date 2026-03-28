@@ -27,6 +27,6 @@ func (r *repositoryEnterpriseSQLC) Create(
 		ID:        int(dbEnterprise.ID),
 		Code:      int(dbEnterprise.Code),
 		Name:      dbEnterprise.Name,
-		CreatedBy: dbEnterprise.CreatedBy,
+		CreatedBy: dbEnterprise.CreatedBy.UUID,
 	}, nil
 }
