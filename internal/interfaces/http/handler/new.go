@@ -143,3 +143,11 @@ func NewCreateEnterpriseHandler(
 		createEnterpriseUC: createEnterprisepUc,
 	}
 }
+
+func NewCreateModifierHandler(
+	createModifierUc *usecase.CreateModifierUseCase,
+) *ModifierHandler {
+	return &ModifierHandler{
+		createModifierUC: createModifierUc,
+	}
+}

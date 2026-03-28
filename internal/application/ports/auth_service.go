@@ -17,4 +17,5 @@ type AuthService interface {
 	CanCreateWarehouse(ctx context.Context) bool
 	CanCreateGroup(ctx context.Context) bool
 	CanCreateEnterprise(ctx context.Context) bool
+	CanCreateModifier(ctx context.Context) bool
 }
