@@ -8,5 +8,4 @@ import (
 
 type WarehouseRepository interface {
 	Create(ctx context.Context, warehouse *entity.Warehouse) (*entity.Warehouse, error)
-	ExistsWarehouseByCode(ctx context.Context, code string) (bool, error)
 }

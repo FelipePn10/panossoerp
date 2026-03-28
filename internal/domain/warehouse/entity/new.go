@@ -8,7 +8,7 @@ import (
 )
 
 func NewWarehouse(
-	code string,
+	code int,
 	description string,
 	location types.TypeLocation,
 	types types.TypeWarehouse,
@@ -17,8 +17,6 @@ func NewWarehouse(
 	created_by uuid.UUID,
 ) (*Warehouse, error) {
 	switch {
-	case code == "":
-		return nil, errors.ErrUnsupported
 	case description == "":
 		return nil, errors.ErrUnsupported
 
