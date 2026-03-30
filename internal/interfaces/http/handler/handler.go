@@ -76,3 +76,8 @@ type ModifierHandler struct {
 	*security.BaseHandler
 	createModifierUC *usecase.CreateModifierUseCase
 }
+
+type EmployeeHandler struct {
+	*security.BaseHandler
+	createEmployeeUC *usecase.CreateEmployeeUseCase
+}
