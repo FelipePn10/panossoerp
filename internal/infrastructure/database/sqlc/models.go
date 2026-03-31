@@ -159,6 +159,15 @@ type ComponentMask struct {
 	CreatedAt   time.Time
 }
 
+type Employee struct {
+	ID           int64
+	EnterpriseID int32
+	Code         int32
+	Description  sql.NullString
+	Name         string
+	CreatedAt    time.Time
+}
+
 type Enterprise struct {
 	ID        int64
 	Code      int32

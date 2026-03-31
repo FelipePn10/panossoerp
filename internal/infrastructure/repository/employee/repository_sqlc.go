@@ -12,12 +12,22 @@ func (r *repositoryEmployeeSQLC) Create(
 	ctx context.Context,
 	employee *entity.Employee,
 ) (*entity.Employee, error) {
-	params := sqlc.CreateEmployeeParams{}
+	params := sqlc.CreateEmployeeParams{
+		EnterpriseID: int32(employee.EnterpriseID),
+		Code:         int32(employee.Code),
+		Description:  employee.Description,
+		Name:         employee.Name,
+	}
 
 	dbEmployee, err := r.q.CreateEmployee(ctx, params)
 	if err != nil {
 		return nil, fmt.Errorf("create employee: %w", err)
 	}
 
-	return &entity.Employee{}, nil
+	return &entity.Employee{
+		EnterpriseID: int(dbEmployee.EnterpriseID),
+		Code:         int(dbEmployee.Code),
+		Name:         dbEmployee.Name,
+		Description:  dbEmployee.Description.String,
+	}, nil
 }

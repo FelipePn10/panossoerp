@@ -1,9 +1,9 @@
 -- name: CreateEmployee :one
-INSERT INTO groups (
+INSERT INTO employee (
     enterprise_id,
     code,
-    name,
-    description
+    description,
+    name
 ) VALUES (
 $1, $2, $3, $4
 )
