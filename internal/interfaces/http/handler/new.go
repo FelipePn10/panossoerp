@@ -151,3 +151,11 @@ func NewCreateModifierHandler(
 		createModifierUC: createModifierUc,
 	}
 }
+
+func NewCreateEmployeeHandler(
+	createEmployeeUc *usecase.CreateEmployeeUseCase,
+) *EmployeeHandler {
+	return &EmployeeHandler{
+		createEmployeeUC: createEmployeeUc,
+	}
+}

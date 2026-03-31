@@ -14,6 +14,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom"
 	bomitem "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom_item"
+	employee "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/employee"
 	enterprise "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/enterprise"
 	generatemask "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/generate_mask"
 	group "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/group"
@@ -168,6 +169,11 @@ func (app *application) mount() chi.Router {
 	createModifierUc := usecase.NewCreateModifierUseCase(modifierRepo, authService)
 	modifierHandler := handler.NewCreateModifierHandler(createModifierUc)
 
+	// employee
+	employeeRepo := employee.NewRepositoryEmployeeSQLC(queries)
+	createEmployeeUc := usecase.NewCreateEmployeeUseCase(employeeRepo, authService)
+	employeeHandler := handler.NewCreateEmployeeHandler(createEmployeeUc)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -208,6 +214,9 @@ func (app *application) mount() chi.Router {
 		})
 		r.Route("/api/enterprise", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", enterpriseHandler.CreateEnterprise)
+		})
+		r.Route("/api/enterprise", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", employeeHandler.CreateEmployee)
 		})
 	})
 	// Health check
