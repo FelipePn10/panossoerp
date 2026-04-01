@@ -215,7 +215,7 @@ func (app *application) mount() chi.Router {
 		r.Route("/api/enterprise", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", enterpriseHandler.CreateEnterprise)
 		})
-		r.Route("/api/enterprise", func(r chi.Router) {
+		r.Route("/api/employee", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", employeeHandler.CreateEmployee)
 		})
 	})
