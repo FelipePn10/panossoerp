@@ -312,12 +312,10 @@ type ProductionOrder struct {
 }
 
 type Question struct {
-	ID            int64
-	Name          string
-	Createdby     uuid.UUID
-	ComplementAID int64
-	ComplementBID int64
-	CreatedAt     time.Time
+	ID        int64
+	Name      string
+	Createdby uuid.UUID
+	CreatedAt time.Time
 }
 
 type QuestionOption struct {

@@ -49,43 +49,54 @@ func (q *Queries) DeleteQuestion(ctx context.Context, id int64) error {
 }
 
 const existsQuestionByName = `-- name: ExistsQuestionByName :one
-SELECT id, name, createdby, complement_a_id, complement_b_id, created_at
-FROM questions
-WHERE name = $1
+SELECT EXISTS (
+    SELECT 1 FROM questions WHERE name = $1
+)
 `
 
-func (q *Queries) ExistsQuestionByName(ctx context.Context, name string) (Question, error) {
+func (q *Queries) ExistsQuestionByName(ctx context.Context, name string) (bool, error) {
 	row := q.db.QueryRowContext(ctx, existsQuestionByName, name)
-	var i Question
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Createdby,
-		&i.CreatedAt,
-	)
-	return i, err
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
-const findQuestionByName = `-- name: FindQuestionByName :one
-SELECT id, name, createdby, complement_a_id, complement_b_id, created_at
+const findQuestionByName = `-- name: FindQuestionByName :many
+SELECT id, name, createdby, created_at
 FROM questions
 WHERE name = $1
 `
 
-func (q *Queries) FindQuestionByName(ctx context.Context, name string) (Question, error) {
-	row := q.db.QueryRowContext(ctx, findQuestionByName, name)
-	var i Question
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Createdby,
-		&i.CreatedAt,
-	)
-	return i, err
+func (q *Queries) FindQuestionByName(ctx context.Context, name string) ([]Question, error) {
+	rows, err := q.db.QueryContext(ctx, findQuestionByName, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Question
+	for rows.Next() {
+		var i Question
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Createdby,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getQuestionByID = `-- name: GetQuestionByID :one
-SELECT id, name, createdby, complement_a_id, complement_b_id, created_at
+SELECT id, name, createdby, created_at
 FROM questions
 WHERE id = $1
 `

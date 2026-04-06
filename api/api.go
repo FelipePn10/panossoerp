@@ -99,7 +99,6 @@ func (app *application) mount() chi.Router {
 
 	// question
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
-
 	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo, authService)
 	findQuestionByNameUC := usecase.NewFindQuestionByName(questionRepo)
 

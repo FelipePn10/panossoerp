@@ -1,4 +1,4 @@
--- name: CreateQuestion :one 
+-- name: CreateQuestion :one
 INSERT INTO questions (
     name,
     createdby
@@ -16,12 +16,12 @@ WHERE id = $1;
 DELETE FROM questions
 WHERE id = $1;
 
--- name: FindQuestionByName :one
+-- name: FindQuestionByName :many
 SELECT *
 FROM questions
 WHERE name = $1;
 
 -- name: ExistsQuestionByName :one
-SELECT *
-FROM questions
-WHERE name = $1;
+SELECT EXISTS (
+    SELECT 1 FROM questions WHERE name = $1
+);

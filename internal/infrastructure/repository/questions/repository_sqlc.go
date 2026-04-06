@@ -2,9 +2,8 @@ package questions
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
+	"github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	"github.com/FelipePn10/panossoerp/internal/domain/questions/entity"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
@@ -39,13 +38,22 @@ func (r *repositoryQuestionSQLC) FindQuestionByName(
 	ctx context.Context,
 	name string,
 ) (*entity.Question, error) {
-	dbQuestion, err := r.q.FindQuestionByName(ctx, name)
+	dbQuestions, err := r.q.FindQuestionByName(ctx, name)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, err
-		}
 		return nil, err
 	}
+
+	if len(dbQuestions) == 0 {
+		return nil, repository.ErrNotFound
+	}
+
+	// opcional: proteção contra inconsistência
+	// if len(dbQuestions) > 1 {
+	//     log.Warn("multiple questions with same name")
+	// }
+
+	dbQuestion := dbQuestions[0]
+
 	return &entity.Question{
 		Name:      dbQuestion.Name,
 		CreatedBy: dbQuestion.Createdby,
@@ -56,12 +64,9 @@ func (r *repositoryQuestionSQLC) ExistsQuestionByName(
 	ctx context.Context,
 	name string,
 ) (bool, error) {
-	_, err := r.q.ExistsQuestionByName(ctx, name)
+	exists, err := r.q.ExistsQuestionByName(ctx, name)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, err
-		}
 		return false, err
 	}
-	return true, nil
+	return exists, nil
 }
