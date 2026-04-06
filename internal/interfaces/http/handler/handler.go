@@ -37,9 +37,9 @@ type QuestionOptionHandler struct {
 	deleteQuestionOptionUC *usecase.DeleteQuestionOptionUseCase
 }
 
-type AssociateByQuestionProductHandler struct {
+type AssociateByQuestionItemHandler struct {
 	*security.BaseHandler
-	associateByQuestionProductUC *usecase.AssociateByQuestionProductUseCase
+	associateByQuestionProductUC *usecase.AssociateByQuestionItemUseCase
 }
 
 type GenerateMaskHandler struct {

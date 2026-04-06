@@ -80,10 +80,10 @@ func NewDeleteQuestionOptionHandler(
 	}
 }
 
-func NewAssociateByQuestionProductHandler(
-	associateByQuestionProductUC *usecase.AssociateByQuestionProductUseCase,
-) *AssociateByQuestionProductHandler {
-	return &AssociateByQuestionProductHandler{
+func NewAssociateByQuestionItemHandler(
+	associateByQuestionProductUC *usecase.AssociateByQuestionItemUseCase,
+) *AssociateByQuestionItemHandler {
+	return &AssociateByQuestionItemHandler{
 		associateByQuestionProductUC: associateByQuestionProductUC,
 	}
 }

@@ -18,7 +18,7 @@ INSERT INTO questions (
 ) VALUES (
     $1,
     $2
-) RETURNING id, name, createdby, complement_a_id, complement_b_id, created_at
+) RETURNING id, name, createdby, created_at
 `
 
 type CreateQuestionParams struct {
@@ -33,8 +33,6 @@ func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) 
 		&i.ID,
 		&i.Name,
 		&i.Createdby,
-		&i.ComplementAID,
-		&i.ComplementBID,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -63,8 +61,6 @@ func (q *Queries) ExistsQuestionByName(ctx context.Context, name string) (Questi
 		&i.ID,
 		&i.Name,
 		&i.Createdby,
-		&i.ComplementAID,
-		&i.ComplementBID,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -83,8 +79,6 @@ func (q *Queries) FindQuestionByName(ctx context.Context, name string) (Question
 		&i.ID,
 		&i.Name,
 		&i.Createdby,
-		&i.ComplementAID,
-		&i.ComplementBID,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -103,8 +97,6 @@ func (q *Queries) GetQuestionByID(ctx context.Context, id int64) (Question, erro
 		&i.ID,
 		&i.Name,
 		&i.Createdby,
-		&i.ComplementAID,
-		&i.ComplementBID,
 		&i.CreatedAt,
 	)
 	return i, err

@@ -226,6 +226,13 @@ type ItemMachineUsage struct {
 	UsageTime int32
 }
 
+type ItemQuestion struct {
+	ItemID     int64
+	QuestionID int64
+	Position   int32
+	CreatedAt  time.Time
+}
+
 type MaskComposition struct {
 	ParentMaskID int64
 	ChildMaskID  int64
@@ -283,13 +290,6 @@ type ProductMaskAnswer struct {
 	OptionID   int64
 	Position   int32
 	MaskID     int64
-}
-
-type ProductQuestion struct {
-	ProductID  int64
-	QuestionID int64
-	Position   int32
-	CreatedAt  time.Time
 }
 
 type ProductQuestionAnswer struct {

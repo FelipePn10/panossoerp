@@ -1,7 +1,7 @@
 package request
 
 type AssociateProductQuestionsRequest struct {
-	ProductID int64 `json:"product_id"`
+	ItemID    int64 `json:"item_id"`
 	Questions []struct {
 		QuestionID int64 `json:"question_id"`
 		Position   int   `json:"position"`

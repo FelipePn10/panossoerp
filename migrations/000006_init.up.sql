@@ -13,8 +13,8 @@ BEGIN
     )
     INTO concatenated_mask
     FROM product_question_answers pqa
-    JOIN product_questions pq
-      ON pq.product_id = pqa.product_id
+    JOIN item_questions pq
+      ON pq.item_id = pqa.item_id
      AND pq.question_id = pqa.question_id
     WHERE pqa.product_id = NEW.product_id;
 

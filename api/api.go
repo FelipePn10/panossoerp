@@ -21,7 +21,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item"
 	modifier "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/modifier"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
-	productquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
+	itemquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
@@ -92,38 +92,30 @@ func (app *application) mount() chi.Router {
 	productRepo := product.NewRepositoryProductSQLC(queries)
 
 	createProductUC := usecase.NewCreateProductUseCase(productRepo, authService)
-	deleteProductUC := usecase.NewDeleteProductUseCase(productRepo, authService)
 	findProductByNameAndCodeUC := usecase.NewFindProductByNameAndCode(productRepo)
 
 	productCreateHandler := handler.NewCreateProductHandler(createProductUC)
-	productDeleteHandler := handler.NewDeleteProductHandler(deleteProductUC)
 	findProductByNameAndCodeHandler := handler.NewFindProductByNameAndCodeHandler(findProductByNameAndCodeUC)
 
 	// question
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
 
 	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo, authService)
-	deleteQuestionUC := usecase.NewDeleteQuestionUseCase(questionRepo)
 	findQuestionByNameUC := usecase.NewFindQuestionByName(questionRepo)
 
 	questionCreateHandler := handler.NewQuestionHandler(createQuestionUC)
-	questionDeleteHandler := handler.NewDeleteQuestionHandler(deleteQuestionUC)
 	findQuestionByNameHandler := handler.NewFindQuestionByName(findQuestionByNameUC)
 
 	// question option
 	questionOptionRepo := questionsoptions.NewRepositoryQuestionOptionSQLC(queries)
 
 	createQuestionOptionUC := usecase.NewCreateQuestionOptionUseCase(questionOptionRepo, authService)
-	deleteQuestionOptionUC := usecase.NewDeleteQuestionOptionUseCase(questionOptionRepo)
-
 	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC)
-	questionOptionDeleteHandler := handler.NewDeleteQuestionOptionHandler(deleteQuestionOptionUC)
 
-	// associate question in product
-	productByQuestionProductRepo := productquestion.NewAssociateQuestionProductRepositorySQLC(queries)
-
-	associateByQuestionProductUC := usecase.NewAssociateByQuestionProductUseCase(productByQuestionProductRepo, authService)
-	associateByQuestionProductHandler := handler.NewAssociateByQuestionProductHandler(associateByQuestionProductUC)
+	// associate question in item
+	itemByQuestionItemRepo := itemquestion.NewAssociateQuestionItemRepositorySQLC(queries)
+	associateByQuestionItemUC := usecase.NewAssociateByQuestionItemUseCase(itemByQuestionItemRepo, authService)
+	associateByQuestionItemHandler := handler.NewAssociateByQuestionItemHandler(associateByQuestionItemUC)
 
 	// generate mask product
 	generateMaskProduct := generatemask.NewRepositoryGenerateMaskSQLC(queries)
@@ -180,18 +172,15 @@ func (app *application) mount() chi.Router {
 
 		r.Route("/api/products", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", productCreateHandler.CreateProduct)
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", productDeleteHandler.DeleteProduct)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", findProductByNameAndCodeHandler.FindByNameAndCodeHandler)
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionDeleteHandler.DeleteQuestion)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", findQuestionByNameHandler.FindQuestionByName)
 			r.Route("/options", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create-option", questionOptionCreateHandler.CreateQuestionOptionHandler)
-				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", questionOptionDeleteHandler.DeleteQuestionOption)
 			})
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionProductHandler.AssociateQuestions)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionItemHandler.AssociateQuestions)
 		})
 		r.Route("/api/mask", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", generateMaskProductHandler.GenerateMask)
