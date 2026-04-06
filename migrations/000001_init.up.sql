@@ -46,7 +46,7 @@ CREATE TABLE product_masks (
 CREATE TABLE components (
     id BIGINT PRIMARY KEY,
     code VARCHAR(10) NOT NULL,
-    warehouse BIGINT REFERENCES warehouse(id),
+    warehouse BIGINT,
     group_code VARCHAR(20) NOT NULL,
     name TEXT NOT NULL,
     type component_type NOT NULL,
@@ -96,13 +96,24 @@ CREATE TABLE complement_b (
     value TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS items (
+    id BIGSERIAL PRIMARY KEY,
+    warehouse_id INTEGER NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    type VARCHAR(50),
+    status VARCHAR(255) NOT NULL,
+    health VARCHAR(255) NOT NULL,
+    created_by UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 -- 10. Questions
 CREATE TABLE questions (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     createdby UUID NOT NULL REFERENCES users(id),
-    complement_a_id BIGINT NOT NULL REFERENCES complement_a(id),
-    complement_b_id BIGINT NOT NULL REFERENCES complement_b(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

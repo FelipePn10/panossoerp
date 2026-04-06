@@ -1,3 +1,3 @@
-ALTER TABLE warehouse
-ADD COLUMN description VARCHAR(150),
-ADD COLUMN types VARCHAR(50);
+-- ALTER TABLE warehouse
+-- ADD COLUMN description VARCHAR(150),
+-- ADD COLUMN types VARCHAR(50);

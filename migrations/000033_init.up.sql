@@ -1,4 +1,4 @@
-CREATE TABLE employee (
+CREATE TABLE IF NOT EXISTS employee (
     id BIGSERIAL PRIMARY KEY,
     enterprise_id INT NOT NULL REFERENCES enterprise(id) ON DELETE CASCADE,
     code INT NOT NULL,

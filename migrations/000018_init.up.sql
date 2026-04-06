@@ -1,12 +1,10 @@
-CREATE TABLE items (
+CREATE TABLE IF NOT EXISTS warehouse(
     id BIGSERIAL PRIMARY KEY,
-    warehouse_id INTEGER NOT NULL,
-    code VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    type VARCHAR(255) NOT NULL,
-    status VARCHAR(255) NOT NULL,
-    health VARCHAR(255) NOT NULL,
-    created_by UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    code VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(150),
+    types VARCHAR(50),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_by UUID NOT NULL REFERENCES users(id)
 );

@@ -16,22 +16,22 @@ var (
 	ErrPositionAlreadyUsed   = errors.New("position already used for product")
 )
 
-type AssociateByQuestionProductUseCase struct {
+type AssociateByQuestionItemUseCase struct {
 	repo repository.AssociateQuestionsRepository
 	auth ports.AuthService
 }
 
-func (uc *AssociateByQuestionProductUseCase) Execute(
+func (uc *AssociateByQuestionItemUseCase) Execute(
 	ctx context.Context,
-	dto request.AssociateByQuestionProductRequestDTO,
+	dto request.AssociateByQuestionItemRequestDTO,
 ) error {
 	if !uc.auth.CanAssociateByQuestionProduct(ctx) {
 		return errorsuc.ErrUnauthorized
 	}
 
-	exists, err := uc.repo.ExistsByProductAndQuestion(
+	exists, err := uc.repo.ExistsByItemAndQuestion(
 		ctx,
-		dto.ProductID,
+		dto.ItemID,
 		dto.QuestionID,
 	)
 	if err != nil {
@@ -41,9 +41,9 @@ func (uc *AssociateByQuestionProductUseCase) Execute(
 		return ErrQuestionAlreadyLinked
 	}
 
-	positionUsed, err := uc.repo.ExistsByProductAndPosition(
+	positionUsed, err := uc.repo.ExistsByItemAndPosition(
 		ctx,
-		dto.ProductID,
+		dto.ItemID,
 		dto.Position,
 	)
 	if err != nil {
@@ -54,7 +54,7 @@ func (uc *AssociateByQuestionProductUseCase) Execute(
 	}
 
 	pq, err := entity.New(
-		dto.ProductID,
+		dto.ItemID,
 		dto.QuestionID,
 		dto.Position,
 	)

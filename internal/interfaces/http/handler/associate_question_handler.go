@@ -8,7 +8,7 @@ import (
 	internalreq "github.com/FelipePn10/panossoerp/internal/infrastructure/http/request"
 )
 
-func (h *AssociateByQuestionProductHandler) AssociateQuestions(
+func (h *AssociateByQuestionItemHandler) AssociateQuestions(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -18,15 +18,15 @@ func (h *AssociateByQuestionProductHandler) AssociateQuestions(
 		return
 	}
 
-	if req.ProductID <= 0 || len(req.Questions) == 0 {
+	if req.ItemID <= 0 || len(req.Questions) == 0 {
 		http.Error(w, "questions cannot be empty", http.StatusBadRequest)
 		return
 	}
 	ctx := r.Context()
 	// one product N questions
 	for _, q := range req.Questions {
-		dto := applicationreq.AssociateByQuestionProductRequestDTO{
-			ProductID:  req.ProductID,
+		dto := applicationreq.AssociateByQuestionItemRequestDTO{
+			ItemID:     req.ItemID,
 			QuestionID: q.QuestionID,
 			Position:   q.Position,
 		}

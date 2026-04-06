@@ -110,11 +110,11 @@ func NewDeleteQuestionOptionUseCase(
 	}
 }
 
-func NewAssociateByQuestionProductUseCase(
+func NewAssociateByQuestionItemUseCase(
 	repo ast.AssociateQuestionsRepository,
 	auth ports.AuthService,
-) *AssociateByQuestionProductUseCase {
-	return &AssociateByQuestionProductUseCase{
+) *AssociateByQuestionItemUseCase {
+	return &AssociateByQuestionItemUseCase{
 		repo: repo,
 		auth: auth,
 	}

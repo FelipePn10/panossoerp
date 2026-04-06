@@ -8,14 +8,14 @@ import (
 
 type AssociateQuestionsRepository interface {
 	Associate(ctx context.Context, pq *entity.AssociateQuestion) error
-	ExistsByProductAndQuestion(
+	ExistsByItemAndQuestion(
 		ctx context.Context,
-		ProductID int64,
+		itemID int64,
 		questionID int64,
 	) (bool, error)
-	ExistsByProductAndPosition(
+	ExistsByItemAndPosition(
 		ctx context.Context,
-		productID int64,
+		itemID int64,
 		position int,
 	) (bool, error)
 }
