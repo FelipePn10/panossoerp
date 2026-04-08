@@ -12,13 +12,13 @@ func (h *GenerateMaskHandler) GenerateMask(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var req internalreq.GenerateMaskProduct
+	var req internalreq.GenerateMaskItem
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if req.ProductCode == "" || len(req.Answers) == 0 {
+	if req.ItemCode == "" || len(req.Answers) == 0 {
 		http.Error(w, "productCode and answers are required", http.StatusBadRequest)
 		return
 	}
@@ -31,14 +31,16 @@ func (h *GenerateMaskHandler) GenerateMask(
 			Position:   a.Position,
 		})
 	}
-	d := applicationreq.GenerateMaskProductRequestDTO{
-		ProductCode: req.ProductCode,
-		Answers:     answers,
+	d := applicationreq.GenerateMaskItemRequestDTO{
+		ItemCode: req.ItemCode,
+		Answers:  answers,
 	}
 
-	if err := h.generateMask.Execute(r.Context(), d); err != nil {
+	mask, err := h.generateMask.Execute(r.Context(), d)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+
+	h.Created(w, mask, "mask generate succesfully")
 }

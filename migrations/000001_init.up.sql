@@ -17,6 +17,20 @@ CREATE TABLE users (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+
+CREATE TABLE IF NOT EXISTS items (
+    id BIGSERIAL PRIMARY KEY,
+    warehouse_id INTEGER NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    type VARCHAR(50),
+    status VARCHAR(255) NOT NULL,
+    health VARCHAR(255) NOT NULL,
+    created_by UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 -- 3. Products
 CREATE TABLE products (
     id BIGINT PRIMARY KEY,
@@ -28,18 +42,18 @@ CREATE TABLE products (
     updated_at TIMESTAMPTZ NOT NULL
 );
 
--- 4. Product Masks
-CREATE TABLE product_masks (
+-- 4. Item Masks
+CREATE TABLE item_masks (
     id BIGINT PRIMARY KEY,
-    product_id BIGINT NOT NULL REFERENCES products(id),
-    product_code VARCHAR(10) NOT NULL,
+    item_id BIGINT NOT NULL REFERENCES items(id),
+    item_code VARCHAR(255) NOT NULL,
     mask TEXT NOT NULL,
     mask_hash CHAR(8) NOT NULL,
     business_id VARCHAR(30) NOT NULL,
     created_by UUID NOT NULL REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL,
     UNIQUE (business_id),
-    UNIQUE (product_id, mask_hash)
+    UNIQUE (item_id, mask_hash)
 );
 
 -- 5. Components
@@ -96,19 +110,6 @@ CREATE TABLE complement_b (
     value TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS items (
-    id BIGSERIAL PRIMARY KEY,
-    warehouse_id INTEGER NOT NULL,
-    code VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    type VARCHAR(50),
-    status VARCHAR(255) NOT NULL,
-    health VARCHAR(255) NOT NULL,
-    created_by UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
 -- 10. Questions
 CREATE TABLE questions (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -118,12 +119,12 @@ CREATE TABLE questions (
 );
 
 -- 11. Indexes
-CREATE INDEX idx_products_code ON products(code);
-CREATE INDEX idx_product_masks_business_id ON product_masks(business_id);
+CREATE INDEX idx_item_code ON items(code);
+CREATE INDEX idx_item_masks_business_id ON item_masks(business_id);
 CREATE INDEX idx_components_code_type ON components(code, type);
 CREATE INDEX idx_components_type ON components(type);
 CREATE INDEX idx_component_masks_business_id ON component_masks(business_id);
 CREATE INDEX idx_mask_composition_parent ON mask_composition(parent_mask_id);
-CREATE INDEX idx_products_created_by ON products(created_by);
+CREATE INDEX idx_item_created_by ON items(created_by);
 CREATE INDEX idx_components_created_by ON components(created_by);
 CREATE INDEX idx_component_masks_created_by ON component_masks(created_by);

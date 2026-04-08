@@ -1,6 +1,6 @@
-CREATE TABLE IF NOT EXISTS product_masks (
+CREATE TABLE IF NOT EXISTS item_masks (
     id BIGINT PRIMARY KEY,
-    product_code VARCHAR(10) NOT NULL,
+    item_code VARCHAR(255) NOT NULL,
     mask TEXT NOT NULL,
     mask_hash CHAR(8) NOT NULL,
     created_by UUID NOT NULL REFERENCES users(id),

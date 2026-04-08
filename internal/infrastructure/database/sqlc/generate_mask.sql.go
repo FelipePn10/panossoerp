@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -23,62 +24,71 @@ func (q *Queries) GetOptionValueByID(ctx context.Context, id int64) (string, err
 	return value, err
 }
 
-const insertProductMask = `-- name: InsertProductMask :one
-INSERT INTO product_masks (
-    product_code, 
-    mask, 
-    mask_hash, 
-    created_by, 
-    created_at
-    )
-VALUES ($1, $2, $3, $4, NOW())
-RETURNING id, product_code, mask, mask_hash, created_by, created_at
-`
-
-type InsertProductMaskParams struct {
-	ProductCode string
-	Mask        string
-	MaskHash    string
-	CreatedBy   uuid.UUID
-}
-
-func (q *Queries) InsertProductMask(ctx context.Context, arg InsertProductMaskParams) (ProductMask, error) {
-	row := q.db.QueryRowContext(ctx, insertProductMask,
-		arg.ProductCode,
-		arg.Mask,
-		arg.MaskHash,
-		arg.CreatedBy,
-	)
-	var i ProductMask
-	err := row.Scan(
-		&i.ID,
-		&i.ProductCode,
-		&i.Mask,
-		&i.MaskHash,
-		&i.CreatedBy,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const insertProductMaskAnswer = `-- name: InsertProductMaskAnswer :exec
-INSERT INTO product_mask_answers (mask_id, question_id, option_id, position)
+const insertItemMaskAnswer = `-- name: InsertItemMaskAnswer :exec
+INSERT INTO item_mask_answers (mask_id, question_id, option_id, position)
 VALUES ($1, $2, $3, $4)
 `
 
-type InsertProductMaskAnswerParams struct {
+type InsertItemMaskAnswerParams struct {
 	MaskID     int64
 	QuestionID int64
 	OptionID   int64
 	Position   int32
 }
 
-func (q *Queries) InsertProductMaskAnswer(ctx context.Context, arg InsertProductMaskAnswerParams) error {
-	_, err := q.db.ExecContext(ctx, insertProductMaskAnswer,
+func (q *Queries) InsertItemMaskAnswer(ctx context.Context, arg InsertItemMaskAnswerParams) error {
+	_, err := q.db.ExecContext(ctx, insertItemMaskAnswer,
 		arg.MaskID,
 		arg.QuestionID,
 		arg.OptionID,
 		arg.Position,
 	)
 	return err
+}
+
+const insertItemtMask = `-- name: InsertItemtMask :one
+INSERT INTO item_masks (
+    item_code,
+    mask,
+    mask_hash,
+    created_by,
+    created_at
+    )
+VALUES ($1, $2, $3, $4, NOW())
+RETURNING id, item_code, mask, mask_hash, created_by, created_at
+`
+
+type InsertItemtMaskParams struct {
+	ItemCode  string
+	Mask      string
+	MaskHash  string
+	CreatedBy uuid.UUID
+}
+
+type InsertItemtMaskRow struct {
+	ID        int64
+	ItemCode  string
+	Mask      string
+	MaskHash  string
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
+}
+
+func (q *Queries) InsertItemtMask(ctx context.Context, arg InsertItemtMaskParams) (InsertItemtMaskRow, error) {
+	row := q.db.QueryRowContext(ctx, insertItemtMask,
+		arg.ItemCode,
+		arg.Mask,
+		arg.MaskHash,
+		arg.CreatedBy,
+	)
+	var i InsertItemtMaskRow
+	err := row.Scan(
+		&i.ID,
+		&i.ItemCode,
+		&i.Mask,
+		&i.MaskHash,
+		&i.CreatedBy,
+		&i.CreatedAt,
+	)
+	return i, err
 }

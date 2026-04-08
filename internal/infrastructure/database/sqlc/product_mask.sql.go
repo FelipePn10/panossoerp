@@ -27,12 +27,12 @@ ORDER BY created_at DESC
 LIMIT 1
 `
 
-func (q *Queries) GetProductMaskByProductCode(ctx context.Context, productCode string) (ProductMask, error) {
+func (q *Queries) GetProductMaskByProductCode(ctx context.Context, productCode string) (ItemMask, error) {
 	row := q.db.QueryRowContext(ctx, getProductMaskByProductCode, productCode)
-	var i ProductMask
+	var i ItemMask
 	err := row.Scan(
 		&i.ID,
-		&i.ProductCode,
+		&i.ItemCode,
 		&i.Mask,
 		&i.MaskHash,
 		&i.CreatedBy,

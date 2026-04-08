@@ -20,7 +20,6 @@ import (
 	group "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/group"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item"
 	modifier "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/modifier"
-	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product"
 	itemquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
@@ -88,18 +87,8 @@ func (app *application) mount() chi.Router {
 		r.Post("/login", userHandler.LoginHandler)
 	})
 
-	// product
-	productRepo := product.NewRepositoryProductSQLC(queries)
-
-	createProductUC := usecase.NewCreateProductUseCase(productRepo, authService)
-	findProductByNameAndCodeUC := usecase.NewFindProductByNameAndCode(productRepo)
-
-	productCreateHandler := handler.NewCreateProductHandler(createProductUC)
-	findProductByNameAndCodeHandler := handler.NewFindProductByNameAndCodeHandler(findProductByNameAndCodeUC)
-
 	// question
 	questionRepo := questions.NewRepositoryQuestionSQLC(queries)
-
 	createQuestionUC := usecase.NewQuestionUserUseCase(questionRepo, authService)
 	findQuestionByNameUC := usecase.NewFindQuestionByName(questionRepo)
 
@@ -117,11 +106,10 @@ func (app *application) mount() chi.Router {
 	associateByQuestionItemUC := usecase.NewAssociateByQuestionItemUseCase(itemByQuestionItemRepo, authService)
 	associateByQuestionItemHandler := handler.NewAssociateByQuestionItemHandler(associateByQuestionItemUC)
 
-	// generate mask product
-	generateMaskProduct := generatemask.NewRepositoryGenerateMaskSQLC(queries)
-
-	generateMaskProductUC := usecase.NewGenerateMaskProductUseCase(generateMaskProduct)
-	generateMaskProductHandler := handler.NewGeneratMaskProductHandler(generateMaskProductUC)
+	// generate mask item
+	generateMaskItem := generatemask.NewRepositoryGenerateMaskSQLC(queries)
+	generateMaskItemUC := usecase.NewGenerateMaskItemUseCase(generateMaskItem, authService)
+	generateMaskItemHandler := handler.NewGeneratMaskItemHandler(generateMaskItemUC)
 
 	// Item
 	itemRepo := item.NewRepositoryItemSQLC(queries)
@@ -169,10 +157,11 @@ func (app *application) mount() chi.Router {
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
-
-		r.Route("/api/products", func(r chi.Router) {
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", productCreateHandler.CreateProduct)
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", findProductByNameAndCodeHandler.FindByNameAndCodeHandler)
+		r.Route("/api/items", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", itemHandler.CreateItem)
+			r.Route("/mask", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", generateMaskItemHandler.GenerateMask)
+			})
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)
@@ -182,17 +171,11 @@ func (app *application) mount() chi.Router {
 			})
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionItemHandler.AssociateQuestions)
 		})
-		r.Route("/api/mask", func(r chi.Router) {
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", generateMaskProductHandler.GenerateMask)
-		})
 		r.Route("/api/bom", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", bomHandler.Create)
 			r.Route("/bom-items", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", bomItemHandler.Create)
 			})
-		})
-		r.Route("/api/items", func(r chi.Router) {
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", itemHandler.CreateItem)
 		})
 		r.Route("/api/warehouse", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", warehouseHandler.CreateWarehouse)

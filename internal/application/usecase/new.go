@@ -8,7 +8,7 @@ import (
 	component "github.com/FelipePn10/panossoerp/internal/domain/component/repository"
 	employee "github.com/FelipePn10/panossoerp/internal/domain/employee/repository"
 	enterprise "github.com/FelipePn10/panossoerp/internal/domain/enterprise/repository"
-	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
+	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/repository"
 	group "github.com/FelipePn10/panossoerp/internal/domain/group/repository"
 	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
 	modifier "github.com/FelipePn10/panossoerp/internal/domain/modifier/repository"
@@ -120,10 +120,11 @@ func NewAssociateByQuestionItemUseCase(
 	}
 }
 
-func NewGenerateMaskProductUseCase(
-	repo mask.GenerateMaskForProductRepository,
-) *GenerateMaskForProductUseCase {
-	return &GenerateMaskForProductUseCase{
+func NewGenerateMaskItemUseCase(
+	repo mask.GenerateMaskForItemRepository,
+	auth ports.AuthService,
+) *GenerateMaskForItemUseCase {
+	return &GenerateMaskForItemUseCase{
 		repo: repo,
 	}
 }

@@ -2,33 +2,26 @@ package usecase
 
 import (
 	"context"
-	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
-	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/entity"
-	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/repository"
-	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_product/valueobject"
-	"github.com/FelipePn10/panossoerp/internal/infrastructure/auth"
-	contextkey "github.com/FelipePn10/panossoerp/internal/interfaces/http/context"
-	"github.com/google/uuid"
+	"github.com/FelipePn10/panossoerp/internal/application/ports"
+	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
+	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/entity"
+	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/repository"
+	"github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/valueobject"
 )
 
-type GenerateMaskForProductUseCase struct {
-	repo repository.GenerateMaskForProductRepository
+type GenerateMaskForItemUseCase struct {
+	repo repository.GenerateMaskForItemRepository
+	auth ports.AuthService
 }
 
-func (uc *GenerateMaskForProductUseCase) Execute(
+func (uc *GenerateMaskForItemUseCase) Execute(
 	ctx context.Context,
-	dto request.GenerateMaskProductRequestDTO,
-) error {
-	claims, ok := ctx.Value(contextkey.UserKey).(*auth.UserClaims)
-	if !ok || claims.UserID == "" {
-		return errors.New("unauthenticated user")
-	}
-
-	userUUID, err := uuid.Parse(claims.UserID)
-	if err != nil {
-		return errors.New("invalid user id")
+	dto request.GenerateMaskItemRequestDTO,
+) (*entity.ItemMask, error) {
+	if !uc.auth.CanGenerateMaskForItem(ctx) {
+		return nil, errorsuc.ErrUnauthorized
 	}
 
 	answers := make([]valueobject.MaskAnswer, 0, len(dto.Answers))
@@ -36,7 +29,7 @@ func (uc *GenerateMaskForProductUseCase) Execute(
 	for _, a := range dto.Answers {
 		optionValue, err := uc.repo.GetOptionValue(ctx, a.OptionID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		answer, err := valueobject.NewMaskAnswer(
@@ -46,23 +39,31 @@ func (uc *GenerateMaskForProductUseCase) Execute(
 			optionValue,
 		)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		answers = append(answers, answer)
 	}
 
-	mask, err := valueobject.NewProductMask(dto.ProductCode, answers)
+	mask, err := valueobject.NewItemMask(dto.ItemCode, answers)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	productMask := entity.ProductMask{
-		ProductCode: dto.ProductCode,
-		Mask:        mask.Value(),
-		MaskHash:    mask.Hash(),
-		CreatedBy:   userUUID,
+	itemMask, err := entity.NewItemMask(
+		dto.ItemCode,
+		mask.Value(),
+		mask.Hash(),
+		dto.CreatedBy,
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	return uc.repo.Generate(ctx, &productMask)
+	generate, err := uc.repo.Generate(ctx, itemMask)
+	if err != nil {
+		return nil, err
+	}
+
+	return generate, nil
 }

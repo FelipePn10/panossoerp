@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS product_question_answers;
+DROP TABLE IF EXISTS item_question_answers;
