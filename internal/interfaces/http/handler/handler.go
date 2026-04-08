@@ -44,7 +44,7 @@ type AssociateByQuestionItemHandler struct {
 
 type GenerateMaskHandler struct {
 	*security.BaseHandler
-	generateMask *usecase.GenerateMaskForProductUseCase
+	generateMask *usecase.GenerateMaskForItemUseCase
 }
 
 type BomHandler struct {

@@ -17,12 +17,12 @@ type MaskAnswer struct {
 	position    int
 }
 
-type ProductMask struct {
-	productCode string
-	createdBy   uuid.UUID
-	answers     []MaskAnswer
-	mask        string
-	hash        string
+type ItemMask struct {
+	itemCode  string
+	createdBy uuid.UUID
+	answers   []MaskAnswer
+	mask      string
+	hash      string
 }
 
 func NewMaskAnswer(questionID, optionID int64, position int, value string) (MaskAnswer, error) {
@@ -47,12 +47,12 @@ func NewMaskAnswer(questionID, optionID int64, position int, value string) (Mask
 	}, nil
 }
 
-func NewProductMask(productCode string, answers []MaskAnswer) (ProductMask, error) {
-	if productCode == "" {
-		return ProductMask{}, errors.New("invalid product code")
+func NewItemMask(itemCode string, answers []MaskAnswer) (ItemMask, error) {
+	if itemCode == "" {
+		return ItemMask{}, errors.New("invalid item code")
 	}
 	if len(answers) == 0 {
-		return ProductMask{}, errors.New("mask must have at least one answer")
+		return ItemMask{}, errors.New("mask must have at least one answer")
 	}
 
 	mask := generateMask(answers)
@@ -60,11 +60,11 @@ func NewProductMask(productCode string, answers []MaskAnswer) (ProductMask, erro
 	h := sha256.Sum256([]byte(mask))
 	hash := hex.EncodeToString(h[:])[:8]
 
-	return ProductMask{
-		productCode: productCode,
-		answers:     answers,
-		mask:        mask,
-		hash:        hash,
+	return ItemMask{
+		itemCode: itemCode,
+		answers:  answers,
+		mask:     mask,
+		hash:     hash,
 	}, nil
 }
 
@@ -82,11 +82,11 @@ func generateMask(answers []MaskAnswer) string {
 }
 
 // Getters
-func (pm ProductMask) Value() string {
+func (pm ItemMask) Value() string {
 	return pm.mask
 }
 
-func (pm ProductMask) Hash() string {
+func (pm ItemMask) Hash() string {
 	return pm.hash
 }
 

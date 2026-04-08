@@ -1,1 +1,1 @@
-CREATE INDEX idx_products_name_code ON products(name, code);
+CREATE INDEX idx_item_name_code ON items(name, code);

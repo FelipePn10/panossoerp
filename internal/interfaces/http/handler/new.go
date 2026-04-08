@@ -88,8 +88,8 @@ func NewAssociateByQuestionItemHandler(
 	}
 }
 
-func NewGeneratMaskProductHandler(
-	generateMaskProductUC *usecase.GenerateMaskForProductUseCase,
+func NewGeneratMaskItemHandler(
+	generateMaskProductUC *usecase.GenerateMaskForItemUseCase,
 ) *GenerateMaskHandler {
 	return &GenerateMaskHandler{
 		generateMask: generateMaskProductUC,

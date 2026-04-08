@@ -226,10 +226,37 @@ type ItemMachineUsage struct {
 	UsageTime int32
 }
 
+type ItemMask struct {
+	ID        int64
+	ItemID    int64
+	ItemCode  string
+	Mask      string
+	MaskHash  string
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
+}
+
+type ItemMaskAnswer struct {
+	ID         int64
+	QuestionID int64
+	OptionID   int64
+	Position   int32
+	MaskID     int64
+}
+
 type ItemQuestion struct {
 	ItemID     int64
 	QuestionID int64
 	Position   int32
+	CreatedAt  time.Time
+}
+
+type ItemQuestionAnswer struct {
+	ID         int64
+	ItemID     int64
+	QuestionID int64
+	Answer     string
+	CreatedBy  uuid.UUID
 	CreatedAt  time.Time
 }
 
@@ -273,32 +300,6 @@ type Product struct {
 	Name      string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
-}
-
-type ProductMask struct {
-	ID          int64
-	ProductCode string
-	Mask        string
-	MaskHash    string
-	CreatedBy   uuid.UUID
-	CreatedAt   time.Time
-}
-
-type ProductMaskAnswer struct {
-	ID         int64
-	QuestionID int64
-	OptionID   int64
-	Position   int32
-	MaskID     int64
-}
-
-type ProductQuestionAnswer struct {
-	ID         int64
-	ProductID  int64
-	QuestionID int64
-	Answer     string
-	CreatedBy  uuid.UUID
-	CreatedAt  time.Time
 }
 
 type ProductionOrder struct {

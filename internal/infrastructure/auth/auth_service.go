@@ -75,3 +75,7 @@ func (a *AuthService) CanCreateModifier(ctx context.Context) bool {
 func (a *AuthService) CanCreateEmployee(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
+
+func (a *AuthService) CanGenerateMaskForItem(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
