@@ -54,22 +54,24 @@ func (q *Queries) DeleteQuestionOption(ctx context.Context, id int64) error {
 }
 
 const existsQuestionOptionByValue = `-- name: ExistsQuestionOptionByValue :one
-SELECT id, question_id, value, created_at, created_by
-FROM question_options
-WHERE value = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM question_options
+    WHERE value = $1
+      AND question_id = $2
+)
 `
 
-func (q *Queries) ExistsQuestionOptionByValue(ctx context.Context, value string) (QuestionOption, error) {
-	row := q.db.QueryRowContext(ctx, existsQuestionOptionByValue, value)
-	var i QuestionOption
-	err := row.Scan(
-		&i.ID,
-		&i.QuestionID,
-		&i.Value,
-		&i.CreatedAt,
-		&i.CreatedBy,
-	)
-	return i, err
+type ExistsQuestionOptionByValueParams struct {
+	Value      string
+	QuestionID int64
+}
+
+func (q *Queries) ExistsQuestionOptionByValue(ctx context.Context, arg ExistsQuestionOptionByValueParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, existsQuestionOptionByValue, arg.Value, arg.QuestionID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const getQuestionOptionByID = `-- name: GetQuestionOptionByID :one

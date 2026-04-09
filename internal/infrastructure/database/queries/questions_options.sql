@@ -20,6 +20,9 @@ DELETE FROM question_options
 WHERE id = $1;
 
 -- name: ExistsQuestionOptionByValue :one
-SELECT *
-FROM question_options
-WHERE value = $1;
+SELECT EXISTS (
+    SELECT 1
+    FROM question_options
+    WHERE value = $1
+      AND question_id = $2
+);

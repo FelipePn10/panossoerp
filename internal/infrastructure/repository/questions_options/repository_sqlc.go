@@ -35,15 +35,20 @@ func (r *repositoryQuestionOptionsSQLC) Save(
 func (r *repositoryQuestionOptionsSQLC) ExistsQuestionOptionByValue(
 	ctx context.Context,
 	value string,
+	questionID int64,
 ) (bool, error) {
-	_, err := r.q.ExistsQuestionOptionByValue(ctx, value)
+
+	params := sqlc.ExistsQuestionOptionByValueParams{
+		Value:      value,
+		QuestionID: questionID,
+	}
+
+	exists, err := r.q.ExistsQuestionOptionByValue(ctx, params)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, err
-		}
 		return false, err
 	}
-	return true, nil
+
+	return exists, nil
 }
 
 func (r *repositoryQuestionOptionsSQLC) Delete(
