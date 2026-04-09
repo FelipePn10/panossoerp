@@ -69,12 +69,15 @@ func NewItemMask(itemCode string, answers []MaskAnswer) (ItemMask, error) {
 }
 
 func generateMask(answers []MaskAnswer) string {
-	sort.Slice(answers, func(i, j int) bool {
-		return answers[i].position < answers[j].position
+	copied := make([]MaskAnswer, len(answers))
+	copy(copied, answers)
+
+	sort.Slice(copied, func(i, j int) bool {
+		return copied[i].position < copied[j].position
 	})
 
-	values := make([]string, 0, len(answers))
-	for _, a := range answers {
+	values := make([]string, 0, len(copied))
+	for _, a := range copied {
 		values = append(values, a.optionValue)
 	}
 

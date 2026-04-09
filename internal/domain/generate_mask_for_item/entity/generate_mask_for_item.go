@@ -10,6 +10,7 @@ import (
 type ItemMask struct {
 	ID        int64
 	ItemCode  string
+	ItemID    int64
 	Mask      string
 	MaskHash  string
 	CreatedBy uuid.UUID

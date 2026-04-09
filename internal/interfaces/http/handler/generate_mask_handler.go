@@ -32,8 +32,10 @@ func (h *GenerateMaskHandler) GenerateMask(
 		})
 	}
 	d := applicationreq.GenerateMaskItemRequestDTO{
-		ItemCode: req.ItemCode,
-		Answers:  answers,
+		ItemCode:  req.ItemCode,
+		ItemID:    req.ItemID,
+		Answers:   answers,
+		CreatedBy: req.CreatedBy,
 	}
 
 	mask, err := h.generateMask.Execute(r.Context(), d)
