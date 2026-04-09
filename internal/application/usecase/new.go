@@ -126,6 +126,7 @@ func NewGenerateMaskItemUseCase(
 ) *GenerateMaskForItemUseCase {
 	return &GenerateMaskForItemUseCase{
 		repo: repo,
+		auth: auth,
 	}
 }
 func NewCreateBomUseCase(

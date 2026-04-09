@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
 	"github.com/FelipePn10/panossoerp/internal/application/ports"
@@ -20,8 +21,18 @@ func (uc *GenerateMaskForItemUseCase) Execute(
 	ctx context.Context,
 	dto request.GenerateMaskItemRequestDTO,
 ) (*entity.ItemMask, error) {
+	if uc.auth == nil {
+		return nil, errors.New("auth service not initialized")
+	}
+	if uc.repo == nil {
+		return nil, errors.New("repository not initialized")
+	}
+
 	if !uc.auth.CanGenerateMaskForItem(ctx) {
 		return nil, errorsuc.ErrUnauthorized
+	}
+	if len(dto.Answers) == 0 {
+		return nil, errors.New("answers cannot be empty")
 	}
 
 	answers := make([]valueobject.MaskAnswer, 0, len(dto.Answers))
@@ -52,6 +63,7 @@ func (uc *GenerateMaskForItemUseCase) Execute(
 
 	itemMask, err := entity.NewItemMask(
 		dto.ItemCode,
+		dto.ItemID,
 		mask.Value(),
 		mask.Hash(),
 		dto.CreatedBy,

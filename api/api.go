@@ -27,9 +27,8 @@ import (
 	warehouse "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/warehouse"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler"
 	httpmw "github.com/FelipePn10/panossoerp/internal/interfaces/middleware"
-	"github.com/go-chi/chi/middleware"
-	chimw "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type application struct {
@@ -42,16 +41,14 @@ func (app *application) traceMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		ww := chimw.NewWrapResponseWriter(w, r.ProtoMajor)
+		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
 		next.ServeHTTP(ww, r)
-
-		duration := time.Since(start)
 
 		app.logger.Info("request completed",
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),
-			slog.Int64("duration_ms", duration.Milliseconds()),
+			slog.Int64("duration_ms", time.Since(start).Milliseconds()),
 			slog.String("client_ip", r.RemoteAddr),
 			slog.Int("status", ww.Status()),
 		)
