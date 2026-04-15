@@ -260,6 +260,24 @@ type ItemQuestionAnswer struct {
 	CreatedAt  time.Time
 }
 
+type ItemStructure struct {
+	ID                int64
+	ParentItemID      int64
+	ChildItemID       int64
+	ParentMask        sql.NullString
+	Quantity          float64
+	UnitOfMeasurement string
+	LossPercentage    float64
+	Position          int32
+	Notes             sql.NullString
+	IsActive          bool
+	CreatedBy         uuid.UUID
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	ParentCode        sql.NullString
+	ChildCode         sql.NullString
+}
+
 type MaskComposition struct {
 	ParentMaskID int64
 	ChildMaskID  int64

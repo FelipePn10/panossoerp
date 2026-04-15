@@ -79,3 +79,23 @@ func (a *AuthService) CanCreateEmployee(ctx context.Context) bool {
 func (a *AuthService) CanGenerateMaskForItem(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
+
+func (a *AuthService) CanCreateStructure(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) UpdateStructure(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) GetStructureTree(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) GetAllStructure(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) ResolveStructureForMask(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}

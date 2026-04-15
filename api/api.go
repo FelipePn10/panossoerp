@@ -23,6 +23,7 @@ import (
 	itemquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/product_question"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
+	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/structure"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
 	warehouse "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/warehouse"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler"
@@ -110,9 +111,17 @@ func (app *application) mount() chi.Router {
 
 	// Item
 	itemRepo := item.NewRepositoryItemSQLC(queries)
-
 	createItemUc := usecase.NewCreateItem(itemRepo, authService)
 	itemHandler := handler.NewCreateItemHandler(createItemUc)
+
+	// Item Structure
+	itemRepoStructure := structure.NewItemStructureRepository(queries)
+	createStructureUc := usecase.NewCreateStructureComponentUseCase(itemRepoStructure, authService)
+	updateStructureUc := usecase.NewUpdateStructureComponentUseCase(itemRepoStructure, authService)
+	getAllStructureUc := usecase.NewGetAllDirectChildrenUseCase(itemRepoStructure, authService)
+	treeStructureUc := usecase.NewGetStructureTreeUseCase(itemRepoStructure, authService)
+	resolveStructureUc := usecase.NewResolveStructureForMaskUseCase(itemRepoStructure, authService)
+	structureHandler := handler.NewItemStructureHandler(createStructureUc, updateStructureUc, getAllStructureUc, treeStructureUc, resolveStructureUc)
 
 	// bom
 	bomRepo := bom.NewRepostioryBomSQLC(queries)
@@ -159,6 +168,13 @@ func (app *application) mount() chi.Router {
 			r.Route("/mask", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", generateMaskItemHandler.GenerateMask)
 			})
+			r.Route("/structure", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", structureHandler.Create)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/update", structureHandler.Update)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{parentItemId}/children", structureHandler.GetAllDirectChildren)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/resolve-for-mask", structureHandler.ResolveForMask)
+			})
+
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)

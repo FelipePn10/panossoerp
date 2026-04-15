@@ -159,3 +159,21 @@ func NewCreateEmployeeHandler(
 		createEmployeeUC: createEmployeeUc,
 	}
 }
+
+func NewItemStructureHandler(
+	createUC *usecase.CreateStructureComponentUseCase,
+	updateUC *usecase.UpdateStructureComponentUseCase,
+	getAllStructureUC *usecase.GetAllDirectChildrenUseCase,
+	treeUC *usecase.GetStructureTreeUseCase,
+	resolveUC *usecase.ResolveStructureForMaskUseCase,
+	// deleteUC *usecase.DeleteStructureComponentUseCase,
+) *ItemStructureHandler {
+	return &ItemStructureHandler{
+		createUC:        createUC,
+		updateUC:        updateUC,
+		getAllStructure: getAllStructureUC,
+		treeUC:          treeUC,
+		resolveUC:       resolveUC,
+		//deleteUC:  deleteUC,
+	}
+}
