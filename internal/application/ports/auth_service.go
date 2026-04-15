@@ -20,4 +20,9 @@ type AuthService interface {
 	CanCreateModifier(ctx context.Context) bool
 	CanCreateEmployee(ctx context.Context) bool
 	CanGenerateMaskForItem(ctx context.Context) bool
+	CanCreateStructure(ctx context.Context) bool
+	UpdateStructure(ctx context.Context) bool
+	GetStructureTree(ctx context.Context) bool
+	GetAllStructure(ctx context.Context) bool
+	ResolveStructureForMask(ctx context.Context) bool
 }

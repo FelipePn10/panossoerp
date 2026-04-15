@@ -81,3 +81,13 @@ type EmployeeHandler struct {
 	*security.BaseHandler
 	createEmployeeUC *usecase.CreateEmployeeUseCase
 }
+
+type ItemStructureHandler struct {
+	*security.BaseHandler
+	createUC        *usecase.CreateStructureComponentUseCase
+	updateUC        *usecase.UpdateStructureComponentUseCase
+	getAllStructure *usecase.GetAllDirectChildrenUseCase
+	treeUC          *usecase.GetStructureTreeUseCase
+	resolveUC       *usecase.ResolveStructureForMaskUseCase
+	//deleteUC  *usecase.DeleteStructureComponentUseCase
+}

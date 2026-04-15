@@ -15,6 +15,7 @@ import (
 	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
+	"github.com/FelipePn10/panossoerp/internal/domain/structure/repository"
 	user "github.com/FelipePn10/panossoerp/internal/domain/user/repository"
 	warehouse "github.com/FelipePn10/panossoerp/internal/domain/warehouse/repository"
 )
@@ -214,6 +215,56 @@ func NewCreateEmployeeUseCase(
 	auth ports.AuthService,
 ) *CreateEmployeeUseCase {
 	return &CreateEmployeeUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewCreateStructureComponentUseCase(
+	repo repository.ItemStructureRepository,
+	auth ports.AuthService,
+) *CreateStructureComponentUseCase {
+	return &CreateStructureComponentUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewUpdateStructureComponentUseCase(
+	repo repository.ItemStructureRepository,
+	auth ports.AuthService,
+) *UpdateStructureComponentUseCase {
+	return &UpdateStructureComponentUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewGetStructureTreeUseCase(
+	repo repository.ItemStructureRepository,
+	auth ports.AuthService,
+) *GetStructureTreeUseCase {
+	return &GetStructureTreeUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewResolveStructureForMaskUseCase(
+	repo repository.ItemStructureRepository,
+	auth ports.AuthService,
+) *ResolveStructureForMaskUseCase {
+	return &ResolveStructureForMaskUseCase{
+		repo: repo,
+		auth: auth,
+	}
+}
+
+func NewGetAllDirectChildrenUseCase(
+	repo ItemStructureRepository,
+	auth ports.AuthService,
+) *GetAllDirectChildrenUseCase {
+	return &GetAllDirectChildrenUseCase{
 		repo: repo,
 		auth: auth,
 	}
