@@ -25,4 +25,5 @@ type AuthService interface {
 	GetStructureTree(ctx context.Context) bool
 	GetAllStructure(ctx context.Context) bool
 	ResolveStructureForMask(ctx context.Context) bool
+	FindItemByCode(ctx context.Context) bool
 }

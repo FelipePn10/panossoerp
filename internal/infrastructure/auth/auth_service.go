@@ -99,3 +99,6 @@ func (a *AuthService) GetAllStructure(ctx context.Context) bool {
 func (a *AuthService) ResolveStructureForMask(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
+func (a *AuthService) FindItemByCode(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}

@@ -50,6 +50,11 @@ INSERT INTO item_machine_usages (
 )
 RETURNING *;
 
+-- name: FindItemByCode :one
+SELECT *
+FROM items
+WHERE code = $1;
+
 -- name: GetItemByID :one
 SELECT * FROM items
 WHERE id = $1;

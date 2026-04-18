@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/product/entity"
-	"github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
@@ -61,32 +60,6 @@ func (r *repositoryProductSQLC) ExistsProductByCode(
 		return false, err
 	}
 	return true, nil
-}
-
-func (r *repositoryProductSQLC) FindByNameAndCode(
-	ctx context.Context,
-	name string,
-	code string,
-) (*entity.Product, error) {
-	dbProduct, err := r.q.FindByNameAndCode(ctx, sqlc.FindByNameAndCodeParams{
-		Name: name,
-		Code: code,
-	})
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, repository.ErrNotFound
-		}
-		return nil, err
-	}
-
-	return &entity.Product{
-		ID:        dbProduct.ID,
-		Code:      dbProduct.Code,
-		GroupCode: dbProduct.GroupCode.String,
-		Name:      dbProduct.Name,
-		CreatedBy: dbProduct.CreatedBy,
-		CreatedAt: dbProduct.CreatedAt,
-	}, nil
 }
 
 // func (r *repositoryProductSQLC) FindByID(

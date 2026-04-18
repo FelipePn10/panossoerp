@@ -187,6 +187,51 @@ func (q *Queries) CreateItemMachineUsage(ctx context.Context, arg CreateItemMach
 	return i, err
 }
 
+const findItemByCode = `-- name: FindItemByCode :one
+SELECT id, warehouse_id, code, health, created_by, created_at, complement, nature, situation, pdm_group_id, pdm_modifier_id, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_cod, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_id, planning_ghost, planner_employee_id, supplies_type_of_use
+FROM items
+WHERE code = $1
+`
+
+func (q *Queries) FindItemByCode(ctx context.Context, code int64) (Item, error) {
+	row := q.db.QueryRowContext(ctx, findItemByCode, code)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.WarehouseID,
+		&i.Code,
+		&i.Health,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.Complement,
+		&i.Nature,
+		&i.Situation,
+		&i.PdmGroupID,
+		&i.PdmModifierID,
+		&i.PdmAttributes,
+		&i.PdmDescriptionTechnique,
+		&i.WarehouseUnitOfMeasurement,
+		&i.WarehouseAutomaticLow,
+		&i.WarehouseCyclicalCountConfig,
+		&i.WarehouseMinimumStock,
+		&i.WarehouseAvgMonthlyConsumptionManual,
+		&i.EngineeringItemBaseCod,
+		&i.EngineeringWeight,
+		&i.EngineeringDimensions,
+		&i.EngineeringType,
+		&i.EngineeringTypeStruct,
+		&i.EngineeringOem,
+		&i.PlanningTypeMrp,
+		&i.PlanningLlc,
+		&i.PlanningReorderPoint,
+		&i.PlanningTankID,
+		&i.PlanningGhost,
+		&i.PlannerEmployeeID,
+		&i.SuppliesTypeOfUse,
+	)
+	return i, err
+}
+
 const getItemByID = `-- name: GetItemByID :one
 SELECT id, warehouse_id, code, health, created_by, created_at, complement, nature, situation, pdm_group_id, pdm_modifier_id, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_cod, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_id, planning_ghost, planner_employee_id, supplies_type_of_use FROM items
 WHERE id = $1

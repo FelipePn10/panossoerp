@@ -12,7 +12,6 @@ import (
 	group "github.com/FelipePn10/panossoerp/internal/domain/group/repository"
 	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
 	modifier "github.com/FelipePn10/panossoerp/internal/domain/modifier/repository"
-	prdt "github.com/FelipePn10/panossoerp/internal/domain/product/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
 	qstops "github.com/FelipePn10/panossoerp/internal/domain/questions_options/repository"
 	"github.com/FelipePn10/panossoerp/internal/domain/structure/repository"
@@ -20,31 +19,13 @@ import (
 	warehouse "github.com/FelipePn10/panossoerp/internal/domain/warehouse/repository"
 )
 
-func NewCreateProductUseCase(
-	repo prdt.ProductRepository,
+func NewFindItemByCode(
+	repo item.ItemRepository,
 	auth ports.AuthService,
-) *CreateProductUseCase {
-	return &CreateProductUseCase{
+) *FindItemByCode {
+	return &FindItemByCode{
 		repo: repo,
 		auth: auth,
-	}
-}
-
-func NewDeleteProductUseCase(
-	repo prdt.ProductRepository,
-	auth ports.AuthService,
-) *DeleteProductUseCase {
-	return &DeleteProductUseCase{
-		repo: repo,
-		auth: auth,
-	}
-}
-
-func NewFindProductByNameAndCode(
-	repo prdt.ProductRepository,
-) *FindProductByNameAndCode {
-	return &FindProductByNameAndCode{
-		repo: repo,
 	}
 }
 

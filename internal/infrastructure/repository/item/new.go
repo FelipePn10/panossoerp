@@ -2,12 +2,12 @@ package item
 
 import "github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 
-type repositoryItemSQLC struct {
+type RepositoryItemSQLC struct {
 	q *sqlc.Queries
 }
 
-func NewRepositoryItemSQLC(q *sqlc.Queries) *repositoryItemSQLC {
-	return &repositoryItemSQLC{
+func NewRepositoryItemSQLC(q *sqlc.Queries) *RepositoryItemSQLC {
+	return &RepositoryItemSQLC{
 		q: q,
 	}
 }

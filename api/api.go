@@ -112,7 +112,8 @@ func (app *application) mount() chi.Router {
 	// Item
 	itemRepo := item.NewRepositoryItemSQLC(queries)
 	createItemUc := usecase.NewCreateItem(itemRepo, authService)
-	itemHandler := handler.NewCreateItemHandler(createItemUc)
+	findItemByCodeUc := usecase.NewFindItemByCode(itemRepo, authService)
+	itemHandler := handler.NewCreateItemHandler(createItemUc, findItemByCodeUc)
 
 	// Item Structure
 	itemRepoStructure := structure.NewItemStructureRepository(queries)
@@ -165,6 +166,7 @@ func (app *application) mount() chi.Router {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
 		r.Route("/api/items", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", itemHandler.CreateItem)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/search/{code}", itemHandler.FindItemByCodeHandler)
 			r.Route("/mask", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", generateMaskItemHandler.GenerateMask)
 			})
@@ -219,7 +221,10 @@ func (app *application) healthHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	err := json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		return
+	}
 }
 
 func (app *application) run(r chi.Router) error {

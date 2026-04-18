@@ -7,14 +7,14 @@ import (
 
 type ProductHandler struct {
 	*security.BaseHandler
-	createProductUC            *usecase.CreateProductUseCase
-	deleteProductUC            *usecase.DeleteProductUseCase
-	findProductByNameAndCodeUC *usecase.FindProductByNameAndCode
+	createProductUC *usecase.CreateProductUseCase
+	deleteProductUC *usecase.DeleteProductUseCase
 }
 
 type ItemHandler struct {
 	*security.BaseHandler
-	createItemUC *usecase.CreateItemUseCase
+	createItemUC     *usecase.CreateItemUseCase
+	findItemByCodeUC *usecase.FindItemByCode
 }
 
 type UserHandler struct {
