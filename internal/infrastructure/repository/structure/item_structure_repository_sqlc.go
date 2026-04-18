@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
 	"github.com/FelipePn10/panossoerp/internal/domain/structure/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/structure/valueobject"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
@@ -16,15 +17,14 @@ func (r *ItemStructureRepositorySQLC) Create(
 	s *entity.ItemStructure,
 ) (*entity.ItemStructure, error) {
 	row, err := r.q.CreateStructureComponent(ctx, sqlc.CreateStructureComponentParams{
-		ParentItemID:      s.ParentItemID,
 		ParentCode:        s.ParentCode,
-		ChildItemID:       s.ChildItemID,
 		ChildCode:         s.ChildCode,
 		ParentMask:        toNullString(s.ParentMask),
 		Quantity:          s.Quantity,
-		UnitOfMeasurement: s.UnitOfMeasurement,
+		UnitOfMeasurement: sqlc.UnitOfMeasurementEnum(s.UnitOfMeasurement),
+		Health:            sqlc.HealthEnum(s.Health),
 		LossPercentage:    s.LossPercentage,
-		Position:          int32(s.Position),
+		Position:          int32(s.Sequence),
 		Notes:             toNullString(s.Notes),
 		CreatedBy:         s.CreatedBy,
 	})
@@ -41,9 +41,10 @@ func (r *ItemStructureRepositorySQLC) Update(
 	row, err := r.q.UpdateStructureComponent(ctx, sqlc.UpdateStructureComponentParams{
 		ID:                s.ID,
 		Quantity:          s.Quantity,
-		UnitOfMeasurement: s.UnitOfMeasurement,
+		UnitOfMeasurement: sqlc.UnitOfMeasurementEnum(s.UnitOfMeasurement),
+		Health:            sqlc.HealthEnum(s.Health),
 		LossPercentage:    s.LossPercentage,
-		Position:          int32(s.Position),
+		Position:          int32(s.Sequence),
 		Notes:             toNullString(s.Notes),
 	})
 	if err != nil {
@@ -55,9 +56,9 @@ func (r *ItemStructureRepositorySQLC) Update(
 	return rowToEntity(row), nil
 }
 
-func (r *ItemStructureRepositorySQLC) Delete(ctx context.Context, id int64) error {
-	if err := r.q.DeactivateStructureComponent(ctx, id); err != nil {
-		return fmt.Errorf("disabling component %d: %w", id, err)
+func (r *ItemStructureRepositorySQLC) Delete(ctx context.Context, code int64) error {
+	if err := r.q.DeactivateStructureComponent(ctx, code); err != nil {
+		return fmt.Errorf("disabling component %d: %w", code, err)
 	}
 	return nil
 }
@@ -75,76 +76,80 @@ func (r *ItemStructureRepositorySQLC) GetByID(ctx context.Context, id int64) (*e
 
 func (r *ItemStructureRepositorySQLC) GetAllDirectChildren(
 	ctx context.Context,
-	parentItemID int64,
+	parentCode int64,
 ) ([]*entity.ItemStructure, error) {
-	rows, err := r.q.GetAllDirectChildren(ctx, parentItemID)
+	rows, err := r.q.GetAllDirectChildren(ctx, parentCode)
 	if err != nil {
-		return nil, fmt.Errorf("searching for children of the item %d: %w", parentItemID, err)
+		return nil, fmt.Errorf("searching for children of the item %d: %w", parentCode, err)
 	}
 	return rowsToEntities(rows), nil
 }
 
 func (r *ItemStructureRepositorySQLC) GetGenericChildren(
 	ctx context.Context,
-	parentItemID int64,
+	parentCode int64,
 ) ([]*entity.ItemStructure, error) {
-	rows, err := r.q.GetGenericChildren(ctx, parentItemID)
+	rows, err := r.q.GetGenericChildren(ctx, parentCode)
 	if err != nil {
-		return nil, fmt.Errorf("searching for generic children of the item %d: %w", parentItemID, err)
+		return nil, fmt.Errorf("searching for generic children of the item %d: %w", parentCode, err)
 	}
 	return rowsToEntities(rows), nil
 }
 
 func (r *ItemStructureRepositorySQLC) GetDirectChildrenForMask(
 	ctx context.Context,
-	parentItemID int64,
+	parentCode int64,
 	mask string,
 ) ([]*entity.ItemStructure, error) {
 	rows, err := r.q.GetDirectChildrenForMask(ctx, sqlc.GetDirectChildrenForMaskParams{
-		ParentItemID: parentItemID,
-		ParentMask:   sql.NullString{String: mask, Valid: mask != ""},
+		ParentCode: parentCode,
+		ParentMask: sql.NullString{String: mask, Valid: mask != ""},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("searching for children of item %d for mask '%s': %w", parentItemID, mask, err)
+		return nil, fmt.Errorf("searching for children of item %d for mask '%s': %w", parentCode, mask, err)
 	}
 	return rowsToEntities(rows), nil
 }
 
-func (r *ItemStructureRepositorySQLC) ItemExists(ctx context.Context, itemID int64) (bool, error) {
-	exists, err := r.q.ItemExists(ctx, itemID)
+func (r *ItemStructureRepositorySQLC) ItemExists(ctx context.Context, itemCode int64) (bool, error) {
+	exists, err := r.q.ItemExists(ctx, itemCode)
 	if err != nil {
-		return false, fmt.Errorf("checking for the item's existence %d: %w", itemID, err)
+		return false, fmt.Errorf("checking for the item's existence %d: %w", itemCode, err)
 	}
 	return exists, nil
 }
 
 func (r *ItemStructureRepositorySQLC) HasCyclicReference(
 	ctx context.Context,
-	parentItemID, childItemID int64,
+	parentCode, childCode int64,
 ) (bool, error) {
-	// $1 = childItemID  → ponto de partida da busca de ancestrais
-	// $2 = parentItemID → verifica se já existe como ancestral (ciclo)
+
 	hasCycle, err := r.q.HasCyclicReference(ctx, sqlc.HasCyclicReferenceParams{
-		Column1: childItemID,
-		Column2: parentItemID,
+		StartCode:  childCode,  // $1
+		TargetCode: parentCode, // $2
 	})
 	if err != nil {
-		return false, fmt.Errorf("checking cycle between parent=%d and child=%d: %w", parentItemID, childItemID, err)
+		return false, fmt.Errorf(
+			"checking cycle between parent=%d and child=%d: %w",
+			parentCode,
+			childCode,
+			err,
+		)
 	}
+
 	return hasCycle, nil
 }
 
 func (r *ItemStructureRepositorySQLC) GetItemCodeAndDesc(
 	ctx context.Context,
-	itemID int64,
-) (code, desc string, err error) {
-	row, err := r.q.GetItemCodeAndDescription(ctx, itemID)
+	itemCode int64,
+) (int64, string, error) {
+
+	row, err := r.q.GetItemCodeAndDescription(ctx, itemCode)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", "", fmt.Errorf("item %d not found or inactive", itemID)
-		}
-		return "", "", fmt.Errorf("searching for item code/description %d: %w", itemID, err)
+		return 0, "", err
 	}
+
 	return row.Code, row.Description, nil
 }
 
@@ -156,15 +161,15 @@ func (r *ItemStructureRepositorySQLC) GetItemCodeAndDesc(
 // a resposta e propagar a máscara.
 func (r *ItemStructureRepositorySQLC) GetMaskAnswersByItemAndValue(
 	ctx context.Context,
-	itemID int64,
+	itemCode int64,
 	maskValue string,
 ) ([]valueobject.MaskAnswer, error) {
 	rows, err := r.q.GetItemMaskAnswersByValue(ctx, sqlc.GetItemMaskAnswersByValueParams{
-		ItemID: itemID,
-		Mask:   maskValue,
+		ItemCode: itemCode,
+		Mask:     maskValue,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("searching for answers from the '%s' mask of the item %d: %w", maskValue, itemID, err)
+		return nil, fmt.Errorf("searching for answers from the '%s' mask of the item %d: %w", maskValue, itemCode, err)
 	}
 
 	answers := make([]valueobject.MaskAnswer, 0, len(rows))
@@ -202,12 +207,10 @@ func (r *ItemStructureRepositorySQLC) GetItemQuestions(
 func rowToEntity(row sqlc.ItemStructure) *entity.ItemStructure {
 	e := &entity.ItemStructure{
 		ID:                row.ID,
-		ParentItemID:      row.ParentItemID,
-		ChildItemID:       row.ChildItemID,
 		Quantity:          row.Quantity,
-		UnitOfMeasurement: row.UnitOfMeasurement,
+		UnitOfMeasurement: types.TypeUnitOfMeasurementItem(row.UnitOfMeasurement),
 		LossPercentage:    row.LossPercentage,
-		Position:          int(row.Position),
+		Sequence:          int(row.Position),
 		IsActive:          row.IsActive,
 		CreatedBy:         row.CreatedBy,
 		CreatedAt:         row.CreatedAt,

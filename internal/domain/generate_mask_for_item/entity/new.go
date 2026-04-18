@@ -17,15 +17,14 @@ var (
 )
 
 func NewItemMask(
-	itemCode string,
-	itemID int64,
+	itemCode int64,
 	mask string,
 	maskHash string,
 	createdBy uuid.UUID,
 ) (*ItemMask, error) {
 
 	// Validação estrutural
-	if itemCode == "" {
+	if itemCode < 0 {
 		return nil, ErrInvalidItemCode
 	}
 
@@ -48,7 +47,6 @@ func NewItemMask(
 
 	return &ItemMask{
 		ItemCode:  itemCode,
-		ItemID:    itemID,
 		Mask:      mask,
 		MaskHash:  maskHash,
 		CreatedBy: createdBy,

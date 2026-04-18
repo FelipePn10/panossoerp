@@ -27,29 +27,29 @@ type ItemStructureRepository interface {
 
 	// GetAllDirectChildren retorna TODOS os filhos ativos de um pai,
 	// tanto genéricos quanto mascarados.
-	GetAllDirectChildren(ctx context.Context, parentItemID int64) ([]*entity.ItemStructure, error)
+	GetAllDirectChildren(ctx context.Context, parentItemCode int64) ([]*entity.ItemStructure, error)
 
 	// GetGenericChildren retorna apenas os filhos genéricos (sem máscara) de um pai.
-	GetGenericChildren(ctx context.Context, parentItemID int64) ([]*entity.ItemStructure, error)
+	GetGenericChildren(ctx context.Context, parentItemCode int64) ([]*entity.ItemStructure, error)
 
 	// GetDirectChildrenForMask retorna filhos do pai correspondentes a uma
 	// máscara específica E os filhos genéricos. A prioridade (específico > genérico)
 	// é resolvida na camada de aplicação.
-	GetDirectChildrenForMask(ctx context.Context, parentItemID int64, mask string) ([]*entity.ItemStructure, error)
+	GetDirectChildrenForMask(ctx context.Context, parentItemCode int64, mask string) ([]*entity.ItemStructure, error)
 
 	// VALIDAÇÕES:
 
 	// ItemExists verifica se um item com o ID informado existe e está ativo.
-	ItemExists(ctx context.Context, itemID int64) (bool, error)
+	ItemExists(ctx context.Context, itemCode int64) (bool, error)
 
-	// HasCyclicReference retorna true se adicionar childItemID como filho de
-	// parentItemID criaria um ciclo na árvore BOM.
-	HasCyclicReference(ctx context.Context, parentItemID, childItemID int64) (bool, error)
+	// HasCyclicReference retorna true se adicionar childItemCode como filho de
+	// parentItemCode criaria um ciclo na árvore BOM.
+	HasCyclicReference(ctx context.Context, parentItemCode, childItemCode int64) (bool, error)
 
 	// SUPORTE À PROPAGAÇÃO DE MÁSCARA:
 
 	// GetItemCodeAndDesc retorna o código textual e descrição de um item pelo ID.
-	GetItemCodeAndDesc(ctx context.Context, itemID int64) (code, desc string, err error)
+	GetItemCodeAndDesc(ctx context.Context, itemCode int64) (code int64, desc string, err error)
 
 	// GetMaskAnswersByItemAndValue retorna as respostas de uma máscara específica
 	// de um item. Usado para propagar respostas do pai para os filhos.

@@ -13,7 +13,6 @@ func (r *repositoryGenerateMaskSQLC) Generate(
 ) (*entity.ItemMask, error) {
 	params := sqlc.InsertItemtMaskParams{
 		ItemCode:  mask.ItemCode,
-		ItemID:    mask.ItemID,
 		Mask:      mask.Mask,
 		MaskHash:  mask.MaskHash,
 		CreatedBy: mask.CreatedBy,

@@ -63,7 +63,6 @@ func (uc *GenerateMaskForItemUseCase) Execute(
 
 	itemMask, err := entity.NewItemMask(
 		dto.ItemCode,
-		dto.ItemID,
 		mask.Value(),
 		mask.Hash(),
 		dto.CreatedBy,

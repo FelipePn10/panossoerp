@@ -23,6 +23,7 @@ type UpdateStructureComponentUseCase struct {
 
 func (uc *UpdateStructureComponentUseCase) Execute(
 	ctx context.Context,
+	code int64,
 	dto request.UpdateStructureComponentDTO,
 ) (*entity.ItemStructure, error) {
 
@@ -30,10 +31,11 @@ func (uc *UpdateStructureComponentUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	structure, err := uc.repo.GetByID(ctx, dto.ID)
+	structure, err := uc.repo.GetByID(ctx, code)
 	if err != nil {
-		return nil, fmt.Errorf("structural component %d not found: %w", dto.ID, err)
+		return nil, fmt.Errorf("structural component %d not found: %w", code, err)
 	}
+
 	if !structure.IsActive {
 		return nil, errors.New("it is not possible to update an inactive component")
 	}
@@ -41,6 +43,7 @@ func (uc *UpdateStructureComponentUseCase) Execute(
 	if err := structure.Update(
 		dto.Quantity,
 		dto.UnitOfMeasurement,
+		dto.Health,
 		dto.LossPercentage,
 		dto.Position,
 		dto.Notes,

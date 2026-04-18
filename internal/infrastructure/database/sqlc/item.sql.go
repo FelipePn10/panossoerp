@@ -59,16 +59,16 @@ RETURNING id, warehouse_id, code, health, created_by, created_at, complement, na
 
 type CreateItemParams struct {
 	WarehouseID                          int32
-	Code                                 string
+	Code                                 int64
 	Complement                           sql.NullString
 	Nature                               int16
 	Situation                            int16
-	Health                               int16
+	Health                               HealthEnum
 	PdmGroupID                           int32
 	PdmModifierID                        int32
 	PdmAttributes                        json.RawMessage
 	PdmDescriptionTechnique              string
-	WarehouseUnitOfMeasurement           int16
+	WarehouseUnitOfMeasurement           UnitOfMeasurementEnum
 	WarehouseAutomaticLow                bool
 	WarehouseCyclicalCountConfig         pqtype.NullRawMessage
 	WarehouseMinimumStock                int32

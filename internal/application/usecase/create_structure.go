@@ -26,26 +26,26 @@ func (uc *CreateStructureComponentUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	parentExists, err := uc.repo.ItemExists(ctx, dto.ParentItemID)
+	parentExists, err := uc.repo.ItemExists(ctx, dto.ParentItemCode)
 	if err != nil {
 		return nil, fmt.Errorf("checking parent item: %w", err)
 	}
 	if !parentExists {
-		return nil, fmt.Errorf("parent item %d not found", dto.ParentItemID)
+		return nil, fmt.Errorf("parent item %d not found", dto.ParentItemCode)
 	}
 
-	childExists, err := uc.repo.ItemExists(ctx, dto.ChildItemID)
+	childExists, err := uc.repo.ItemExists(ctx, dto.ChildItemCode)
 	if err != nil {
 		return nil, fmt.Errorf("checking child item: %w", err)
 	}
 	if !childExists {
-		return nil, fmt.Errorf("child item %d not found", dto.ChildItemID)
+		return nil, fmt.Errorf("child item %d not found", dto.ChildItemCode)
 	}
 
 	// Validação da referência cíclica
 	// Verifica se childItemID já é ancestral de parentItemID.
 	// Se sim, adicionar o filho criaria um ciclo.
-	hasCycle, err := uc.repo.HasCyclicReference(ctx, dto.ParentItemID, dto.ChildItemID)
+	hasCycle, err := uc.repo.HasCyclicReference(ctx, dto.ParentItemCode, dto.ChildItemCode)
 	if err != nil {
 		return nil, fmt.Errorf("checking cyclic reference: %w", err)
 	}
@@ -56,16 +56,16 @@ func (uc *CreateStructureComponentUseCase) Execute(
 	}
 
 	structure, err := entity.NewItemStructure(
-		dto.ParentItemID,
-		dto.ChildItemID,
-		dto.ParentCode,
-		dto.ChildCode,
+		dto.ParentItemCode,
+		dto.ChildItemCode,
 		dto.ParentMask,
 		dto.Quantity,
 		dto.UnitOfMeasurement,
+		dto.Health,
 		dto.LossPercentage,
 		dto.Position,
 		dto.Notes,
+		dto.IsActive,
 		dto.CreatedBy,
 	)
 	if err != nil {

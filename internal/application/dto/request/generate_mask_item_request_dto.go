@@ -3,8 +3,7 @@ package request
 import "github.com/google/uuid"
 
 type GenerateMaskItemRequestDTO struct {
-	ItemCode  string            `json:"item_code"`
-	ItemID    int64             `json:"item_id"`
+	ItemCode  int64             `json:"item_code"`
 	Answers   []MaskAnswerInput `json:"answers"`
 	CreatedBy uuid.UUID         `json:"created_by"`
 }

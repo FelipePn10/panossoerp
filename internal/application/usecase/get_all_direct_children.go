@@ -29,11 +29,11 @@ func (uc *GetAllDirectChildrenUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	if dto.ParentItemID <= 0 {
-		return nil, fmt.Errorf("parentItemId invalid")
+	if dto.ParentItemCode <= 0 {
+		return nil, fmt.Errorf("parentItemCode invalid")
 	}
 
-	items, err := uc.repo.GetAllDirectChildren(ctx, dto.ParentItemID)
+	items, err := uc.repo.GetAllDirectChildren(ctx, dto.ParentItemCode)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for direct children: %w", err)
 	}

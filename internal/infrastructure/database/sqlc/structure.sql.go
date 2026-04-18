@@ -14,56 +14,51 @@ import (
 
 const createStructureComponent = `-- name: CreateStructureComponent :one
 INSERT INTO item_structures (
-    parent_item_id,
     parent_code,
-    child_item_id,
     child_code,
     parent_mask,
     quantity,
     unit_of_measurement,
     loss_percentage,
     position,
+    health,
     notes,
     created_by
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
-)
-RETURNING id, parent_item_id, child_item_id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code
+             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+         )
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 `
 
 type CreateStructureComponentParams struct {
-	ParentItemID      int64
-	ParentCode        string
-	ChildItemID       int64
-	ChildCode         string
+	ParentCode        int64
+	ChildCode         int64
 	ParentMask        sql.NullString
 	Quantity          float64
-	UnitOfMeasurement string
+	UnitOfMeasurement UnitOfMeasurementEnum
 	LossPercentage    float64
 	Position          int32
+	Health            HealthEnum
 	Notes             sql.NullString
 	CreatedBy         uuid.UUID
 }
 
 func (q *Queries) CreateStructureComponent(ctx context.Context, arg CreateStructureComponentParams) (ItemStructure, error) {
 	row := q.db.QueryRowContext(ctx, createStructureComponent,
-		arg.ParentItemID,
 		arg.ParentCode,
-		arg.ChildItemID,
 		arg.ChildCode,
 		arg.ParentMask,
 		arg.Quantity,
 		arg.UnitOfMeasurement,
 		arg.LossPercentage,
 		arg.Position,
+		arg.Health,
 		arg.Notes,
 		arg.CreatedBy,
 	)
 	var i ItemStructure
 	err := row.Scan(
 		&i.ID,
-		&i.ParentItemID,
-		&i.ChildItemID,
 		&i.ParentMask,
 		&i.Quantity,
 		&i.UnitOfMeasurement,
@@ -76,6 +71,7 @@ func (q *Queries) CreateStructureComponent(ctx context.Context, arg CreateStruct
 		&i.UpdatedAt,
 		&i.ParentCode,
 		&i.ChildCode,
+		&i.Health,
 	)
 	return i, err
 }
@@ -94,16 +90,15 @@ func (q *Queries) DeactivateStructureComponent(ctx context.Context, id int64) er
 }
 
 const getAllDirectChildren = `-- name: GetAllDirectChildren :many
-SELECT id, parent_item_id, child_item_id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 FROM item_structures
-WHERE parent_item_id = $1
+WHERE parent_code= $1
   AND is_active = TRUE
 ORDER BY position, id
 `
 
-// Retorna TODOS os filhos ativos de um pai (genéricos + mascarados). (999)
-func (q *Queries) GetAllDirectChildren(ctx context.Context, parentItemID int64) ([]ItemStructure, error) {
-	rows, err := q.db.QueryContext(ctx, getAllDirectChildren, parentItemID)
+func (q *Queries) GetAllDirectChildren(ctx context.Context, parentCode int64) ([]ItemStructure, error) {
+	rows, err := q.db.QueryContext(ctx, getAllDirectChildren, parentCode)
 	if err != nil {
 		return nil, err
 	}
@@ -113,8 +108,6 @@ func (q *Queries) GetAllDirectChildren(ctx context.Context, parentItemID int64) 
 		var i ItemStructure
 		if err := rows.Scan(
 			&i.ID,
-			&i.ParentItemID,
-			&i.ChildItemID,
 			&i.ParentMask,
 			&i.Quantity,
 			&i.UnitOfMeasurement,
@@ -127,6 +120,7 @@ func (q *Queries) GetAllDirectChildren(ctx context.Context, parentItemID int64) 
 			&i.UpdatedAt,
 			&i.ParentCode,
 			&i.ChildCode,
+			&i.Health,
 		); err != nil {
 			return nil, err
 		}
@@ -142,27 +136,24 @@ func (q *Queries) GetAllDirectChildren(ctx context.Context, parentItemID int64) 
 }
 
 const getDirectChildrenForMask = `-- name: GetDirectChildrenForMask :many
-SELECT id, parent_item_id, child_item_id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 FROM item_structures
-WHERE parent_item_id = $1
+WHERE parent_code = $1
   AND is_active = TRUE
   AND (parent_mask = $2 OR parent_mask IS NULL)
 ORDER BY
-    -- Específicos primeiro, para facilitar a deduplicação na app layer
     CASE WHEN parent_mask IS NOT NULL THEN 0 ELSE 1 END,
     position,
     id
 `
 
 type GetDirectChildrenForMaskParams struct {
-	ParentItemID int64
-	ParentMask   sql.NullString
+	ParentCode int64
+	ParentMask sql.NullString
 }
 
-// Retorna filhos ativos de um pai para uma máscara específica E genéricos.
-// A lógica de prioridade (específico > genérico) é aplicada na camada de aplicação.
 func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChildrenForMaskParams) ([]ItemStructure, error) {
-	rows, err := q.db.QueryContext(ctx, getDirectChildrenForMask, arg.ParentItemID, arg.ParentMask)
+	rows, err := q.db.QueryContext(ctx, getDirectChildrenForMask, arg.ParentCode, arg.ParentMask)
 	if err != nil {
 		return nil, err
 	}
@@ -172,8 +163,6 @@ func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChi
 		var i ItemStructure
 		if err := rows.Scan(
 			&i.ID,
-			&i.ParentItemID,
-			&i.ChildItemID,
 			&i.ParentMask,
 			&i.Quantity,
 			&i.UnitOfMeasurement,
@@ -186,6 +175,7 @@ func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChi
 			&i.UpdatedAt,
 			&i.ParentCode,
 			&i.ChildCode,
+			&i.Health,
 		); err != nil {
 			return nil, err
 		}
@@ -201,17 +191,16 @@ func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChi
 }
 
 const getGenericChildren = `-- name: GetGenericChildren :many
-SELECT id, parent_item_id, child_item_id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 FROM item_structures
-WHERE parent_item_id = $1
+WHERE parent_code = $1
   AND parent_mask IS NULL
   AND is_active = TRUE
 ORDER BY position, id
 `
 
-// Retorna apenas os filhos GENÉRICOS (sem máscara) de um pai.
-func (q *Queries) GetGenericChildren(ctx context.Context, parentItemID int64) ([]ItemStructure, error) {
-	rows, err := q.db.QueryContext(ctx, getGenericChildren, parentItemID)
+func (q *Queries) GetGenericChildren(ctx context.Context, parentCode int64) ([]ItemStructure, error) {
+	rows, err := q.db.QueryContext(ctx, getGenericChildren, parentCode)
 	if err != nil {
 		return nil, err
 	}
@@ -221,8 +210,6 @@ func (q *Queries) GetGenericChildren(ctx context.Context, parentItemID int64) ([
 		var i ItemStructure
 		if err := rows.Scan(
 			&i.ID,
-			&i.ParentItemID,
-			&i.ChildItemID,
 			&i.ParentMask,
 			&i.Quantity,
 			&i.UnitOfMeasurement,
@@ -235,6 +222,7 @@ func (q *Queries) GetGenericChildren(ctx context.Context, parentItemID int64) ([
 			&i.UpdatedAt,
 			&i.ParentCode,
 			&i.ChildCode,
+			&i.Health,
 		); err != nil {
 			return nil, err
 		}
@@ -251,28 +239,24 @@ func (q *Queries) GetGenericChildren(ctx context.Context, parentItemID int64) ([
 
 const getItemCodeAndDescription = `-- name: GetItemCodeAndDescription :one
 SELECT
-    i.code::text AS code,
-    COALESCE(
-            p.pdm_description_technique,
-            i.code::text
-    ) AS description
+    i.code AS code,
+    COALESCE(p.code, i.code)::BIGINT AS description
 FROM items i
          LEFT JOIN item_structures s
-                   ON s.child_item_id = i.id
+                   ON s.child_code = i.code
                        AND s.is_active = true
          LEFT JOIN items p
-                   ON p.id = s.parent_item_id
+                   ON p.code = s.parent_code
 WHERE i.id = $1
 ORDER BY s.position ASC
     LIMIT 1
 `
 
 type GetItemCodeAndDescriptionRow struct {
-	Code        string
+	Code        int64
 	Description string
 }
 
-// Busca código e descrição técnica de um item pelo ID.
 func (q *Queries) GetItemCodeAndDescription(ctx context.Context, id int64) (GetItemCodeAndDescriptionRow, error) {
 	row := q.db.QueryRowContext(ctx, getItemCodeAndDescription, id)
 	var i GetItemCodeAndDescriptionRow
@@ -286,15 +270,15 @@ SELECT
     ima.position,
     ima.option_id
 FROM item_masks im
-JOIN item_mask_answers ima ON ima.mask_id = im.id
-WHERE im.item_id    = $1   -- item pai
-  AND im.mask = $2   -- ex: '100#100#50'
+         JOIN item_mask_answers ima ON ima.mask_id = im.id
+WHERE im.item_code = $1
+  AND im.mask = $2
 ORDER BY ima.position
 `
 
 type GetItemMaskAnswersByValueParams struct {
-	ItemID int64
-	Mask   string
+	ItemCode int64
+	Mask     string
 }
 
 type GetItemMaskAnswersByValueRow struct {
@@ -303,10 +287,8 @@ type GetItemMaskAnswersByValueRow struct {
 	OptionID   int64
 }
 
-// Retorna as respostas de uma máscara específica de um item,
-// usado para propagar a máscara do pai para os filhos.
 func (q *Queries) GetItemMaskAnswersByValue(ctx context.Context, arg GetItemMaskAnswersByValueParams) ([]GetItemMaskAnswersByValueRow, error) {
-	rows, err := q.db.QueryContext(ctx, getItemMaskAnswersByValue, arg.ItemID, arg.Mask)
+	rows, err := q.db.QueryContext(ctx, getItemMaskAnswersByValue, arg.ItemCode, arg.Mask)
 	if err != nil {
 		return nil, err
 	}
@@ -342,8 +324,6 @@ type GetItemQuestionsRow struct {
 	Position   int32
 }
 
-// Retorna as perguntas associadas a um item, ordenadas por posição.
-// Usado para calcular a máscara do filho com base nas respostas do pai.
 func (q *Queries) GetItemQuestions(ctx context.Context, itemID int64) ([]GetItemQuestionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getItemQuestions, itemID)
 	if err != nil {
@@ -368,7 +348,7 @@ func (q *Queries) GetItemQuestions(ctx context.Context, itemID int64) ([]GetItem
 }
 
 const getStructureComponentByID = `-- name: GetStructureComponentByID :one
-SELECT id, parent_item_id, child_item_id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 FROM item_structures
 WHERE id = $1
 `
@@ -378,8 +358,6 @@ func (q *Queries) GetStructureComponentByID(ctx context.Context, id int64) (Item
 	var i ItemStructure
 	err := row.Scan(
 		&i.ID,
-		&i.ParentItemID,
-		&i.ChildItemID,
 		&i.ParentMask,
 		&i.Quantity,
 		&i.UnitOfMeasurement,
@@ -392,41 +370,22 @@ func (q *Queries) GetStructureComponentByID(ctx context.Context, id int64) (Item
 		&i.UpdatedAt,
 		&i.ParentCode,
 		&i.ChildCode,
+		&i.Health,
 	)
 	return i, err
 }
 
 const hasCyclicReference = `-- name: HasCyclicReference :one
-WITH RECURSIVE ancestors(ancestor_id) AS (
-    SELECT s.parent_item_id
-    FROM item_structures s
-    WHERE s.child_item_id = $1::bigint
-    AND s.is_active = TRUE
-
-UNION ALL
-
-SELECT s.parent_item_id
-FROM item_structures s
-         JOIN ancestors ON s.child_item_id = ancestors.ancestor_id
-WHERE s.is_active = TRUE
-    )
-SELECT EXISTS (
-    SELECT 1
-    FROM ancestors
-    WHERE ancestor_id = $2::bigint
-) AS has_cycle
+SELECT has_cycle($1, $2) AS has_cycle
 `
 
 type HasCyclicReferenceParams struct {
-	Column1 int64
-	Column2 int64
+	StartCode  int64
+	TargetCode int64
 }
 
-// Verifica se adicionar child_item_id como filho de parent_item_id
-// criaria uma referência circular na árvore BOM.
-// Retorna TRUE se houver ciclo (operação deve ser BLOQUEADA).
 func (q *Queries) HasCyclicReference(ctx context.Context, arg HasCyclicReferenceParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, hasCyclicReference, arg.Column1, arg.Column2)
+	row := q.db.QueryRowContext(ctx, hasCyclicReference, arg.StartCode, arg.TargetCode)
 	var has_cycle bool
 	err := row.Scan(&has_cycle)
 	return has_cycle, err
@@ -436,12 +395,12 @@ const itemExists = `-- name: ItemExists :one
 SELECT EXISTS (
     SELECT 1
     FROM items
-    WHERE id = $1
+    WHERE code = $1
 ) AS "exists"
 `
 
-func (q *Queries) ItemExists(ctx context.Context, id int64) (bool, error) {
-	row := q.db.QueryRowContext(ctx, itemExists, id)
+func (q *Queries) ItemExists(ctx context.Context, code int64) (bool, error) {
+	row := q.db.QueryRowContext(ctx, itemExists, code)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
@@ -454,19 +413,21 @@ SET
     unit_of_measurement = $3,
     loss_percentage     = $4,
     position            = $5,
-    notes               = $6,
+    health              = $6,
+    notes               = $7,
     updated_at          = NOW()
 WHERE id = $1
   AND is_active = TRUE
-RETURNING id, parent_item_id, child_item_id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 `
 
 type UpdateStructureComponentParams struct {
 	ID                int64
 	Quantity          float64
-	UnitOfMeasurement string
+	UnitOfMeasurement UnitOfMeasurementEnum
 	LossPercentage    float64
 	Position          int32
+	Health            HealthEnum
 	Notes             sql.NullString
 }
 
@@ -477,13 +438,12 @@ func (q *Queries) UpdateStructureComponent(ctx context.Context, arg UpdateStruct
 		arg.UnitOfMeasurement,
 		arg.LossPercentage,
 		arg.Position,
+		arg.Health,
 		arg.Notes,
 	)
 	var i ItemStructure
 	err := row.Scan(
 		&i.ID,
-		&i.ParentItemID,
-		&i.ChildItemID,
 		&i.ParentMask,
 		&i.Quantity,
 		&i.UnitOfMeasurement,
@@ -496,6 +456,7 @@ func (q *Queries) UpdateStructureComponent(ctx context.Context, arg UpdateStruct
 		&i.UpdatedAt,
 		&i.ParentCode,
 		&i.ChildCode,
+		&i.Health,
 	)
 	return i, err
 }

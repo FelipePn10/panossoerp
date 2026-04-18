@@ -18,7 +18,7 @@ type MaskAnswer struct {
 }
 
 type ItemMask struct {
-	itemCode  string
+	itemCode  int64
 	createdBy uuid.UUID
 	answers   []MaskAnswer
 	mask      string
@@ -47,8 +47,8 @@ func NewMaskAnswer(questionID, optionID int64, position int, value string) (Mask
 	}, nil
 }
 
-func NewItemMask(itemCode string, answers []MaskAnswer) (ItemMask, error) {
-	if itemCode == "" {
+func NewItemMask(itemCode int64, answers []MaskAnswer) (ItemMask, error) {
+	if itemCode < 0 {
 		return ItemMask{}, errors.New("invalid item code")
 	}
 	if len(answers) == 0 {

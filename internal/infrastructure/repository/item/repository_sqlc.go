@@ -44,35 +44,51 @@ func (r *repositoryItemSQLC) Create(
 	}
 
 	params := sqlc.CreateItemParams{
-		WarehouseID:                          int32(item.Warehouse.WarehouseID),
-		Code:                                 string(item.Code),
-		Complement:                           nullable.ToNullString(item.Complement),
-		Nature:                               int16(item.Nature),
-		Situation:                            int16(item.Situation),
-		Health:                               int16(item.Health),
-		PdmGroupID:                           item.PDM.GroupID,
-		PdmModifierID:                        item.PDM.ModifierID,
-		PdmAttributes:                        attributes,
-		PdmDescriptionTechnique:              item.PDM.DescriptionTechnique,
-		WarehouseUnitOfMeasurement:           int16(item.Warehouse.UnitOfMeasurement),
-		WarehouseAutomaticLow:                item.Warehouse.AutomaticLow,
-		WarehouseCyclicalCountConfig:         cyclicalCountConfig,
-		WarehouseMinimumStock:                item.Warehouse.MinimumStock,
-		WarehouseAvgMonthlyConsumptionManual: nullable.ToNullInt32FromIntPtr(item.Warehouse.AverageMonthlyConsumptionManual),
-		EngineeringItemBaseCod:               nullable.ToNullInt32FromIntPtr(item.Engineering.ItemBaseCod),
-		EngineeringWeight:                    weight,
-		EngineeringDimensions:                dimensions,
-		EngineeringType:                      int16(item.Engineering.Type),
-		EngineeringTypeStruct:                int16(item.Engineering.TypeStruct),
-		EngineeringOem:                       item.Engineering.OEM,
-		PlanningTypeMrp:                      int16(item.Planning.TypeMRP),
-		PlanningLlc:                          int32(item.Planning.LLC),
-		PlanningReorderPoint:                 reorderPoint,
-		PlanningTankID:                       nullable.ToNullInt32FromIntPtr(item.Planning.TankID),
-		PlanningGhost:                        item.Planning.Ghost,
-		PlannerEmployeeID:                    nullable.ToNullInt32FromPtr(item.Planners.EmployeeID),
-		SuppliesTypeOfUse:                    int16(item.Supplies.TypeOfUse),
-		CreatedBy:                            item.CreatedBy,
+		WarehouseID: int32(item.Warehouse.WarehouseID),
+
+		// ✔ bigint alinhado
+		Code: int64(item.Code),
+
+		Complement: nullable.ToNullString(item.Complement),
+
+		Nature:    int16(item.Nature),
+		Situation: int16(item.Situation),
+
+		// ✔ ENUM string → string
+		Health: sqlc.HealthEnum(item.Health),
+
+		PdmGroupID:              item.PDM.GroupID,
+		PdmModifierID:           item.PDM.ModifierID,
+		PdmAttributes:           attributes,
+		PdmDescriptionTechnique: item.PDM.DescriptionTechnique,
+
+		WarehouseUnitOfMeasurement: sqlc.UnitOfMeasurementEnum(item.Warehouse.UnitOfMeasurement),
+
+		WarehouseAutomaticLow:        item.Warehouse.AutomaticLow,
+		WarehouseCyclicalCountConfig: cyclicalCountConfig,
+		WarehouseMinimumStock:        item.Warehouse.MinimumStock,
+		WarehouseAvgMonthlyConsumptionManual: nullable.ToNullInt32FromIntPtr(
+			item.Warehouse.AverageMonthlyConsumptionManual,
+		),
+
+		EngineeringItemBaseCod: nullable.ToNullInt32FromIntPtr(item.Engineering.ItemBaseCod),
+		EngineeringWeight:      weight,
+		EngineeringDimensions:  dimensions,
+		EngineeringType:        int16(item.Engineering.Type),
+		EngineeringTypeStruct:  int16(item.Engineering.TypeStruct),
+		EngineeringOem:         item.Engineering.OEM,
+
+		PlanningTypeMrp:      int16(item.Planning.TypeMRP),
+		PlanningLlc:          int32(item.Planning.LLC),
+		PlanningReorderPoint: reorderPoint,
+		PlanningTankID:       nullable.ToNullInt32FromIntPtr(item.Planning.TankID),
+		PlanningGhost:        item.Planning.Ghost,
+
+		PlannerEmployeeID: nullable.ToNullInt32FromPtr(item.Planners.EmployeeID),
+
+		SuppliesTypeOfUse: int16(item.Supplies.TypeOfUse),
+
+		CreatedBy: item.CreatedBy,
 	}
 
 	dbItem, err := r.q.CreateItem(ctx, params)
@@ -132,26 +148,39 @@ func (r *repositoryItemSQLC) Create(
 	}
 
 	return &entity.Item{
-		ID:         dbItem.ID,
-		Code:       valueobject.ItemCode(dbItem.Code),
+		ID: dbItem.ID,
+
+		// ✔ bigint → VO
+		Code: valueobject.ItemCode(dbItem.Code),
+
 		Complement: nullable.FromNullString(dbItem.Complement),
-		Nature:     entity.ItemNature(dbItem.Nature),
+
+		Nature: entity.ItemNature(dbItem.Nature),
+
 		PDM: entity.PDM{
 			GroupID:              dbItem.PdmGroupID,
 			ModifierID:           dbItem.PdmModifierID,
 			Attributes:           pdmAttributes,
 			DescriptionTechnique: dbItem.PdmDescriptionTechnique,
 		},
+
 		Situation: types.TypeSituationItem(dbItem.Situation),
-		Health:    types.Health(dbItem.Health),
+
+		// ✔ string → enum
+		Health: types.Health(dbItem.Health),
+
 		Warehouse: entity.Warehouse{
-			WarehouseID:                     int(dbItem.WarehouseID),
-			UnitOfMeasurement:               types.TypeUnitOfMeasurementItem(dbItem.WarehouseUnitOfMeasurement),
+			WarehouseID: int(dbItem.WarehouseID),
+
+			// ⚠️ ajustar depois se virar enum no banco
+			UnitOfMeasurement: types.TypeUnitOfMeasurementItem(dbItem.WarehouseUnitOfMeasurement),
+
 			AutomaticLow:                    dbItem.WarehouseAutomaticLow,
 			CyclicalCountConfig:             cyclicalCount,
 			MinimumStock:                    dbItem.WarehouseMinimumStock,
 			AverageMonthlyConsumptionManual: nullable.FromNullInt32ToIntPtr(dbItem.WarehouseAvgMonthlyConsumptionManual),
 		},
+
 		Engineering: entity.Engineering{
 			ItemBaseCod: nullable.FromNullInt32ToIntPtr(dbItem.EngineeringItemBaseCod),
 			Weight:      engineeringWeight,
@@ -160,6 +189,7 @@ func (r *repositoryItemSQLC) Create(
 			TypeStruct:  types.TypeStructItem(dbItem.EngineeringTypeStruct),
 			OEM:         dbItem.EngineeringOem,
 		},
+
 		Planning: entity.Planning{
 			TypeMRP:      types.TypeMRPItem(dbItem.PlanningTypeMrp),
 			LLC:          int(dbItem.PlanningLlc),
@@ -167,13 +197,16 @@ func (r *repositoryItemSQLC) Create(
 			TankID:       nullable.FromNullInt32ToIntPtr(dbItem.PlanningTankID),
 			Ghost:        dbItem.PlanningGhost,
 		},
+
 		Planners: entity.Planners{
 			EmployeeID: nullable.FromNullInt32(dbItem.PlannerEmployeeID),
 			MachinesID: machines,
 		},
+
 		Supplies: entity.Supplies{
 			TypeOfUse: types.TypeOfUseItem(dbItem.SuppliesTypeOfUse),
 		},
+
 		CreatedBy: dbItem.CreatedBy,
 		CreatedAt: dbItem.CreatedAt,
 	}, nil

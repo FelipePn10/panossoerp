@@ -3,6 +3,7 @@ package entity
 import (
 	"time"
 
+	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
 	"github.com/google/uuid"
 )
 
@@ -15,15 +16,14 @@ import (
 //   - A adição de um componente não pode criar um ciclo na árvore
 type ItemStructure struct {
 	ID                int64
-	ParentItemID      int64
-	ParentCode        string
-	ChildItemID       int64
-	ChildCode         string
+	ParentCode        int64
+	ChildCode         int64
 	ParentMask        *string // nil = genérico
 	Quantity          float64
-	UnitOfMeasurement string
 	LossPercentage    float64 // 0–100 (%)
-	Position          int
+	UnitOfMeasurement types.TypeUnitOfMeasurementItem
+	Health            types.Health
+	Sequence          int
 	Notes             *string
 	IsActive          bool
 	CreatedBy         uuid.UUID

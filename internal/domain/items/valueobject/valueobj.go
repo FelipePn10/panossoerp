@@ -8,17 +8,17 @@ import (
 // ItemCode
 //
 
-type ItemCode string
+type ItemCode int64
 
-func NewItemCode(code string) (ItemCode, error) {
-	if code == "" {
-		return "", errors.New("item code cannot be empty")
+func NewItemCode(code int64) (ItemCode, error) {
+	if code <= 0 {
+		return 0, errors.New("item code must be greater than zero")
 	}
 	return ItemCode(code), nil
 }
 
 func (c ItemCode) IsValid() bool {
-	return c != ""
+	return c > 0
 }
 
 //

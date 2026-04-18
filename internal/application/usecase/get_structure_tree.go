@@ -31,23 +31,23 @@ func (uc *GetStructureTreeUseCase) Execute(
 		return nil, errorsuc.ErrUnauthorized
 	}
 
-	rootExists, err := uc.repo.ItemExists(ctx, dto.RootItemID)
+	rootExists, err := uc.repo.ItemExists(ctx, dto.RootItemCode)
 	if err != nil {
 		return nil, fmt.Errorf("checking root item: %w", err)
 	}
 	if !rootExists {
-		return nil, fmt.Errorf("item root %d not found", dto.RootItemID)
+		return nil, fmt.Errorf("item root %d not found", dto.RootItemCode)
 	}
 
-	rootCode, rootDesc, err := uc.repo.GetItemCodeAndDesc(ctx, dto.RootItemID)
+	rootCode, rootDesc, err := uc.repo.GetItemCodeAndDesc(ctx, dto.RootItemCode)
 	if err != nil {
-		return nil, fmt.Errorf("Retrieving data from the root item: %w", err)
+		return nil, fmt.Errorf("retrieving data from the root item: %w", err)
 	}
 
 	// monta árvore recursivamente
 	// visited previne loops infinitos causados por dados inconsistentes no BD
 	visited := make(map[int64]bool)
-	nodes, err := uc.buildTree(ctx, dto.RootItemID, 1, visited)
+	nodes, err := uc.buildTree(ctx, dto.RootItemCode, 1, visited)
 	if err != nil {
 		return nil, err
 	}
@@ -58,48 +58,48 @@ func (uc *GetStructureTreeUseCase) Execute(
 	}
 
 	return &response.StructureTreeResponse{
-		RootItemID:  dto.RootItemID,
-		RootCode:    rootCode,
-		RootDesc:    rootDesc,
-		RootMask:    nil, // árvore genérica nn tem máscara
-		Components:  responseNodes,
-		TotalLevels: mapper.MaxLevel(responseNodes) + 1,
-		TotalNodes:  mapper.CountNodes(responseNodes),
+		RootItemCode: rootCode,
+		RootCode:     rootCode,
+		RootDesc:     rootDesc,
+		RootMask:     nil, // árvore genérica não tem máscara
+		Components:   responseNodes,
+		TotalLevels:  mapper.MaxLevel(responseNodes) + 1,
+		TotalNodes:   mapper.CountNodes(responseNodes),
 	}, nil
 }
 
 // buildTree busca recursivamente os filhos genéricos de um nó.
 func (uc *GetStructureTreeUseCase) buildTree(
 	ctx context.Context,
-	parentItemID int64,
+	parentItemCode int64,
 	level int,
 	visited map[int64]bool,
 ) ([]*valueobject.StructureNode, error) {
 	if level > maxBOMDepth {
 		return nil, fmt.Errorf("maximum depth of the BOM (%d levels) reached; check for cycles in the data", maxBOMDepth)
 	}
-	if visited[parentItemID] {
+	if visited[parentItemCode] {
 		return nil, nil
 	}
-	visited[parentItemID] = true
-	defer func() { delete(visited, parentItemID) }() // permite reuso em ramos distintos
+	visited[parentItemCode] = true
+	defer func() { delete(visited, parentItemCode) }() // permite reuso em ramos distintos
 
-	components, err := uc.repo.GetGenericChildren(ctx, parentItemID)
+	components, err := uc.repo.GetGenericChildren(ctx, parentItemCode)
 	if err != nil {
-		return nil, fmt.Errorf("searching for children of the item %d: %w", parentItemID, err)
+		return nil, fmt.Errorf("searching for children of the item %d: %w", parentItemCode, err)
 	}
 
 	nodes := make([]*valueobject.StructureNode, 0, len(components))
 	for _, comp := range components {
-		code, desc, err := uc.repo.GetItemCodeAndDesc(ctx, comp.ChildItemID)
+		code, desc, err := uc.repo.GetItemCodeAndDesc(ctx, comp.ChildCode)
 		if err != nil {
-			return nil, fmt.Errorf("searching for item data %d: %w", comp.ChildItemID, err)
+			return nil, fmt.Errorf("searching for item data %d: %w", comp.ChildCode, err)
 		}
 
 		node := valueobject.NewStructureNode(comp, code, desc, level, nil)
 
 		// recursão para os filhos deste nó
-		children, err := uc.buildTree(ctx, comp.ChildItemID, level+1, visited)
+		children, err := uc.buildTree(ctx, comp.ChildCode, level+1, visited)
 		if err != nil {
 			return nil, err
 		}

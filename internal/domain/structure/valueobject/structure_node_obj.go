@@ -15,7 +15,7 @@ type StructureNode struct {
 	Component *entity.ItemStructure
 
 	// ItemCode e ItemDesc identificam o item filho de forma legível.
-	ItemCode string
+	ItemCode int64
 	ItemDesc string
 
 	// Level é a profundidade na árvore (1 = primeiro nível abaixo da raiz).
@@ -33,7 +33,8 @@ type StructureNode struct {
 // NewStructureNode cria um novo nó da árvore BOM.
 func NewStructureNode(
 	component *entity.ItemStructure,
-	code, desc string,
+	code int64,
+	desc string,
 	level int,
 	resolvedMask *string,
 ) *StructureNode {

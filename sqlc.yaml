@@ -1,9 +1,18 @@
 version: "2"
+
 sql:
   - schema: "migrations/"
     queries: "internal/infrastructure/database/queries/"
     engine: "postgresql"
+
     gen:
       go:
         package: "sqlc"
         out: "internal/infrastructure/database/sqlc/"
+
+        overrides:
+          - column: "item_structures.quantity"
+            go_type: "float64"
+
+          - column: "item_structures.loss_percentage"
+            go_type: "float64"
