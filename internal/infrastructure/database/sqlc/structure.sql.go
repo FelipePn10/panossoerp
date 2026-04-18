@@ -239,16 +239,10 @@ func (q *Queries) GetGenericChildren(ctx context.Context, parentCode int64) ([]I
 
 const getItemCodeAndDescription = `-- name: GetItemCodeAndDescription :one
 SELECT
-    i.code AS code,
-    COALESCE(p.code, i.code)::BIGINT AS description
+    i.code::BIGINT AS code,
+    i.pdm_description_technique AS description
 FROM items i
-         LEFT JOIN item_structures s
-                   ON s.child_code = i.code
-                       AND s.is_active = true
-         LEFT JOIN items p
-                   ON p.code = s.parent_code
-WHERE i.id = $1
-ORDER BY s.position ASC
+WHERE i.code = $1
     LIMIT 1
 `
 
@@ -257,8 +251,8 @@ type GetItemCodeAndDescriptionRow struct {
 	Description string
 }
 
-func (q *Queries) GetItemCodeAndDescription(ctx context.Context, id int64) (GetItemCodeAndDescriptionRow, error) {
-	row := q.db.QueryRowContext(ctx, getItemCodeAndDescription, id)
+func (q *Queries) GetItemCodeAndDescription(ctx context.Context, code int64) (GetItemCodeAndDescriptionRow, error) {
+	row := q.db.QueryRowContext(ctx, getItemCodeAndDescription, code)
 	var i GetItemCodeAndDescriptionRow
 	err := row.Scan(&i.Code, &i.Description)
 	return i, err

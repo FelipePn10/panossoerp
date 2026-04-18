@@ -88,28 +88,3 @@ func (q *Queries) ExistsProductByCode(ctx context.Context, code string) (Product
 	)
 	return i, err
 }
-
-const findByNameAndCode = `-- name: FindByNameAndCode :one
-SELECT id, code, group_code, name, created_by, created_at
-FROM products
-WHERE name = $1 AND code = $2
-`
-
-type FindByNameAndCodeParams struct {
-	Name string
-	Code string
-}
-
-func (q *Queries) FindByNameAndCode(ctx context.Context, arg FindByNameAndCodeParams) (Product, error) {
-	row := q.db.QueryRowContext(ctx, findByNameAndCode, arg.Name, arg.Code)
-	var i Product
-	err := row.Scan(
-		&i.ID,
-		&i.Code,
-		&i.GroupCode,
-		&i.Name,
-		&i.CreatedBy,
-		&i.CreatedAt,
-	)
-	return i, err
-}

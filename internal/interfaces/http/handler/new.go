@@ -20,11 +20,11 @@ func NewDeleteProductHandler(
 	}
 }
 
-func NewFindProductByNameAndCodeHandler(
-	findProductByNameAndCodeUC *usecase.FindProductByNameAndCode,
-) *ProductHandler {
-	return &ProductHandler{
-		findProductByNameAndCodeUC: findProductByNameAndCodeUC,
+func NewFindItemCodeHandler(
+	findItemByCodeUC *usecase.FindItemByCode,
+) *ItemHandler {
+	return &ItemHandler{
+		findItemByCodeUC: findItemByCodeUC,
 	}
 }
 
@@ -114,9 +114,11 @@ func NewCreateBomItemHandler(
 
 func NewCreateItemHandler(
 	createItemUc *usecase.CreateItemUseCase,
+	findItemByCodeUc *usecase.FindItemByCode,
 ) *ItemHandler {
 	return &ItemHandler{
-		createItemUC: createItemUc,
+		createItemUC:     createItemUc,
+		findItemByCodeUC: findItemByCodeUc,
 	}
 }
 

@@ -13,7 +13,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 )
 
-func (r *repositoryItemSQLC) Create(
+func (r *RepositoryItemSQLC) Create(
 	ctx context.Context,
 	item *entity.Item,
 ) (*entity.Item, error) {
@@ -172,9 +172,104 @@ func (r *repositoryItemSQLC) Create(
 		Warehouse: entity.Warehouse{
 			WarehouseID: int(dbItem.WarehouseID),
 
-			// ⚠️ ajustar depois se virar enum no banco
 			UnitOfMeasurement: types.TypeUnitOfMeasurementItem(dbItem.WarehouseUnitOfMeasurement),
 
+			AutomaticLow:                    dbItem.WarehouseAutomaticLow,
+			CyclicalCountConfig:             cyclicalCount,
+			MinimumStock:                    dbItem.WarehouseMinimumStock,
+			AverageMonthlyConsumptionManual: nullable.FromNullInt32ToIntPtr(dbItem.WarehouseAvgMonthlyConsumptionManual),
+		},
+
+		Engineering: entity.Engineering{
+			ItemBaseCod: nullable.FromNullInt32ToIntPtr(dbItem.EngineeringItemBaseCod),
+			Weight:      engineeringWeight,
+			Dimensions:  engineeringDimensions,
+			Type:        types.TypeItem(dbItem.EngineeringType),
+			TypeStruct:  types.TypeStructItem(dbItem.EngineeringTypeStruct),
+			OEM:         dbItem.EngineeringOem,
+		},
+
+		Planning: entity.Planning{
+			TypeMRP:      types.TypeMRPItem(dbItem.PlanningTypeMrp),
+			LLC:          int(dbItem.PlanningLlc),
+			ReorderPoint: planningReorderPoint,
+			TankID:       nullable.FromNullInt32ToIntPtr(dbItem.PlanningTankID),
+			Ghost:        dbItem.PlanningGhost,
+		},
+
+		Planners: entity.Planners{
+			EmployeeID: nullable.FromNullInt32(dbItem.PlannerEmployeeID),
+			MachinesID: machines,
+		},
+
+		Supplies: entity.Supplies{
+			TypeOfUse: types.TypeOfUseItem(dbItem.SuppliesTypeOfUse),
+		},
+
+		CreatedBy: dbItem.CreatedBy,
+		CreatedAt: dbItem.CreatedAt,
+	}, nil
+}
+
+func (r *RepositoryItemSQLC) FindItemByCode(
+	ctx context.Context,
+	code valueobject.ItemCode,
+) (*entity.Item, error) {
+
+	dbItem, err := r.q.FindItemByCode(ctx, int64(code))
+	if err != nil {
+		return nil, err
+	}
+
+	var pdmAttributes []valueobject.Attribute
+	if err := json.Unmarshal(dbItem.PdmAttributes, &pdmAttributes); err != nil {
+		return nil, fmt.Errorf("unmarshal pdm_attributes: %w", err)
+	}
+
+	var engineeringWeight valueobject.Weight
+	if err := json.Unmarshal(dbItem.EngineeringWeight, &engineeringWeight); err != nil {
+		return nil, fmt.Errorf("unmarshal engineering_weight: %w", err)
+	}
+
+	engineeringDimensions, err := nullable.UnmarshalNullRawMessage[valueobject.Dimensions](dbItem.EngineeringDimensions)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal engineering_dimensions: %w", err)
+	}
+
+	planningReorderPoint, err := nullable.UnmarshalNullRawMessage[valueobject.ReorderPoint](dbItem.PlanningReorderPoint)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal planning_reorder_point: %w", err)
+	}
+
+	cyclicalCount, err := nullable.UnmarshalNullRawMessage[valueobject.CyclicalCountConfig](dbItem.WarehouseCyclicalCountConfig)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal cyclical_count_config: %w", err)
+	}
+
+	var machines *[]machine.MachineUsage
+
+	return &entity.Item{
+		ID:   dbItem.ID,
+		Code: valueobject.ItemCode(dbItem.Code),
+
+		Complement: nullable.FromNullString(dbItem.Complement),
+		Nature:     entity.ItemNature(dbItem.Nature),
+
+		PDM: entity.PDM{
+			GroupID:              dbItem.PdmGroupID,
+			ModifierID:           dbItem.PdmModifierID,
+			Attributes:           pdmAttributes,
+			DescriptionTechnique: dbItem.PdmDescriptionTechnique,
+		},
+
+		Situation: types.TypeSituationItem(dbItem.Situation),
+		Health:    types.Health(dbItem.Health),
+
+		Warehouse: entity.Warehouse{
+			WarehouseID: int(dbItem.WarehouseID),
+			UnitOfMeasurement: types.TypeUnitOfMeasurementItem(
+				dbItem.WarehouseUnitOfMeasurement,
+			),
 			AutomaticLow:                    dbItem.WarehouseAutomaticLow,
 			CyclicalCountConfig:             cyclicalCount,
 			MinimumStock:                    dbItem.WarehouseMinimumStock,
