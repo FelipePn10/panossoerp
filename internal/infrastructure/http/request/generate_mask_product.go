@@ -3,8 +3,7 @@ package request
 import "github.com/google/uuid"
 
 type GenerateMaskItem struct {
-	ItemCode  string    `json:"item_code"`
-	ItemID    int64     `json:"item_id"`
+	ItemCode  int64     `json:"item_code"`
 	CreatedBy uuid.UUID `json:"created_by"`
 	Answers   []struct {
 		QuestionID int64 `json:"question_id"`

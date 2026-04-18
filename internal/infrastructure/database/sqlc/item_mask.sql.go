@@ -20,19 +20,18 @@ func (q *Queries) DeleteItemMask(ctx context.Context, id int64) error {
 }
 
 const getProductMaskByItemCode = `-- name: GetProductMaskByItemCode :one
-SELECT id, item_id, item_code, mask, mask_hash, created_by, created_at
+SELECT id, item_code, mask, mask_hash, created_by, created_at
 FROM item_masks
 WHERE item_code = $1
 ORDER BY created_at DESC
 LIMIT 1
 `
 
-func (q *Queries) GetProductMaskByItemCode(ctx context.Context, itemCode string) (ItemMask, error) {
+func (q *Queries) GetProductMaskByItemCode(ctx context.Context, itemCode int64) (ItemMask, error) {
 	row := q.db.QueryRowContext(ctx, getProductMaskByItemCode, itemCode)
 	var i ItemMask
 	err := row.Scan(
 		&i.ID,
-		&i.ItemID,
 		&i.ItemCode,
 		&i.Mask,
 		&i.MaskHash,

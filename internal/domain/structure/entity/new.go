@@ -4,64 +4,52 @@ import (
 	"errors"
 	"time"
 
+	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
 	"github.com/google/uuid"
 )
 
-// NewItemStructure cria e valida uma nova instância de ItemStructure.
 func NewItemStructure(
-	parentItemID, childItemID int64,
-	parentCode, childCode string,
+	parentCode, childCode int64,
 	parentMask *string,
 	quantity float64,
-	uom string,
+	uom types.TypeUnitOfMeasurementItem,
+	health types.Health,
 	lossPercentage float64,
-	position int,
+	sequence int,
 	notes *string,
+	isActive bool,
 	createdBy uuid.UUID,
 ) (*ItemStructure, error) {
-	if parentItemID <= 0 {
-		return nil, errors.New("parent_item_id deve ser positivo")
-	}
-	if parentCode == "" {
+	if parentCode <= 0 {
 		return nil, errors.New("parent_code deve ser positivo")
 	}
-	if childCode <= "" {
+	if childCode <= 0 {
 		return nil, errors.New("child_item_id deve ser positivo")
-	}
-	if childItemID <= 0 {
-		return nil, errors.New("child_item_id deve ser positivo")
-	}
-	if parentItemID == childItemID {
-		return nil, errors.New("um item não pode ser componente de si mesmo")
 	}
 	if quantity <= 0 {
 		return nil, errors.New("quantity deve ser maior que zero")
 	}
-	if uom == "" {
-		return nil, errors.New("unit_of_measurement é obrigatório")
-	}
 	if lossPercentage < 0 || lossPercentage > 100 {
 		return nil, errors.New("loss_percentage deve estar entre 0 e 100")
 	}
-	if position < 1 {
-		position = 1
+	if sequence < 1 {
+		sequence = 10
 	}
 	if parentMask != nil && *parentMask == "" {
 		return nil, errors.New("parent_mask não pode ser uma string vazia; use nil para genérico")
 	}
 
 	return &ItemStructure{
-		ParentItemID:      parentItemID,
 		ParentCode:        parentCode,
-		ChildItemID:       childItemID,
 		ChildCode:         childCode,
 		ParentMask:        parentMask,
 		Quantity:          quantity,
 		UnitOfMeasurement: uom,
+		Health:            health,
 		LossPercentage:    lossPercentage,
-		Position:          position,
+		Sequence:          sequence,
 		Notes:             notes,
-		IsActive:          true,
+		IsActive:          isActive,
 		CreatedBy:         createdBy,
 		CreatedAt:         time.Now(),
 		UpdatedAt:         time.Now(),
@@ -85,23 +73,21 @@ func (s *ItemStructure) Deactivate() {
 	s.UpdatedAt = time.Now()
 }
 
-func (s *ItemStructure) Update(quantity float64, uom string, lossPercentage float64, position int, notes *string) error {
+func (s *ItemStructure) Update(quantity float64, uom types.TypeUnitOfMeasurementItem, health types.Health, lossPercentage float64, sequence int, notes *string) error {
 	if quantity <= 0 {
 		return errors.New("quantity deve ser maior que zero")
-	}
-	if uom == "" {
-		return errors.New("unit_of_measurement é obrigatório")
 	}
 	if lossPercentage < 0 || lossPercentage > 100 {
 		return errors.New("loss_percentage deve estar entre 0 e 100")
 	}
-	if position < 1 {
-		position = 1
+	if sequence < 1 {
+		sequence = 10
 	}
 	s.Quantity = quantity
 	s.UnitOfMeasurement = uom
+	s.Health = health
 	s.LossPercentage = lossPercentage
-	s.Position = position
+	s.Sequence = sequence
 	s.Notes = notes
 	s.UpdatedAt = time.Now()
 	return nil

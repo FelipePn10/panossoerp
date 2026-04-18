@@ -18,7 +18,7 @@ func (h *GenerateMaskHandler) GenerateMask(
 		return
 	}
 
-	if req.ItemCode == "" || len(req.Answers) == 0 {
+	if req.ItemCode < 0 || len(req.Answers) == 0 {
 		http.Error(w, "productCode and answers are required", http.StatusBadRequest)
 		return
 	}
@@ -33,7 +33,6 @@ func (h *GenerateMaskHandler) GenerateMask(
 	}
 	d := applicationreq.GenerateMaskItemRequestDTO{
 		ItemCode:  req.ItemCode,
-		ItemID:    req.ItemID,
 		Answers:   answers,
 		CreatedBy: req.CreatedBy,
 	}

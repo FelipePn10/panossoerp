@@ -105,6 +105,99 @@ func (ns NullWarehouseType) Value() (driver.Value, error) {
 	return string(ns.WarehouseType), nil
 }
 
+type HealthEnum string
+
+const (
+	HealthEnumATIVO    HealthEnum = "ATIVO"
+	HealthEnumINATIVO  HealthEnum = "INATIVO"
+	HealthEnumFANTASMA HealthEnum = "FANTASMA"
+)
+
+func (e *HealthEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = HealthEnum(s)
+	case string:
+		*e = HealthEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for HealthEnum: %T", src)
+	}
+	return nil
+}
+
+type NullHealthEnum struct {
+	HealthEnum HealthEnum
+	Valid      bool // Valid is true if HealthEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullHealthEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.HealthEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.HealthEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullHealthEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.HealthEnum), nil
+}
+
+type UnitOfMeasurementEnum string
+
+const (
+	UnitOfMeasurementEnumMM         UnitOfMeasurementEnum = "MM"
+	UnitOfMeasurementEnumCM         UnitOfMeasurementEnum = "CM"
+	UnitOfMeasurementEnumM          UnitOfMeasurementEnum = "M"
+	UnitOfMeasurementEnumIN         UnitOfMeasurementEnum = "IN"
+	UnitOfMeasurementEnumKG         UnitOfMeasurementEnum = "KG"
+	UnitOfMeasurementEnumM2         UnitOfMeasurementEnum = "M2"
+	UnitOfMeasurementEnumM3         UnitOfMeasurementEnum = "M3"
+	UnitOfMeasurementEnumUN         UnitOfMeasurementEnum = "UN"
+	UnitOfMeasurementEnumMICROMETRO UnitOfMeasurementEnum = "MICROMETRO"
+	UnitOfMeasurementEnumTONELADA   UnitOfMeasurementEnum = "TONELADA"
+)
+
+func (e *UnitOfMeasurementEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = UnitOfMeasurementEnum(s)
+	case string:
+		*e = UnitOfMeasurementEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for UnitOfMeasurementEnum: %T", src)
+	}
+	return nil
+}
+
+type NullUnitOfMeasurementEnum struct {
+	UnitOfMeasurementEnum UnitOfMeasurementEnum
+	Valid                 bool // Valid is true if UnitOfMeasurementEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullUnitOfMeasurementEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.UnitOfMeasurementEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.UnitOfMeasurementEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullUnitOfMeasurementEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.UnitOfMeasurementEnum), nil
+}
+
 type Bom struct {
 	ID        int64
 	ProductID int64
@@ -188,8 +281,8 @@ type Group struct {
 type Item struct {
 	ID                                   int64
 	WarehouseID                          int32
-	Code                                 string
-	Health                               int16
+	Code                                 int64
+	Health                               HealthEnum
 	CreatedBy                            uuid.UUID
 	CreatedAt                            time.Time
 	Complement                           sql.NullString
@@ -199,7 +292,7 @@ type Item struct {
 	PdmModifierID                        int32
 	PdmAttributes                        json.RawMessage
 	PdmDescriptionTechnique              string
-	WarehouseUnitOfMeasurement           int16
+	WarehouseUnitOfMeasurement           UnitOfMeasurementEnum
 	WarehouseAutomaticLow                bool
 	WarehouseCyclicalCountConfig         pqtype.NullRawMessage
 	WarehouseMinimumStock                int32
@@ -228,8 +321,7 @@ type ItemMachineUsage struct {
 
 type ItemMask struct {
 	ID        int64
-	ItemID    int64
-	ItemCode  string
+	ItemCode  int64
 	Mask      string
 	MaskHash  string
 	CreatedBy uuid.UUID
@@ -262,11 +354,9 @@ type ItemQuestionAnswer struct {
 
 type ItemStructure struct {
 	ID                int64
-	ParentItemID      int64
-	ChildItemID       int64
 	ParentMask        sql.NullString
 	Quantity          float64
-	UnitOfMeasurement string
+	UnitOfMeasurement UnitOfMeasurementEnum
 	LossPercentage    float64
 	Position          int32
 	Notes             sql.NullString
@@ -274,8 +364,9 @@ type ItemStructure struct {
 	CreatedBy         uuid.UUID
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
-	ParentCode        sql.NullString
-	ChildCode         sql.NullString
+	ParentCode        int64
+	ChildCode         int64
+	Health            HealthEnum
 }
 
 type MaskComposition struct {

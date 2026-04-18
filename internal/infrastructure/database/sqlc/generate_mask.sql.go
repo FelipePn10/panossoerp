@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -52,40 +51,27 @@ INSERT INTO item_masks (
     mask,
     mask_hash,
     created_by,
-    created_at,
-    item_id
+    created_at
 )
-VALUES ($1, $2, $3, $4, NOW(), $5)
-RETURNING id, item_code, mask, mask_hash, created_by, created_at, item_id
+VALUES ($1, $2, $3, $4, NOW())
+RETURNING id, item_code, mask, mask_hash, created_by, created_at
 `
 
 type InsertItemtMaskParams struct {
-	ItemCode  string
+	ItemCode  int64
 	Mask      string
 	MaskHash  string
 	CreatedBy uuid.UUID
-	ItemID    int64
 }
 
-type InsertItemtMaskRow struct {
-	ID        int64
-	ItemCode  string
-	Mask      string
-	MaskHash  string
-	CreatedBy uuid.UUID
-	CreatedAt time.Time
-	ItemID    int64
-}
-
-func (q *Queries) InsertItemtMask(ctx context.Context, arg InsertItemtMaskParams) (InsertItemtMaskRow, error) {
+func (q *Queries) InsertItemtMask(ctx context.Context, arg InsertItemtMaskParams) (ItemMask, error) {
 	row := q.db.QueryRowContext(ctx, insertItemtMask,
 		arg.ItemCode,
 		arg.Mask,
 		arg.MaskHash,
 		arg.CreatedBy,
-		arg.ItemID,
 	)
-	var i InsertItemtMaskRow
+	var i ItemMask
 	err := row.Scan(
 		&i.ID,
 		&i.ItemCode,
@@ -93,7 +79,6 @@ func (q *Queries) InsertItemtMask(ctx context.Context, arg InsertItemtMaskParams
 		&i.MaskHash,
 		&i.CreatedBy,
 		&i.CreatedAt,
-		&i.ItemID,
 	)
 	return i, err
 }

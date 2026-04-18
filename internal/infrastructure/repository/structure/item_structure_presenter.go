@@ -12,13 +12,11 @@ func ToItemStructureDTO(e *entity.ItemStructure) *response.StructureComponentRes
 
 	return &response.StructureComponentResponse{
 		ID:                e.ID,
-		ParentItemID:      e.ParentItemID,
-		ChildItemID:       e.ChildItemID,
 		ParentMask:        e.ParentMask,
 		Quantity:          e.Quantity,
 		UnitOfMeasurement: e.UnitOfMeasurement,
 		LossPercentage:    e.LossPercentage,
-		Position:          e.Position,
+		Position:          e.Sequence,
 		Notes:             e.Notes,
 		IsActive:          e.IsActive,
 		CreatedBy:         e.CreatedBy,
