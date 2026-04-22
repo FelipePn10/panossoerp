@@ -10,8 +10,8 @@ import (
 // StructureComponentResponse representa a relação pai-filho persistida
 type StructureComponentResponse struct {
 	ID                int64                           `json:"id"`
-	ParentItemCode    int64                           `json:"parent_item_code"`
-	ChildItemCode     int64                           `json:"child_item_code"`
+	ParentCode        int64                           `json:"parent_code"`
+	ChildCode         int64                           `json:"child_code"`
 	ChildDescription  string                          `json:"child_description"`
 	ParentMask        *string                         `json:"parent_mask,omitempty"`
 	IsGeneric         bool                            `json:"is_generic"`
@@ -20,7 +20,7 @@ type StructureComponentResponse struct {
 	UnitOfMeasurement types.TypeUnitOfMeasurementItem `json:"unit_of_measurement"`
 	Health            types.Health                    `json:"health"`
 	LossPercentage    float64                         `json:"loss_percentage"`
-	Position          int                             `json:"position"`
+	Sequence          int                             `json:"sequence"`
 	Notes             *string                         `json:"notes,omitempty"`
 	IsActive          bool                            `json:"is_active"`
 	CreatedBy         uuid.UUID                       `json:"created_by"`

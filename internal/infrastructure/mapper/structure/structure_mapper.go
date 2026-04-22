@@ -16,8 +16,8 @@ func MapNodeToResponse(node *valueobject.StructureNode) *response.StructureTreeN
 
 	componentResp := response.StructureComponentResponse{
 		ID:                comp.ID,
-		ParentItemCode:    node.ItemCode,
-		ChildItemCode:     node.ItemCode,
+		ParentCode:        node.ItemCode,
+		ChildCode:         node.ItemCode,
 		ChildDescription:  node.ItemDesc,
 		ParentMask:        comp.ParentMask,
 		IsGeneric:         comp.IsGeneric(),
@@ -26,7 +26,7 @@ func MapNodeToResponse(node *valueobject.StructureNode) *response.StructureTreeN
 		UnitOfMeasurement: comp.UnitOfMeasurement,
 		Health:            comp.Health,
 		LossPercentage:    comp.LossPercentage,
-		Position:          comp.Sequence,
+		Sequence:          comp.Sequence,
 		Notes:             comp.Notes,
 		IsActive:          comp.IsActive,
 		CreatedBy:         comp.CreatedBy,
