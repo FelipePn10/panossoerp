@@ -22,14 +22,15 @@ func mapNode(n *service.Node) *response.StructureTreeNodeResponse {
 	return &response.StructureTreeNodeResponse{
 		Component: response.StructureComponentResponse{
 			ID:                n.Component.ID,
-			ParentItemCode:    n.Component.ParentCode,
-			ChildItemCode:     n.Component.ChildCode,
+			ParentCode:        n.Component.ParentCode,
+			ChildCode:         n.Component.ChildCode,
+			ChildDescription:  n.Component.ChildDescription,
 			ParentMask:        n.Component.ParentMask,
 			Quantity:          n.Component.Quantity,
 			UnitOfMeasurement: n.Component.UnitOfMeasurement,
 			Health:            n.Component.Health,
 			LossPercentage:    n.Component.LossPercentage,
-			Position:          n.Component.Sequence,
+			Sequence:          n.Component.Sequence,
 			Notes:             n.Component.Notes,
 			IsActive:          n.Component.IsActive,
 			CreatedBy:         n.Component.CreatedBy,

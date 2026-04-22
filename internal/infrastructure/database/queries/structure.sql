@@ -6,7 +6,7 @@ INSERT INTO item_structures (
     quantity,
     unit_of_measurement,
     loss_percentage,
-    position,
+    sequence,
     health,
     notes,
     created_by
@@ -33,7 +33,7 @@ SELECT
     s.loss_percentage,
     s.unit_of_measurement,
     s.health,
-    s.position,
+    s.sequence,
     s.notes,
     s.is_active,
     s.created_by,
@@ -43,7 +43,7 @@ FROM item_structures s
          JOIN items i ON i.code = s.child_code
 WHERE s.parent_code = $1
   AND s.is_active = TRUE
-ORDER BY s.position, s.id;
+ORDER BY s.sequence, s.id;
 
 
 -- name: GetGenericChildren :many
@@ -52,7 +52,7 @@ FROM item_structures
 WHERE parent_code = $1
   AND parent_mask IS NULL
   AND is_active = TRUE
-ORDER BY position, id;
+ORDER BY sequence, id;
 
 
 -- name: GetDirectChildrenForMask :many
@@ -65,7 +65,7 @@ SELECT
     s.loss_percentage,
     s.unit_of_measurement,
     s.health,
-    s.position,
+    s.sequence,
     s.notes,
     s.is_active,
     s.created_by,
@@ -82,7 +82,7 @@ WHERE s.parent_code = $1
     )
 ORDER BY
     CASE WHEN s.parent_mask IS NOT NULL THEN 0 ELSE 1 END,
-    s.position,
+    s.sequence,
     s.id;
 
 -- name: UpdateStructureComponent :one
@@ -91,7 +91,7 @@ SET
     quantity            = $2,
     unit_of_measurement = $3,
     loss_percentage     = $4,
-    position            = $5,
+    sequence            = $5,
     health              = $6,
     notes               = $7,
     updated_at          = NOW()
@@ -124,7 +124,7 @@ SELECT EXISTS (
 ) AS "exists";
 
 -- name: HasCyclicReference :one
-SELECT has_cycle($1, $2) AS has_cycle;
+SELECT has_cycle(sqlc.arg(start_code), sqlc.arg(target_code)) AS has_cycle;
 
 -- name: GetItemMaskAnswersByValue :many
 SELECT
@@ -145,3 +145,12 @@ SELECT
 FROM item_questions iq
 WHERE iq.item_code = $1
 ORDER BY iq.position;
+
+-- name: SequenceExists :one
+SELECT EXISTS (
+    SELECT 1
+    FROM item_structures
+    WHERE parent_code = $1
+      AND sequence    = $2
+      AND is_active   = TRUE
+) AS "exists";

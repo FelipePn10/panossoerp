@@ -359,7 +359,7 @@ type ItemStructure struct {
 	Quantity          float64
 	UnitOfMeasurement UnitOfMeasurementEnum
 	LossPercentage    float64
-	Position          int32
+	Sequence          int32
 	Notes             sql.NullString
 	IsActive          bool
 	CreatedBy         uuid.UUID
@@ -463,12 +463,12 @@ type User struct {
 
 type Warehouse struct {
 	ID                  int64
-	Code                int
+	Code                string
+	Description         string
 	CreatedAt           time.Time
 	CreatedBy           uuid.UUID
-	Description         string
-	Location            WarehouseLocation
-	Type                WarehouseType
+	Location            interface{}
+	Type                interface{}
 	Disposition         bool
 	ReservationsAllowed bool
 }

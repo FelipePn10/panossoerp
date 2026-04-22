@@ -12,8 +12,8 @@ func ToItemStructureDTO(e *entity.ItemStructure) *response.StructureComponentRes
 
 	return &response.StructureComponentResponse{
 		ID:                e.ID,
-		ParentItemCode:    e.ParentCode,
-		ChildItemCode:     e.ChildCode,
+		ParentCode:        e.ParentCode,
+		ChildCode:         e.ChildCode,
 		ParentMask:        e.ParentMask,
 		IsGeneric:         e.ParentMask == nil,
 		Quantity:          e.Quantity,
@@ -21,7 +21,7 @@ func ToItemStructureDTO(e *entity.ItemStructure) *response.StructureComponentRes
 		UnitOfMeasurement: e.UnitOfMeasurement,
 		Health:            e.Health,
 		LossPercentage:    e.LossPercentage,
-		Position:          e.Sequence,
+		Sequence:          e.Sequence,
 		Notes:             e.Notes,
 		IsActive:          e.IsActive,
 		CreatedBy:         e.CreatedBy,

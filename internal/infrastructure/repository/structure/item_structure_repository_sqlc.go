@@ -25,7 +25,7 @@ func (r *ItemStructureRepositorySQLC) Create(
 		UnitOfMeasurement: sqlc.UnitOfMeasurementEnum(s.UnitOfMeasurement),
 		Health:            sqlc.HealthEnum(s.Health),
 		LossPercentage:    s.LossPercentage,
-		Position:          int32(s.Sequence),
+		Sequence:          int32(s.Sequence),
 		Notes:             toNullString(s.Notes),
 		CreatedBy:         s.CreatedBy,
 	})
@@ -45,7 +45,7 @@ func (r *ItemStructureRepositorySQLC) Update(
 		UnitOfMeasurement: sqlc.UnitOfMeasurementEnum(s.UnitOfMeasurement),
 		Health:            sqlc.HealthEnum(s.Health),
 		LossPercentage:    s.LossPercentage,
-		Position:          int32(s.Sequence),
+		Sequence:          int32(s.Sequence),
 		Notes:             toNullString(s.Notes),
 	})
 	if err != nil {
@@ -114,7 +114,7 @@ func (r *ItemStructureRepositorySQLC) GetAllDirectChildren(
 			UnitOfMeasurement: types.TypeUnitOfMeasurementItem(row.UnitOfMeasurement),
 			Health:            types.Health(row.Health),
 
-			Sequence: int(row.Position),
+			Sequence: int(row.Sequence),
 
 			Notes: notes,
 
@@ -166,7 +166,7 @@ func rowsWithDescToEntities(rows []sqlc.GetDirectChildrenForMaskRow) []*entity.I
 			LossPercentage:    row.LossPercentage,
 			UnitOfMeasurement: types.TypeUnitOfMeasurementItem(row.UnitOfMeasurement),
 			Health:            types.Health(row.Health),
-			Sequence:          int(row.Position),
+			Sequence:          int(row.Sequence),
 			IsActive:          row.IsActive,
 			CreatedBy:         row.CreatedBy,
 			CreatedAt:         row.CreatedAt,
@@ -212,6 +212,21 @@ func (r *ItemStructureRepositorySQLC) HasCyclicReference(
 	}
 
 	return hasCycle, nil
+}
+
+func (r *ItemStructureRepositorySQLC) SequenceExists(
+	ctx context.Context,
+	parentCode int64,
+	sequence int,
+) (bool, error) {
+	exists, err := r.q.SequenceExists(ctx, sqlc.SequenceExistsParams{
+		ParentCode: parentCode,
+		Sequence:   int32(sequence),
+	})
+	if err != nil {
+		return false, fmt.Errorf("checking sequence %d for item %d: %w", sequence, parentCode, err)
+	}
+	return exists, nil
 }
 
 func (r *ItemStructureRepositorySQLC) GetItemCodeAndDesc(
@@ -295,7 +310,7 @@ func rowToEntity(row sqlc.ItemStructure) *entity.ItemStructure {
 		Quantity:          row.Quantity,
 		UnitOfMeasurement: types.TypeUnitOfMeasurementItem(row.UnitOfMeasurement),
 		LossPercentage:    row.LossPercentage,
-		Sequence:          int(row.Position),
+		Sequence:          int(row.Sequence),
 		IsActive:          row.IsActive,
 		CreatedBy:         row.CreatedBy,
 		CreatedAt:         row.CreatedAt,

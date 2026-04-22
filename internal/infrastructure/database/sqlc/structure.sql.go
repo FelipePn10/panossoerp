@@ -21,14 +21,14 @@ INSERT INTO item_structures (
     quantity,
     unit_of_measurement,
     loss_percentage,
-    position,
+    sequence,
     health,
     notes,
     created_by
 ) VALUES (
              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
          )
-    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 `
 
 type CreateStructureComponentParams struct {
@@ -38,7 +38,7 @@ type CreateStructureComponentParams struct {
 	Quantity          float64
 	UnitOfMeasurement UnitOfMeasurementEnum
 	LossPercentage    float64
-	Position          int32
+	Sequence          int32
 	Health            HealthEnum
 	Notes             sql.NullString
 	CreatedBy         uuid.UUID
@@ -52,7 +52,7 @@ func (q *Queries) CreateStructureComponent(ctx context.Context, arg CreateStruct
 		arg.Quantity,
 		arg.UnitOfMeasurement,
 		arg.LossPercentage,
-		arg.Position,
+		arg.Sequence,
 		arg.Health,
 		arg.Notes,
 		arg.CreatedBy,
@@ -64,7 +64,7 @@ func (q *Queries) CreateStructureComponent(ctx context.Context, arg CreateStruct
 		&i.Quantity,
 		&i.UnitOfMeasurement,
 		&i.LossPercentage,
-		&i.Position,
+		&i.Sequence,
 		&i.Notes,
 		&i.IsActive,
 		&i.CreatedBy,
@@ -101,7 +101,7 @@ SELECT
     s.loss_percentage,
     s.unit_of_measurement,
     s.health,
-    s.position,
+    s.sequence,
     s.notes,
     s.is_active,
     s.created_by,
@@ -111,7 +111,7 @@ FROM item_structures s
          JOIN items i ON i.code = s.child_code
 WHERE s.parent_code = $1
   AND s.is_active = TRUE
-ORDER BY s.position, s.id
+ORDER BY s.sequence, s.id
 `
 
 type GetAllDirectChildrenRow struct {
@@ -124,7 +124,7 @@ type GetAllDirectChildrenRow struct {
 	LossPercentage    float64
 	UnitOfMeasurement UnitOfMeasurementEnum
 	Health            HealthEnum
-	Position          int32
+	Sequence          int32
 	Notes             sql.NullString
 	IsActive          bool
 	CreatedBy         uuid.UUID
@@ -151,7 +151,7 @@ func (q *Queries) GetAllDirectChildren(ctx context.Context, parentCode int64) ([
 			&i.LossPercentage,
 			&i.UnitOfMeasurement,
 			&i.Health,
-			&i.Position,
+			&i.Sequence,
 			&i.Notes,
 			&i.IsActive,
 			&i.CreatedBy,
@@ -181,7 +181,7 @@ SELECT
     s.loss_percentage,
     s.unit_of_measurement,
     s.health,
-    s.position,
+    s.sequence,
     s.notes,
     s.is_active,
     s.created_by,
@@ -198,7 +198,7 @@ WHERE s.parent_code = $1
     )
 ORDER BY
     CASE WHEN s.parent_mask IS NOT NULL THEN 0 ELSE 1 END,
-    s.position,
+    s.sequence,
     s.id
 `
 
@@ -216,7 +216,7 @@ type GetDirectChildrenForMaskRow struct {
 	LossPercentage    float64
 	UnitOfMeasurement UnitOfMeasurementEnum
 	Health            HealthEnum
-	Position          int32
+	Sequence          int32
 	Notes             sql.NullString
 	IsActive          bool
 	CreatedBy         uuid.UUID
@@ -243,7 +243,7 @@ func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChi
 			&i.LossPercentage,
 			&i.UnitOfMeasurement,
 			&i.Health,
-			&i.Position,
+			&i.Sequence,
 			&i.Notes,
 			&i.IsActive,
 			&i.CreatedBy,
@@ -265,12 +265,12 @@ func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChi
 }
 
 const getGenericChildren = `-- name: GetGenericChildren :many
-SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 FROM item_structures
 WHERE parent_code = $1
   AND parent_mask IS NULL
   AND is_active = TRUE
-ORDER BY position, id
+ORDER BY sequence, id
 `
 
 func (q *Queries) GetGenericChildren(ctx context.Context, parentCode int64) ([]ItemStructure, error) {
@@ -288,7 +288,7 @@ func (q *Queries) GetGenericChildren(ctx context.Context, parentCode int64) ([]I
 			&i.Quantity,
 			&i.UnitOfMeasurement,
 			&i.LossPercentage,
-			&i.Position,
+			&i.Sequence,
 			&i.Notes,
 			&i.IsActive,
 			&i.CreatedBy,
@@ -416,7 +416,7 @@ func (q *Queries) GetItemQuestions(ctx context.Context, itemCode int64) ([]GetIt
 }
 
 const getStructureComponentByID = `-- name: GetStructureComponentByID :one
-SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 FROM item_structures
 WHERE id = $1
 `
@@ -430,7 +430,7 @@ func (q *Queries) GetStructureComponentByID(ctx context.Context, id int64) (Item
 		&i.Quantity,
 		&i.UnitOfMeasurement,
 		&i.LossPercentage,
-		&i.Position,
+		&i.Sequence,
 		&i.Notes,
 		&i.IsActive,
 		&i.CreatedBy,
@@ -474,19 +474,41 @@ func (q *Queries) ItemExists(ctx context.Context, code int64) (bool, error) {
 	return exists, err
 }
 
+const sequenceExists = `-- name: SequenceExists :one
+SELECT EXISTS (
+    SELECT 1
+    FROM item_structures
+    WHERE parent_code = $1
+      AND sequence    = $2
+      AND is_active   = TRUE
+) AS "exists"
+`
+
+type SequenceExistsParams struct {
+	ParentCode int64
+	Sequence   int32
+}
+
+func (q *Queries) SequenceExists(ctx context.Context, arg SequenceExistsParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, sequenceExists, arg.ParentCode, arg.Sequence)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const updateStructureComponent = `-- name: UpdateStructureComponent :one
 UPDATE item_structures
 SET
     quantity            = $2,
     unit_of_measurement = $3,
     loss_percentage     = $4,
-    position            = $5,
+    sequence            = $5,
     health              = $6,
     notes               = $7,
     updated_at          = NOW()
 WHERE id = $1
   AND is_active = TRUE
-    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, position, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
 `
 
 type UpdateStructureComponentParams struct {
@@ -494,7 +516,7 @@ type UpdateStructureComponentParams struct {
 	Quantity          float64
 	UnitOfMeasurement UnitOfMeasurementEnum
 	LossPercentage    float64
-	Position          int32
+	Sequence          int32
 	Health            HealthEnum
 	Notes             sql.NullString
 }
@@ -505,7 +527,7 @@ func (q *Queries) UpdateStructureComponent(ctx context.Context, arg UpdateStruct
 		arg.Quantity,
 		arg.UnitOfMeasurement,
 		arg.LossPercentage,
-		arg.Position,
+		arg.Sequence,
 		arg.Health,
 		arg.Notes,
 	)
@@ -516,7 +538,7 @@ func (q *Queries) UpdateStructureComponent(ctx context.Context, arg UpdateStruct
 		&i.Quantity,
 		&i.UnitOfMeasurement,
 		&i.LossPercentage,
-		&i.Position,
+		&i.Sequence,
 		&i.Notes,
 		&i.IsActive,
 		&i.CreatedBy,
