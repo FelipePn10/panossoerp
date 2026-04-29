@@ -11,7 +11,7 @@ import (
 
 type ManageDeliveryPromiseParamsUseCase struct {
 	Repo repository.DeliveryPromiseParamsRepository
-	auth ports.AuthService
+	Auth ports.AuthService
 }
 
 func (uc *ManageDeliveryPromiseParamsUseCase) Get(ctx context.Context) (*entity.DeliveryPromiseParams, error) {
