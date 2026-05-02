@@ -1082,17 +1082,17 @@ type Group struct {
 }
 
 type IndependentDemand struct {
-	ID           int64
-	Code         int64
-	ItemCode     int64
-	Mask         sql.NullString
-	CostCenterID *int64
-	Quantity     string
-	DemandDate   time.Time
-	IsActive     bool
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	CreatedBy    uuid.UUID
+	ID             int64
+	Code           int64
+	ItemCode       int64
+	Mask           sql.NullString
+	CostCenterCode sql.NullInt64
+	Quantity       string
+	DemandDate     time.Time
+	IsActive       bool
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	CreatedBy      uuid.UUID
 }
 
 type IndustrialCalendar struct {

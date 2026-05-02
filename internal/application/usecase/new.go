@@ -6,6 +6,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/cost_center_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/delivery_promise_params_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/delivery_reschedule_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/independent_demand_uc"
 	allocation "github.com/FelipePn10/panossoerp/internal/domain/allocation_base/repository"
 	ast "github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
 	bom "github.com/FelipePn10/panossoerp/internal/domain/bom/repository"
@@ -18,6 +19,7 @@ import (
 	enterprise "github.com/FelipePn10/panossoerp/internal/domain/enterprise/repository"
 	mask "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/repository"
 	group "github.com/FelipePn10/panossoerp/internal/domain/group/repository"
+	independent_demand "github.com/FelipePn10/panossoerp/internal/domain/independent_demand/repository"
 	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
 	modifier "github.com/FelipePn10/panossoerp/internal/domain/modifier/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
@@ -346,6 +348,76 @@ func NewListDeliveryReschedulesUseCase(
 	auth ports.AuthService,
 ) *delivery_reschedule_uc.ListDeliveryReschedulesUseCase {
 	return &delivery_reschedule_uc.ListDeliveryReschedulesUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewCreateIndependentDemandUseCase(
+	repo independent_demand.IndependentDemandRepository,
+	auth ports.AuthService,
+) *independent_demand_uc.CreateIndependentDemandUseCase {
+	return &independent_demand_uc.CreateIndependentDemandUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewListIndependentDemandsUseCase(
+	repo independent_demand.IndependentDemandRepository,
+	auth ports.AuthService,
+) *independent_demand_uc.ListIndependentDemandsUseCase {
+	return &independent_demand_uc.ListIndependentDemandsUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewGetIndependentDemandByCodeUseCase(
+	repo independent_demand.IndependentDemandRepository,
+	auth ports.AuthService,
+) *independent_demand_uc.GetIndependentDemandByCodeUseCase {
+	return &independent_demand_uc.GetIndependentDemandByCodeUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewListIndependentDemandByItemUseCase(
+	repo independent_demand.IndependentDemandRepository,
+	auth ports.AuthService,
+) *independent_demand_uc.ListIndependentDemandByItemUseCase {
+	return &independent_demand_uc.ListIndependentDemandByItemUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewUpdateIndependentDemandUseCase(
+	repo independent_demand.IndependentDemandRepository,
+	auth ports.AuthService,
+) *independent_demand_uc.UpdateIndependentDemandUseCase {
+	return &independent_demand_uc.UpdateIndependentDemandUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewListIndependentDemandFromDateUseCase(
+	repo independent_demand.IndependentDemandRepository,
+	auth ports.AuthService,
+) *independent_demand_uc.ListIndependentDemandFromDateUseCase {
+	return &independent_demand_uc.ListIndependentDemandFromDateUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewDeleteIndependentDemandUseCase(
+	repo independent_demand.IndependentDemandRepository,
+	auth ports.AuthService,
+) *independent_demand_uc.DeleteIndependentDemandUseCase {
+	return &independent_demand_uc.DeleteIndependentDemandUseCase{
 		Repo: repo,
 		Auth: auth,
 	}

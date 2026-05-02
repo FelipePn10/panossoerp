@@ -4,6 +4,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/allocation_base_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/delivery_reschedule_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/independent_demand_uc"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler/security"
 )
 
@@ -106,6 +107,18 @@ type AllocationBaseHandler struct {
 }
 
 type DeliveryRescheduleHandler struct {
+	*security.BaseHandler
 	createUC *delivery_reschedule_uc.CreateDeliveryRescheduleUseCase
 	listUC   *delivery_reschedule_uc.ListDeliveryReschedulesUseCase
+}
+
+type IndependentDemandHandler struct {
+	*security.BaseHandler
+	createUC       *independent_demand_uc.CreateIndependentDemandUseCase
+	updateUC       *independent_demand_uc.UpdateIndependentDemandUseCase
+	deleteUC       *independent_demand_uc.DeleteIndependentDemandUseCase
+	listFromDateUC *independent_demand_uc.ListIndependentDemandFromDateUseCase
+	listByItemUC   *independent_demand_uc.ListIndependentDemandByItemUseCase
+	listUC         *independent_demand_uc.ListIndependentDemandsUseCase
+	getByCodeUC    *independent_demand_uc.GetIndependentDemandByCodeUseCase
 }

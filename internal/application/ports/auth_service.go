@@ -37,4 +37,9 @@ type AuthService interface {
 	CanGetCostCenter(ctx context.Context) bool
 	CanCreateDeliveryReschedule(ctx context.Context) bool
 	CanListDeliveryReschedule(ctx context.Context) bool
+	CanCreateIndependentDemand(ctx context.Context) bool
+	CanListIndependentDemand(ctx context.Context) bool
+	CanViewIndependentDemand(ctx context.Context) bool
+	CanUpdateIndependentDemand(ctx context.Context) bool
+	CanDeleteIndependentDemand(ctx context.Context) bool
 }

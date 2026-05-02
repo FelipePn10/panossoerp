@@ -6,6 +6,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/cost_center_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/delivery_promise_params_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/delivery_reschedule_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/independent_demand_uc"
 )
 
 func NewCreateProductHandler(
@@ -227,5 +228,25 @@ func NewDeliveryRescheduleHandler(
 	return &DeliveryRescheduleHandler{
 		createUC: createUC,
 		listUC:   listUC,
+	}
+}
+
+func NewIndependentDemandHandler(
+	createUC *independent_demand_uc.CreateIndependentDemandUseCase,
+	updateUC *independent_demand_uc.UpdateIndependentDemandUseCase,
+	deleteUC *independent_demand_uc.DeleteIndependentDemandUseCase,
+	listFromDateUC *independent_demand_uc.ListIndependentDemandFromDateUseCase,
+	listByItemCodeUC *independent_demand_uc.ListIndependentDemandByItemUseCase,
+	listUC *independent_demand_uc.ListIndependentDemandsUseCase,
+	getByCodeUC *independent_demand_uc.GetIndependentDemandByCodeUseCase,
+) *IndependentDemandHandler {
+	return &IndependentDemandHandler{
+		createUC:       createUC,
+		updateUC:       updateUC,
+		deleteUC:       deleteUC,
+		listFromDateUC: listFromDateUC,
+		listByItemUC:   listByItemCodeUC,
+		listUC:         listUC,
+		getByCodeUC:    getByCodeUC,
 	}
 }
