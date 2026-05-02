@@ -150,3 +150,23 @@ func (a *AuthService) CanCreateDeliveryReschedule(ctx context.Context) bool {
 func (a *AuthService) CanListDeliveryReschedule(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
+
+func (a *AuthService) CanCreateIndependentDemand(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) CanListIndependentDemand(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) CanViewIndependentDemand(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) CanUpdateIndependentDemand(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) CanDeleteIndependentDemand(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}

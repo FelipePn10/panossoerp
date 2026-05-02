@@ -22,6 +22,7 @@ import (
 	enterprise "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/enterprise"
 	generatemask "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/generate_mask"
 	group "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/group"
+	independentDemand "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/independent_demand"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item"
 	itemquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item_question"
 	modifier "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/modifier"
@@ -193,6 +194,17 @@ func (app *application) mount() chi.Router {
 	listDeliveryRescheduleUC := usecase.NewListDeliveryReschedulesUseCase(deliveryRescheduleRepo, authService)
 	deliveryRescheduleHandler := handler.NewDeliveryRescheduleHandler(createDeliveryRescheduleUC, listDeliveryRescheduleUC)
 
+	// independent demand
+	independentDemandRepo := independentDemand.NewIndependentDemandRepositorySQLC(queries)
+	createIndependentDemandUC := usecase.NewCreateIndependentDemandUseCase(independentDemandRepo, authService)
+	updateIndependentDemandUC := usecase.NewUpdateIndependentDemandUseCase(independentDemandRepo, authService)
+	deleteIndependentDemandUC := usecase.NewDeleteIndependentDemandUseCase(independentDemandRepo, authService)
+	listFromDateIndependentDemandUC := usecase.NewListIndependentDemandFromDateUseCase(independentDemandRepo, authService)
+	listByItemIndependentDemandUC := usecase.NewListIndependentDemandByItemUseCase(independentDemandRepo, authService)
+	listIndependentDemandUC := usecase.NewListIndependentDemandsUseCase(independentDemandRepo, authService)
+	getByCodeDemandUC := usecase.NewGetIndependentDemandByCodeUseCase(independentDemandRepo, authService)
+	independentDemandHandler := handler.NewIndependentDemandHandler(createIndependentDemandUC, updateIndependentDemandUC, deleteIndependentDemandUC, listFromDateIndependentDemandUC, listByItemIndependentDemandUC, listIndependentDemandUC, getByCodeDemandUC)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -226,6 +238,15 @@ func (app *application) mount() chi.Router {
 		r.Route("/api/delivery-reschedule", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", deliveryRescheduleHandler.Create)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/list/{sales_order_code}", deliveryRescheduleHandler.ListByOrder)
+		})
+		r.Route("/api/independent-demand", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", independentDemandHandler.Create)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Put("/update/{code}", independentDemandHandler.Update)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/delete/{code}", independentDemandHandler.Delete)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/list-from-date/{date}", independentDemandHandler.ListFromDate)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/list-by-item/{itemCode}", independentDemandHandler.ListByItem)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/list", independentDemandHandler.List)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/get-by-code/{code}", independentDemandHandler.GetByCode)
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)
