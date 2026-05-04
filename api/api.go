@@ -25,6 +25,7 @@ import (
 	independentDemand "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/independent_demand"
 	industrialCalendar "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/industrial_calendar"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item"
+	itemCalendarPromise "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item_calendar_promise"
 	itemquestion "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/item_question"
 	modifier "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/modifier"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
@@ -211,6 +212,11 @@ func (app *application) mount() chi.Router {
 	manageIndustrialCalendarRepoUC := usecase.NewManageCalendarUseCase(industrialCalendarRepo, authService)
 	industrialCalendarHandler := handler.NewIndustrialCalendarHandler(manageIndustrialCalendarRepoUC)
 
+	// item calendar promise
+	itemCalendarPromise := itemCalendarPromise.NewItemCalendarPromiseRepositorySQLC(queries)
+	itemCalendarPromiseUC := usecase.NewManageItemCalendarPromiseUseCase(itemCalendarPromise, authService)
+	itemCalendarPromiseHandler := handler.NewItemCalendarPromiseHandler(itemCalendarPromiseUC)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -258,6 +264,13 @@ func (app *application) mount() chi.Router {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", industrialCalendarHandler.CreateDay)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/month/{year}/{month}", industrialCalendarHandler.GetMonth)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/workdays/{year}/{month}", industrialCalendarHandler.GetWorkdays)
+		})
+		r.Route("/api/item-calendar-promise", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", itemCalendarPromiseHandler.UpsertDay)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{item_code}/{mask}/{year}/{month}", itemCalendarPromiseHandler.ListMonth)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{item_code}/{mask}/{year}/{month}/workdays", itemCalendarPromiseHandler.GetWorkdays)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{item_code}/{mask}/{year}/{month}/{day}", itemCalendarPromiseHandler.GetDay)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{item_code}/{mask}/{year}/{month}/{day}", itemCalendarPromiseHandler.DeleteDay)
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)

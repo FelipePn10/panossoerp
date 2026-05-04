@@ -1583,7 +1583,7 @@ type Warehouse struct {
 	ID                  int64
 	Code                string
 	Description         string
-	CreatedAt           time.Time
+	CreatedAt           pgtype.Timestamptz
 	CreatedBy           pgtype.UUID
 	Location            WarehouseLocation
 	Type                WarehouseType
