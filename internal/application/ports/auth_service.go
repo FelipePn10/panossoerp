@@ -43,4 +43,5 @@ type AuthService interface {
 	CanUpdateIndependentDemand(ctx context.Context) bool
 	CanDeleteIndependentDemand(ctx context.Context) bool
 	CanManageIndustrialCalendar(ctx context.Context) bool
+	CanManageItemCalendarPromise(ctx context.Context) bool
 }

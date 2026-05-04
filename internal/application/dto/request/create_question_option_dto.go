@@ -4,6 +4,6 @@ import "github.com/google/uuid"
 
 type CreateQuestionOptionRequest struct {
 	Value      string    `json:"value"`
-	CreatedBy  uuid.UUID `json:"createdby"`
+	CreatedBy  uuid.UUID `json:"created_by"`
 	QuestionId int64     `json:"question_id"`
 }

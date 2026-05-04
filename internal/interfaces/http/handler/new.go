@@ -9,6 +9,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/employee"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/independent_demand_uc"
 	industrial_calendar_uc "github.com/FelipePn10/panossoerp/internal/application/usecase/industrial_calendar"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/item_calendar_promise_uc"
 )
 
 func NewCreateProductHandler(
@@ -257,6 +258,14 @@ func NewIndustrialCalendarHandler(
 	uc *industrial_calendar_uc.ManageCalendarUseCase,
 ) *IndustrialCalendarHandler {
 	return &IndustrialCalendarHandler{
+		uc: uc,
+	}
+}
+
+func NewItemCalendarPromiseHandler(
+	uc *item_calendar_promise_uc.ManageItemCalendarPromiseUseCase,
+) *ItemCalendarPromiseHandler {
+	return &ItemCalendarPromiseHandler{
 		uc: uc,
 	}
 }

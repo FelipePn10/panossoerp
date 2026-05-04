@@ -7,6 +7,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/employee"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/independent_demand_uc"
 	industrial_calendar_uc "github.com/FelipePn10/panossoerp/internal/application/usecase/industrial_calendar"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/item_calendar_promise_uc"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler/security"
 )
 
@@ -128,4 +129,9 @@ type IndependentDemandHandler struct {
 type IndustrialCalendarHandler struct {
 	*security.BaseHandler
 	uc *industrial_calendar_uc.ManageCalendarUseCase
+}
+
+type ItemCalendarPromiseHandler struct {
+	*security.BaseHandler
+	uc *item_calendar_promise_uc.ManageItemCalendarPromiseUseCase
 }

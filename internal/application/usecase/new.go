@@ -9,6 +9,7 @@ import (
 	employee2 "github.com/FelipePn10/panossoerp/internal/application/usecase/employee"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/independent_demand_uc"
 	industrial_calendar_uc "github.com/FelipePn10/panossoerp/internal/application/usecase/industrial_calendar"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/item_calendar_promise_uc"
 	allocation "github.com/FelipePn10/panossoerp/internal/domain/allocation_base/repository"
 	ast "github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
 	bom "github.com/FelipePn10/panossoerp/internal/domain/bom/repository"
@@ -23,6 +24,7 @@ import (
 	group "github.com/FelipePn10/panossoerp/internal/domain/group/repository"
 	independent_demand "github.com/FelipePn10/panossoerp/internal/domain/independent_demand/repository"
 	industrial_calendar "github.com/FelipePn10/panossoerp/internal/domain/industrial_calendar/repository"
+	item_calendar_promise "github.com/FelipePn10/panossoerp/internal/domain/item_calendar_promise/repository"
 	item "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
 	modifier "github.com/FelipePn10/panossoerp/internal/domain/modifier/repository"
 	qst "github.com/FelipePn10/panossoerp/internal/domain/questions/repository"
@@ -430,6 +432,16 @@ func NewManageCalendarUseCase(
 	auth ports.AuthService,
 ) *industrial_calendar_uc.ManageCalendarUseCase {
 	return &industrial_calendar_uc.ManageCalendarUseCase{
+		Repo: repo,
+		Auth: auth,
+	}
+}
+
+func NewManageItemCalendarPromiseUseCase(
+	repo item_calendar_promise.ItemCalendarPromiseRepository,
+	auth ports.AuthService,
+) *item_calendar_promise_uc.ManageItemCalendarPromiseUseCase {
+	return &item_calendar_promise_uc.ManageItemCalendarPromiseUseCase{
 		Repo: repo,
 		Auth: auth,
 	}
