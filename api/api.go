@@ -30,6 +30,7 @@ import (
 	modifier "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/modifier"
 	mrpCalculation "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/mrp_calculation"
 	op "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/order_priority"
+	over "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/overhead_allocation"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/structure"
@@ -248,6 +249,12 @@ func (app *application) mount() chi.Router {
 	opFindUC := usecase.NewFindPriorityByValueUseCase(opRepo, authService)
 	opHandler := handler.NewOrderPriorityHandler(opCreateUC, opListUC, opFindUC)
 
+	// overhead allocation
+	overRepo := over.NewOverheadAllocationRepositorySQLC(queries)
+	overCreateUC := usecase.NewCreateOverheadAllocationUseCase(overRepo, authService)
+	overListUC := usecase.NewListOverheadAllocationsUseCase(overRepo, authService)
+	overHandler := handler.NewOverheadAllocationHandler(overCreateUC, overListUC)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -334,6 +341,10 @@ func (app *application) mount() chi.Router {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", opHandler.Create)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/list", opHandler.List)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/find/{value}", opHandler.FindByValue)
+		})
+		r.Route("/api/overhead-allocation", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", overHandler.Create)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/list", overHandler.List)
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)

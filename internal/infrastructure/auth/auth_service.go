@@ -258,3 +258,11 @@ func (a *AuthService) CanCreateOrderPriority(ctx context.Context) bool {
 func (a *AuthService) CanOrderPriority(ctx context.Context) bool {
 	return a.hasWriteRole(ctx)
 }
+
+func (a *AuthService) CanCreateOverheadAllocation(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}
+
+func (a *AuthService) CanListOverheadAllocation(ctx context.Context) bool {
+	return a.hasWriteRole(ctx)
+}

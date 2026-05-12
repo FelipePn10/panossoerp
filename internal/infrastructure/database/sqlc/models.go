@@ -102,7 +102,6 @@ func (ns NullWarehouseType) Value() (driver.Value, error) {
 	return string(ns.WarehouseType), nil
 }
 
-
 type CapacityPeriodEnum string
 
 const (
@@ -1452,26 +1451,33 @@ type OrderPriority struct {
 }
 
 type OverheadAllocation struct {
-	ID             int64
-	CostCenterID   int64
-	PlanAccountID  *int64
-	AccountCode    pgtype.Text
-	PeriodStart    pgtype.Date
-	PeriodEnd      pgtype.Date
-	AllocationType string
-	BaseID         *int64
-	CreatedAt      pgtype.Timestamptz
-	UpdatedAt      pgtype.Timestamptz
-	CreatedBy      pgtype.UUID
+	ID              int64
+	CostCenterID    int64
+	PlanAccountID   *int64
+	AccountCode     pgtype.Text
+	PeriodStart     pgtype.Date
+	PeriodEnd       pgtype.Date
+	AllocationType  string
+	BaseID          *int64
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	CreatedBy       pgtype.UUID
+	Code            int64
+	CostCenterCode  *int32
+	PlanAccountCode *int32
+	BaseCode        *int64
 }
 
 type OverheadAllocationTarget struct {
-	ID           int64
-	OverheadID   int64
-	CostCenterID int64
-	Percentage   pgtype.Numeric
-	Amount       pgtype.Numeric
-	CreatedAt    pgtype.Timestamptz
+	ID             int64
+	OverheadID     int64
+	CostCenterID   int64
+	Percentage     pgtype.Numeric
+	Amount         pgtype.Numeric
+	CreatedAt      pgtype.Timestamptz
+	Code           int64
+	OverheadCode   *int64
+	CostCenterCode *int32
 }
 
 type PlannedOrder struct {

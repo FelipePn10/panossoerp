@@ -10,6 +10,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/item_calendar_promise_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/mrp_calculation_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/order_priority_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/overhead_allocation_uc"
 	"github.com/FelipePn10/panossoerp/internal/interfaces/http/handler/security"
 )
 
@@ -146,7 +147,14 @@ type MRPCalculationHandler struct {
 }
 
 type OrderPriorityHandler struct {
+	*security.BaseHandler
 	createUC *order_priority_uc.CreateOrderPriorityUseCase
 	listUC   *order_priority_uc.ListOrderPrioritiesUseCase
 	findUC   *order_priority_uc.FindPriorityByValueUseCase
+}
+
+type OverheadAllocationHandler struct {
+	*security.BaseHandler
+	createUC *overhead_allocation_uc.CreateOverheadAllocationUseCase
+	listUC   *overhead_allocation_uc.ListOverheadAllocationsUseCase
 }
