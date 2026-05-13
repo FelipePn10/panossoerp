@@ -13,6 +13,8 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/machine_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/mrp_calculation_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/order_priority_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/overhead_allocation_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/planned_order_uc"
 )
 
 func NewCreateProductHandler(
@@ -324,5 +326,31 @@ func NewOrderPriorityHandler(
 	listUC *order_priority_uc.ListOrderPrioritiesUseCase,
 	findUC *order_priority_uc.FindPriorityByValueUseCase,
 ) *OrderPriorityHandler {
-	return &OrderPriorityHandler{createUC: createUC, listUC: listUC, findUC: findUC}
+	return &OrderPriorityHandler{
+		createUC: createUC,
+		listUC:   listUC,
+		findUC:   findUC,
+	}
+}
+
+func NewOverheadAllocationHandler(
+	createUC *overhead_allocation_uc.CreateOverheadAllocationUseCase,
+	listUC *overhead_allocation_uc.ListOverheadAllocationsUseCase,
+) *OverheadAllocationHandler {
+	return &OverheadAllocationHandler{
+		createUC: createUC,
+		listUC:   listUC,
+	}
+}
+
+func NewPlannedOrderHandler(
+	createUC *planned_order_uc.CreatePlannedOrderUseCase,
+	listUC *planned_order_uc.ListPlannedOrdersUseCase,
+	firmUC *planned_order_uc.FirmPlannedOrderUseCase,
+) *PlannedOrderHandler {
+	return &PlannedOrderHandler{
+		createUC: createUC,
+		listUC:   listUC,
+		firmUC:   firmUC,
+	}
 }

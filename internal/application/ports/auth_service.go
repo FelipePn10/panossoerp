@@ -64,4 +64,9 @@ type AuthService interface {
 	CanConfiguredRulesMRP(ctx context.Context) bool
 	CanCreateOrderPriority(ctx context.Context) bool
 	CanOrderPriority(ctx context.Context) bool
+	CanCreateOverheadAllocation(ctx context.Context) bool
+	CanListOverheadAllocation(ctx context.Context) bool
+	CanCreatePlannedOrder(ctx context.Context) bool
+	CanReleaseOrder(ctx context.Context) bool
+	CanListOrder(ctx context.Context) bool
 }

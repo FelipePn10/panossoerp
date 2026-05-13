@@ -1,0 +1,5 @@
+ALTER TABLE overhead_allocations
+    ADD COLUMN IF NOT EXISTS code BIGSERIAL NOT NULL;
+
+ALTER TABLE overhead_allocation_targets
+    ADD COLUMN IF NOT EXISTS code BIGSERIAL NOT NULL;
