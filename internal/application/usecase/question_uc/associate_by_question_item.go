@@ -9,6 +9,8 @@ import (
 	errorsuc "github.com/FelipePn10/panossoerp/internal/application/usecase/errors"
 	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/entity"
 	"github.com/FelipePn10/panossoerp/internal/domain/associate_questions/repository"
+	itemrepo "github.com/FelipePn10/panossoerp/internal/domain/items/repository"
+	"github.com/FelipePn10/panossoerp/internal/domain/items/valueobject"
 )
 
 var (
@@ -17,17 +19,20 @@ var (
 )
 
 type AssociateByQuestionItemUseCase struct {
-	Repo repository.AssociateQuestionsRepository
-	Auth ports.AuthService
+	Repo     repository.AssociateQuestionsRepository
+	ItemRepo itemrepo.ItemRepository
+	Auth     ports.AuthService
 }
 
 func NewAssociateByQuestionItemUseCase(
 	repo repository.AssociateQuestionsRepository,
+	itemRepo itemrepo.ItemRepository,
 	auth ports.AuthService,
 ) *AssociateByQuestionItemUseCase {
 	return &AssociateByQuestionItemUseCase{
-		Repo: repo,
-		Auth: auth,
+		Repo:     repo,
+		ItemRepo: itemRepo,
+		Auth:     auth,
 	}
 }
 
@@ -39,11 +44,17 @@ func (uc *AssociateByQuestionItemUseCase) Execute(
 		return errorsuc.ErrUnauthorized
 	}
 
-	exists, err := uc.Repo.ExistsByItemAndQuestion(
-		ctx,
-		dto.ItemCode,
-		dto.QuestionID,
-	)
+	itemCode, err := valueobject.NewItemCode(dto.ItemCode)
+	if err != nil {
+		return err
+	}
+
+	item, err := uc.ItemRepo.FindItemByCode(ctx, itemCode)
+	if err != nil {
+		return err
+	}
+
+	exists, err := uc.Repo.ExistsByItemAndQuestion(ctx, item.ID, dto.QuestionID)
 	if err != nil {
 		return err
 	}
@@ -51,11 +62,7 @@ func (uc *AssociateByQuestionItemUseCase) Execute(
 		return ErrQuestionAlreadyLinked
 	}
 
-	positionUsed, err := uc.Repo.ExistsByItemAndPosition(
-		ctx,
-		dto.ItemCode,
-		dto.Position,
-	)
+	positionUsed, err := uc.Repo.ExistsByItemAndPosition(ctx, item.ID, dto.Position)
 	if err != nil {
 		return err
 	}
@@ -63,11 +70,7 @@ func (uc *AssociateByQuestionItemUseCase) Execute(
 		return ErrPositionAlreadyUsed
 	}
 
-	pq, err := entity.New(
-		dto.ItemCode,
-		dto.QuestionID,
-		dto.Position,
-	)
+	pq, err := entity.New(item.ID, dto.QuestionID, dto.Position)
 	if err != nil {
 		return err
 	}

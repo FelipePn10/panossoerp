@@ -111,9 +111,13 @@ func NewDeleteQuestionOptionHandler(
 
 func NewAssociateByQuestionItemHandler(
 	associateByQuestionProductUC *question_uc.AssociateByQuestionItemUseCase,
+	getQuestionsByItemUC *question_uc.GetQuestionsByItemUseCase,
+	listAllItemQuestionsUC *question_uc.ListAllItemQuestionsUseCase,
 ) *AssociateByQuestionItemHandler {
 	return &AssociateByQuestionItemHandler{
 		associateByQuestionProductUC: associateByQuestionProductUC,
+		getQuestionsByItemUC:         getQuestionsByItemUC,
+		listAllItemQuestionsUC:       listAllItemQuestionsUC,
 	}
 }
 
@@ -144,10 +148,14 @@ func NewCreateBomItemHandler(
 func NewCreateItemHandler(
 	createItemUc *item_uc.CreateItemUseCase,
 	findItemByCodeUc *item_uc.FindItemByCode,
+	listItemsUC *item_uc.ListItemsUseCase,
+	listItemsWithMasksUC *item_uc.ListItemsWithMasksUseCase,
 ) *ItemHandler {
 	return &ItemHandler{
-		createItemUC:     createItemUc,
-		findItemByCodeUC: findItemByCodeUc,
+		createItemUC:         createItemUc,
+		findItemByCodeUC:     findItemByCodeUc,
+		listItemsUC:          listItemsUC,
+		listItemsWithMasksUC: listItemsWithMasksUC,
 	}
 }
 

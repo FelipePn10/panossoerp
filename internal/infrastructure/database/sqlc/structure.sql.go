@@ -22,11 +22,12 @@ INSERT INTO item_structures (
     sequence,
     health,
     notes,
-    created_by
+    created_by,
+    inherit
 ) VALUES (
-             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
          )
-    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit
 `
 
 type CreateStructureComponentParams struct {
@@ -40,6 +41,7 @@ type CreateStructureComponentParams struct {
 	Health            HealthEnum
 	Notes             pgtype.Text
 	CreatedBy         pgtype.UUID
+	Inherit           bool
 }
 
 func (q *Queries) CreateStructureComponent(ctx context.Context, arg CreateStructureComponentParams) (ItemStructure, error) {
@@ -54,6 +56,7 @@ func (q *Queries) CreateStructureComponent(ctx context.Context, arg CreateStruct
 		arg.Health,
 		arg.Notes,
 		arg.CreatedBy,
+		arg.Inherit,
 	)
 	var i ItemStructure
 	err := row.Scan(
@@ -71,6 +74,7 @@ func (q *Queries) CreateStructureComponent(ctx context.Context, arg CreateStruct
 		&i.ParentCode,
 		&i.ChildCode,
 		&i.Health,
+		&i.Inherit,
 	)
 	return i, err
 }
@@ -104,7 +108,8 @@ SELECT
     s.is_active,
     s.created_by,
     s.created_at,
-    s.updated_at
+    s.updated_at,
+    s.inherit
 FROM item_structures s
          JOIN items i ON i.code = s.child_code
 WHERE s.parent_code = $1
@@ -128,6 +133,7 @@ type GetAllDirectChildrenRow struct {
 	CreatedBy         pgtype.UUID
 	CreatedAt         pgtype.Timestamptz
 	UpdatedAt         pgtype.Timestamptz
+	Inherit           bool
 }
 
 func (q *Queries) GetAllDirectChildren(ctx context.Context, parentCode int64) ([]GetAllDirectChildrenRow, error) {
@@ -155,6 +161,7 @@ func (q *Queries) GetAllDirectChildren(ctx context.Context, parentCode int64) ([
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Inherit,
 		); err != nil {
 			return nil, err
 		}
@@ -182,6 +189,7 @@ SELECT
     s.created_by,
     s.created_at,
     s.updated_at,
+    s.inherit,
     i.pdm_description_technique AS child_description
 FROM item_structures s
          JOIN items i ON i.code = s.child_code
@@ -217,6 +225,7 @@ type GetDirectChildrenForMaskRow struct {
 	CreatedBy         pgtype.UUID
 	CreatedAt         pgtype.Timestamptz
 	UpdatedAt         pgtype.Timestamptz
+	Inherit           bool
 	ChildDescription  string
 }
 
@@ -244,6 +253,7 @@ func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChi
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Inherit,
 			&i.ChildDescription,
 		); err != nil {
 			return nil, err
@@ -257,7 +267,7 @@ func (q *Queries) GetDirectChildrenForMask(ctx context.Context, arg GetDirectChi
 }
 
 const getGenericChildren = `-- name: GetGenericChildren :many
-SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit
 FROM item_structures
 WHERE parent_code = $1
   AND parent_mask IS NULL
@@ -289,6 +299,7 @@ func (q *Queries) GetGenericChildren(ctx context.Context, parentCode int64) ([]I
 			&i.ParentCode,
 			&i.ChildCode,
 			&i.Health,
+			&i.Inherit,
 		); err != nil {
 			return nil, err
 		}
@@ -399,7 +410,7 @@ func (q *Queries) GetItemQuestions(ctx context.Context, itemCode int64) ([]GetIt
 }
 
 const getStructureComponentByID = `-- name: GetStructureComponentByID :one
-SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit
 FROM item_structures
 WHERE id = $1
 `
@@ -422,6 +433,7 @@ func (q *Queries) GetStructureComponentByID(ctx context.Context, id int64) (Item
 		&i.ParentCode,
 		&i.ChildCode,
 		&i.Health,
+		&i.Inherit,
 	)
 	return i, err
 }
@@ -496,7 +508,7 @@ WHERE parent_code = $1
         OR (parent_mask IS NULL AND $3 IS NULL)
     )
   AND is_active = TRUE
-    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit
 `
 
 type UpdateStructureComponentParams struct {
@@ -539,6 +551,7 @@ func (q *Queries) UpdateStructureComponent(ctx context.Context, arg UpdateStruct
 		&i.ParentCode,
 		&i.ChildCode,
 		&i.Health,
+		&i.Inherit,
 	)
 	return i, err
 }

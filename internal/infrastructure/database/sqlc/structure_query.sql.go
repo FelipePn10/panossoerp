@@ -9,27 +9,6 @@ import (
 	"context"
 )
 
-const getItemByCode = `-- name: GetItemByCode :one
-SELECT
-    code,
-    inherit
-FROM items
-WHERE code = $1
-`
-
-type GetItemByCodeRow struct {
-	Code    int64
-	Inherit bool
-}
-
-// Retorna apenas os campos necessários para o resolver.
-func (q *Queries) GetItemByCode(ctx context.Context, code int64) (GetItemByCodeRow, error) {
-	row := q.db.QueryRow(ctx, getItemByCode, code)
-	var i GetItemByCodeRow
-	err := row.Scan(&i.Code, &i.Inherit)
-	return i, err
-}
-
 const getMaskAnswersByItemAndValue = `-- name: GetMaskAnswersByItemAndValue :many
 SELECT
     ima.question_id,

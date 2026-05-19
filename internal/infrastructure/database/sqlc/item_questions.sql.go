@@ -37,6 +37,94 @@ func (q *Queries) AssociateQuestionItem(ctx context.Context, arg AssociateQuesti
 	return err
 }
 
+const getQuestionsByItemCode = `-- name: GetQuestionsByItemCode :many
+SELECT iq.item_code, iq.question_id, iq.position, iq.created_at, q.name AS question_name
+FROM item_questions iq
+JOIN questions q ON q.id = iq.question_id
+JOIN items i ON i.id = iq.item_code
+WHERE i.code = $1
+ORDER BY iq.position
+`
+
+type GetQuestionsByItemCodeRow struct {
+	ItemCode     int64
+	QuestionID   int64
+	Position     int32
+	CreatedAt    pgtype.Timestamptz
+	QuestionName string
+}
+
+func (q *Queries) GetQuestionsByItemCode(ctx context.Context, itemCode int64) ([]GetQuestionsByItemCodeRow, error) {
+	rows, err := q.db.Query(ctx, getQuestionsByItemCode, itemCode)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetQuestionsByItemCodeRow
+	for rows.Next() {
+		var i GetQuestionsByItemCodeRow
+		if err := rows.Scan(
+			&i.ItemCode,
+			&i.QuestionID,
+			&i.Position,
+			&i.CreatedAt,
+			&i.QuestionName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAllItemQuestions = `-- name: ListAllItemQuestions :many
+SELECT iq.item_code, iq.question_id, iq.position, iq.created_at,
+       i.code AS item_business_code, q.name AS question_name
+FROM item_questions iq
+JOIN questions q ON q.id = iq.question_id
+JOIN items i ON i.id = iq.item_code
+ORDER BY i.code, iq.position
+`
+
+type ListAllItemQuestionsRow struct {
+	ItemCode         int64
+	QuestionID       int64
+	Position         int32
+	CreatedAt        pgtype.Timestamptz
+	ItemBusinessCode int64
+	QuestionName     string
+}
+
+func (q *Queries) ListAllItemQuestions(ctx context.Context) ([]ListAllItemQuestionsRow, error) {
+	rows, err := q.db.Query(ctx, listAllItemQuestions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAllItemQuestionsRow
+	for rows.Next() {
+		var i ListAllItemQuestionsRow
+		if err := rows.Scan(
+			&i.ItemCode,
+			&i.QuestionID,
+			&i.Position,
+			&i.CreatedAt,
+			&i.ItemBusinessCode,
+			&i.QuestionName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const existsByItemAndPosition = `-- name: ExistsByItemAndPosition :one
 SELECT EXISTS (
     SELECT 1

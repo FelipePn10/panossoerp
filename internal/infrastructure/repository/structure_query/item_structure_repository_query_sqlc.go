@@ -9,27 +9,11 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
 	maskservice "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/mask/service"
 	maskvo "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/valueobject"
-	itementity "github.com/FelipePn10/panossoerp/internal/domain/items/entity"
 	str "github.com/FelipePn10/panossoerp/internal/domain/structure/entity"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/pgutil"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database/sqlc"
 	"github.com/google/uuid"
 )
-
-func (r *StructureQueryRepositorySQLC) GetItemByCode(
-	ctx context.Context,
-	code int64,
-) (*itementity.Item, error) {
-
-	row, err := r.q.GetItemByCode(ctx, code)
-	if err != nil {
-		return nil, fmt.Errorf("fetching item %d: %w", code, err)
-	}
-
-	return &itementity.Item{
-		Inherit: row.Inherit,
-	}, nil
-}
 
 func (r *StructureQueryRepositorySQLC) GetDirectChildrenForMask(
 	ctx context.Context,
@@ -96,6 +80,7 @@ func structureQueryRowsToEntities(rows []sqlc.GetDirectChildrenForMaskRow) []*st
 			Health:            types.Health(row.Health),
 			Sequence:          int(row.Sequence),
 			IsActive:          row.IsActive,
+			Inherit:           row.Inherit,
 			CreatedBy:         pgutil.FromPgUUID(row.CreatedBy),
 			CreatedAt:         pgutil.FromPgTimestamptz(row.CreatedAt),
 			UpdatedAt:         pgutil.FromPgTimestamptz(row.UpdatedAt),

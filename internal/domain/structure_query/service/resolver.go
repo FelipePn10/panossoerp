@@ -13,7 +13,7 @@ import (
 type Node struct {
 	Component     *str.ItemStructure
 	EffectiveMask *string // nil para nós genéricos
-	RequiresMask  bool    // Inherit=false + tem perguntas: subárvore precisa de máscara explícita
+	RequiresMask  bool    // comp.Inherit=false + tem perguntas: subárvore precisa de máscara explícita
 	Level         int
 	Children      []*Node
 }
@@ -95,18 +95,13 @@ func (r *Resolver) resolveChild(
 ) (*Node, error) {
 	node := &Node{Component: comp, Level: level}
 
-	childItem, err := r.repo.GetItemByCode(ctx, comp.ChildCode)
-	if err != nil {
-		return nil, err
-	}
-
 	questions, err := r.repo.GetItemQuestions(ctx, comp.ChildCode)
 	if err != nil {
 		return nil, err
 	}
 
 	switch {
-	case childItem.Inherit:
+	case comp.Inherit:
 		// Herda máscara do pai via propagação.
 		childMask := maskservice.PropagateMask(parentAnswers, questions)
 		node.EffectiveMask = childMask

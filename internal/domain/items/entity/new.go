@@ -18,7 +18,6 @@ func NewItem(
 	code valueobject.ItemCode,
 	complement *string,
 	nature ItemNature,
-	inherit bool,
 	pdm PDM,
 	situation types.TypeSituationItem,
 	health types.Health,
@@ -38,11 +37,10 @@ func NewItem(
 	}
 
 	item := &Item{
-		Code:        code,
-		Complement:  complement,
-		Nature:      nature,
-		Inherit:     inherit,
-		PDM:         pdm,
+		Code:       code,
+		Complement: complement,
+		Nature:     nature,
+		PDM:        pdm,
 		Warehouse:   warehouse,
 		Engineering: engineering,
 		Planning:    planning,

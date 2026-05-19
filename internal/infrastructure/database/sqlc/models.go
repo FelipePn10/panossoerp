@@ -1530,7 +1530,6 @@ type Item struct {
 	PlanningGhost                        bool
 	PlannerEmployeeCode                  *int64
 	SuppliesTypeOfUse                    int16
-	Inherit                              bool
 }
 
 type ItemCalendarPromise struct {
@@ -1621,6 +1620,7 @@ type ItemStructure struct {
 	ParentCode        int64
 	ChildCode         int64
 	Health            HealthEnum
+	Inherit           bool
 }
 
 type KanbanCard struct {

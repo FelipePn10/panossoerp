@@ -9,9 +9,10 @@ INSERT INTO item_structures (
     sequence,
     health,
     notes,
-    created_by
+    created_by,
+    inherit
 ) VALUES (
-             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
          )
     RETURNING *;
 
@@ -38,7 +39,8 @@ SELECT
     s.is_active,
     s.created_by,
     s.created_at,
-    s.updated_at
+    s.updated_at,
+    s.inherit
 FROM item_structures s
          JOIN items i ON i.code = s.child_code
 WHERE s.parent_code = $1
@@ -71,6 +73,7 @@ SELECT
     s.created_by,
     s.created_at,
     s.updated_at,
+    s.inherit,
     i.pdm_description_technique AS child_description
 FROM item_structures s
          JOIN items i ON i.code = s.child_code

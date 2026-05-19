@@ -31,6 +31,7 @@ func (r *ItemStructureRepositorySQLC) Create(
 		Sequence:          int32(s.Sequence),
 		Notes:             stringPtrToPgText(s.Notes),
 		CreatedBy:         pgutil.ToPgUUID(s.CreatedBy),
+		Inherit:           s.Inherit,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("creating structure: %w", err)
@@ -209,6 +210,7 @@ func rowToEntity(row sqlc.ItemStructure) *entity.ItemStructure {
 		Health:            types.Health(row.Health),
 		Sequence:          int(row.Sequence),
 		IsActive:          row.IsActive,
+		Inherit:           row.Inherit,
 		CreatedBy:         pgutil.FromPgUUID(row.CreatedBy),
 		CreatedAt:         pgutil.FromPgTimestamptz(row.CreatedAt),
 		UpdatedAt:         pgutil.FromPgTimestamptz(row.UpdatedAt),
@@ -242,6 +244,7 @@ func mapDirectChildrenRows(rows []sqlc.GetAllDirectChildrenRow) []*entity.ItemSt
 			Health:            types.Health(row.Health),
 			Sequence:          int(row.Sequence),
 			IsActive:          row.IsActive,
+			Inherit:           row.Inherit,
 			CreatedBy:         pgutil.FromPgUUID(row.CreatedBy),
 			CreatedAt:         pgutil.FromPgTimestamptz(row.CreatedAt),
 			UpdatedAt:         pgutil.FromPgTimestamptz(row.UpdatedAt),
@@ -278,6 +281,7 @@ func mapDirectChildrenWithMask(rows []sqlc.GetDirectChildrenForMaskRow) []*entit
 			Health:            types.Health(row.Health),
 			Sequence:          int(row.Sequence),
 			IsActive:          row.IsActive,
+			Inherit:           row.Inherit,
 			CreatedBy:         pgutil.FromPgUUID(row.CreatedBy),
 			CreatedAt:         pgutil.FromPgTimestamptz(row.CreatedAt),
 			UpdatedAt:         pgutil.FromPgTimestamptz(row.UpdatedAt),

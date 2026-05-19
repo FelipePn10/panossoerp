@@ -5,15 +5,11 @@ import (
 
 	maskservice "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/mask/service"
 	maskvo "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/valueobject"
-	itementity "github.com/FelipePn10/panossoerp/internal/domain/items/entity"
 	str "github.com/FelipePn10/panossoerp/internal/domain/structure/entity"
 	"github.com/google/uuid"
 )
 
 type StructureQueryRepository interface {
-	// Item
-	GetItemByCode(ctx context.Context, code int64) (*itementity.Item, error)
-
 	// Estrutura — mask="" retorna apenas filhos universais (parent_mask IS NULL).
 	// mask="1.94M#1.94M" retorna universais + específicos para aquela máscara.
 	GetDirectChildrenForMask(ctx context.Context, parentCode int64, mask string) ([]*str.ItemStructure, error)

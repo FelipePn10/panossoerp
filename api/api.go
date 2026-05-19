@@ -139,22 +139,26 @@ func (app *application) mount() chi.Router {
 	createQuestionOptionUC := question_option_uc.NewCreateQuestionOptionUseCase(questionOptionRepo, authService)
 	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC)
 
+	// Item
+	itemRepo := item.NewRepositoryItemSQLC(queries)
+
 	// associate question in item
 	itemByQuestionItemRepo := itemquestion.NewAssociateQuestionItemRepositorySQLC(queries)
-	associateByQuestionItemUC := question_uc.NewAssociateByQuestionItemUseCase(itemByQuestionItemRepo, authService)
-	associateByQuestionItemHandler := handler.NewAssociateByQuestionItemHandler(associateByQuestionItemUC)
+	associateByQuestionItemUC := question_uc.NewAssociateByQuestionItemUseCase(itemByQuestionItemRepo, itemRepo, authService)
+	getQuestionsByItemUC := question_uc.NewGetQuestionsByItemUseCase(itemByQuestionItemRepo, authService)
+	listAllItemQuestionsUC := question_uc.NewListAllItemQuestionsUseCase(itemByQuestionItemRepo, authService)
+	associateByQuestionItemHandler := handler.NewAssociateByQuestionItemHandler(associateByQuestionItemUC, getQuestionsByItemUC, listAllItemQuestionsUC)
 
 	// generate mask item
 	generateMaskItem := generatemask.NewRepositoryGenerateMaskSQLC(queries)
 	generateMaskItemUC := generate_mask_uc.NewGenerateMaskItemUseCase(generateMaskItem, authService)
 	// Evaluator is set after evaluateRestrictionsUC is declared (see restriction block below).
 	generateMaskItemHandler := handler.NewGeneratMaskItemHandler(generateMaskItemUC)
-
-	// Item
-	itemRepo := item.NewRepositoryItemSQLC(queries)
 	createItemUc := item_uc.NewCreateItemUseCase(itemRepo, authService)
 	findItemByCodeUc := item_uc.NewFindItemByCode(itemRepo, authService)
-	itemHandler := handler.NewCreateItemHandler(createItemUc, findItemByCodeUc)
+	listItemsUC := item_uc.NewListItemsUseCase(itemRepo, authService)
+	listItemsWithMasksUC := item_uc.NewListItemsWithMasksUseCase(itemRepo, authService)
+	itemHandler := handler.NewCreateItemHandler(createItemUc, findItemByCodeUc, listItemsUC, listItemsWithMasksUC)
 
 	// Item Structure
 	itemRepoStructure := structure.NewItemStructureRepository(queries)
@@ -544,6 +548,8 @@ func (app *application) mount() chi.Router {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
 		r.Route("/api/items", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", itemHandler.CreateItem)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", itemHandler.ListItems)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/with-masks", itemHandler.ListItemsWithMasks)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/search/{code}", itemHandler.FindItemByCodeHandler)
 
 			r.Route("/mask", func(r chi.Router) {
@@ -650,12 +656,16 @@ func (app *application) mount() chi.Router {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}/consumptions", prodOrderHandler.GetConsumptions)
 		})
 		r.Route("/api/questions", func(r chi.Router) {
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/questions/create", questionCreateHandler.CreateQuestion)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", questionCreateHandler.CreateQuestion)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", findQuestionByNameHandler.FindQuestionByName)
 			r.Route("/options", func(r chi.Router) {
-				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create-option", questionOptionCreateHandler.CreateQuestionOptionHandler)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", questionOptionCreateHandler.CreateQuestionOptionHandler)
 			})
-			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/associate", associateByQuestionItemHandler.AssociateQuestions)
+			r.Route("/associate", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", associateByQuestionItemHandler.AssociateQuestions)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", associateByQuestionItemHandler.ListAll)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/item/{itemCode}", associateByQuestionItemHandler.GetQuestionsByItem)
+			})
 		})
 		r.Route("/api/bom", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", bomHandler.Create)

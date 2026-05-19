@@ -18,6 +18,7 @@ func NewItemStructure(
 	sequence int,
 	notes *string,
 	isActive bool,
+	inherit bool,
 	createdBy uuid.UUID,
 ) (*ItemStructure, error) {
 	if parentCode <= 0 {
@@ -50,6 +51,7 @@ func NewItemStructure(
 		Sequence:          sequence,
 		Notes:             notes,
 		IsActive:          isActive,
+		Inherit:           inherit,
 		CreatedBy:         createdBy,
 		CreatedAt:         time.Now(),
 		UpdatedAt:         time.Now(),

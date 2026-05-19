@@ -22,6 +22,7 @@ type CreateStructureComponentDTO struct {
 	Sequence          int                             `json:"sequence"`
 	Notes             *string                         `json:"notes,omitempty"`
 	IsActive          bool                            `json:"is_active"`
+	Inherit           bool                            `json:"inherit"`
 	CreatedBy         uuid.UUID                       `json:"created_by"`
 }
 

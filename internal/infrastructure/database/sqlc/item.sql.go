@@ -17,7 +17,6 @@ INSERT INTO items (
     code,
     complement,
     nature,
-    inherit,
     situation,
     health,
 
@@ -50,14 +49,14 @@ INSERT INTO items (
     created_by,
     created_at
 ) VALUES (
-             $1,  $2,  $3,  $4,  $5,
-             $6,  $7,  $8,  $9,  $10,
-             $11, $12, $13, $14, $15,
-             $16, $17, $18, $19, $20,
-             $21, $22, $23, $24, $25,
-             $26, $27, $28, $29, NOW()
+             $1,  $2,  $3,  $4,
+             $5,  $6,  $7,  $8,  $9,
+             $10, $11, $12, $13, $14,
+             $15, $16, $17, $18, $19,
+             $20, $21, $22, $23, $24,
+             $25, $26, $27, $28, NOW()
          )
-    RETURNING id, warehouse_code, code, health, created_by, created_at, complement, nature, situation, pdm_group_code, pdm_modifier_code, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_code, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_code, planning_ghost, planner_employee_code, supplies_type_of_use, inherit
+    RETURNING id, warehouse_code, code, health, created_by, created_at, complement, nature, situation, pdm_group_code, pdm_modifier_code, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_code, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_code, planning_ghost, planner_employee_code, supplies_type_of_use
 `
 
 type CreateItemParams struct {
@@ -65,7 +64,6 @@ type CreateItemParams struct {
 	Code                                 int64
 	Complement                           pgtype.Text
 	Nature                               int16
-	Inherit                              bool
 	Situation                            int16
 	Health                               HealthEnum
 	PdmGroupCode                         int64
@@ -98,7 +96,6 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 		arg.Code,
 		arg.Complement,
 		arg.Nature,
-		arg.Inherit,
 		arg.Situation,
 		arg.Health,
 		arg.PdmGroupCode,
@@ -157,13 +154,12 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 		&i.PlanningGhost,
 		&i.PlannerEmployeeCode,
 		&i.SuppliesTypeOfUse,
-		&i.Inherit,
 	)
 	return i, err
 }
 
 const findItemByCode = `-- name: FindItemByCode :one
-SELECT id, warehouse_code, code, health, created_by, created_at, complement, nature, situation, pdm_group_code, pdm_modifier_code, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_code, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_code, planning_ghost, planner_employee_code, supplies_type_of_use, inherit
+SELECT id, warehouse_code, code, health, created_by, created_at, complement, nature, situation, pdm_group_code, pdm_modifier_code, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_code, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_code, planning_ghost, planner_employee_code, supplies_type_of_use
 FROM items
 WHERE code = $1
 `
@@ -203,13 +199,12 @@ func (q *Queries) FindItemByCode(ctx context.Context, code int64) (Item, error) 
 		&i.PlanningGhost,
 		&i.PlannerEmployeeCode,
 		&i.SuppliesTypeOfUse,
-		&i.Inherit,
 	)
 	return i, err
 }
 
 const getItemByID = `-- name: GetItemByID :one
-SELECT id, warehouse_code, code, health, created_by, created_at, complement, nature, situation, pdm_group_code, pdm_modifier_code, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_code, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_code, planning_ghost, planner_employee_code, supplies_type_of_use, inherit
+SELECT id, warehouse_code, code, health, created_by, created_at, complement, nature, situation, pdm_group_code, pdm_modifier_code, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_code, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_code, planning_ghost, planner_employee_code, supplies_type_of_use
 FROM items
 WHERE id = $1
 `
@@ -249,7 +244,64 @@ func (q *Queries) GetItemByID(ctx context.Context, id int64) (Item, error) {
 		&i.PlanningGhost,
 		&i.PlannerEmployeeCode,
 		&i.SuppliesTypeOfUse,
-		&i.Inherit,
 	)
 	return i, err
+}
+
+const listItems = `-- name: ListItems :many
+SELECT id, warehouse_code, code, health, created_by, created_at, complement, nature, situation, pdm_group_code, pdm_modifier_code, pdm_attributes, pdm_description_technique, warehouse_unit_of_measurement, warehouse_automatic_low, warehouse_cyclical_count_config, warehouse_minimum_stock, warehouse_avg_monthly_consumption_manual, engineering_item_base_code, engineering_weight, engineering_dimensions, engineering_type, engineering_type_struct, engineering_oem, planning_type_mrp, planning_llc, planning_reorder_point, planning_tank_code, planning_ghost, planner_employee_code, supplies_type_of_use
+FROM items
+ORDER BY code
+`
+
+func (q *Queries) ListItems(ctx context.Context) ([]Item, error) {
+	rows, err := q.db.Query(ctx, listItems)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var result []Item
+	for rows.Next() {
+		var i Item
+		if err := rows.Scan(
+			&i.ID,
+			&i.WarehouseCode,
+			&i.Code,
+			&i.Health,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.Complement,
+			&i.Nature,
+			&i.Situation,
+			&i.PdmGroupCode,
+			&i.PdmModifierCode,
+			&i.PdmAttributes,
+			&i.PdmDescriptionTechnique,
+			&i.WarehouseUnitOfMeasurement,
+			&i.WarehouseAutomaticLow,
+			&i.WarehouseCyclicalCountConfig,
+			&i.WarehouseMinimumStock,
+			&i.WarehouseAvgMonthlyConsumptionManual,
+			&i.EngineeringItemBaseCode,
+			&i.EngineeringWeight,
+			&i.EngineeringDimensions,
+			&i.EngineeringType,
+			&i.EngineeringTypeStruct,
+			&i.EngineeringOem,
+			&i.PlanningTypeMrp,
+			&i.PlanningLlc,
+			&i.PlanningReorderPoint,
+			&i.PlanningTankCode,
+			&i.PlanningGhost,
+			&i.PlannerEmployeeCode,
+			&i.SuppliesTypeOfUse,
+		); err != nil {
+			return nil, err
+		}
+		result = append(result, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return result, nil
 }

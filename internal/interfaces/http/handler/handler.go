@@ -37,8 +37,10 @@ type ProductHandler struct {
 
 type ItemHandler struct {
 	*security.BaseHandler
-	createItemUC     *item_uc.CreateItemUseCase
-	findItemByCodeUC *item_uc.FindItemByCode
+	createItemUC         *item_uc.CreateItemUseCase
+	findItemByCodeUC     *item_uc.FindItemByCode
+	listItemsUC          *item_uc.ListItemsUseCase
+	listItemsWithMasksUC *item_uc.ListItemsWithMasksUseCase
 }
 
 type UserHandler struct {
@@ -64,6 +66,8 @@ type QuestionOptionHandler struct {
 type AssociateByQuestionItemHandler struct {
 	*security.BaseHandler
 	associateByQuestionProductUC *question_uc.AssociateByQuestionItemUseCase
+	getQuestionsByItemUC         *question_uc.GetQuestionsByItemUseCase
+	listAllItemQuestionsUC       *question_uc.ListAllItemQuestionsUseCase
 }
 
 type GenerateMaskHandler struct {

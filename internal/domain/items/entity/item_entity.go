@@ -15,8 +15,7 @@ type Item struct {
 	Complement *string
 
 	// Checkbox
-	Nature  ItemNature
-	Inherit bool
+	Nature ItemNature
 	//---- PDM
 	PDM PDM
 
@@ -88,6 +87,18 @@ const (
 	ItemConfigured
 	ItemBase
 )
+
+type MaskSummary struct {
+	ID        int64
+	Mask      string
+	MaskHash  string
+	CreatedAt time.Time
+}
+
+type ItemWithMasks struct {
+	Item  *Item
+	Masks []MaskSummary
+}
 
 func (i *Item) Validate() error {
 	if !i.Code.IsValid() {

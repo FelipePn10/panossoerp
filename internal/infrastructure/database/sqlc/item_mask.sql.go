@@ -7,6 +7,8 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteItemMask = `-- name: DeleteItemMask :exec
@@ -40,3 +42,39 @@ func (q *Queries) GetProductMaskByItemCode(ctx context.Context, itemCode int64) 
 	)
 	return i, err
 }
+
+const listAllItemMasks = `-- name: ListAllItemMasks :many
+SELECT id, item_code, mask, mask_hash, created_by, created_at
+FROM item_masks
+ORDER BY item_code, created_at DESC
+`
+
+func (q *Queries) ListAllItemMasks(ctx context.Context) ([]ItemMask, error) {
+	rows, err := q.db.Query(ctx, listAllItemMasks)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var result []ItemMask
+	for rows.Next() {
+		var i ItemMask
+		if err := rows.Scan(
+			&i.ID,
+			&i.ItemCode,
+			&i.Mask,
+			&i.MaskHash,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		result = append(result, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// keep pgtype import used by ItemMask.CreatedAt field
+var _ pgtype.Timestamptz
