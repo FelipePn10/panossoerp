@@ -11,8 +11,14 @@ type Config struct {
 	DatabaseURL string `mapstructure:"DATABASE_URL"`
 	JWTSecret   string `mapstructure:"JWT_SECRET"`
 	Env         string `mapstructure:"ENV"`
-	// LogLevel controls verbosity: debug | info | warn | error (default: info)
-	LogLevel string `mapstructure:"LOG_LEVEL"`
+	LogLevel    string `mapstructure:"LOG_LEVEL"`
+
+	// SMTP — e-mail alerts (optional; leave blank to disable)
+	SMTPHost     string `mapstructure:"SMTP_HOST"`
+	SMTPPort     string `mapstructure:"SMTP_PORT"`
+	SMTPUser     string `mapstructure:"SMTP_USER"`
+	SMTPPassword string `mapstructure:"SMTP_PASSWORD"`
+	SMTPFrom     string `mapstructure:"SMTP_FROM"`
 }
 
 func Load() (*Config, error) {
@@ -28,6 +34,11 @@ func Load() (*Config, error) {
 	)
 	viper.SetDefault("ENV", "development")
 	viper.SetDefault("LOG_LEVEL", "info")
+	viper.SetDefault("SMTP_HOST", "")
+	viper.SetDefault("SMTP_PORT", "587")
+	viper.SetDefault("SMTP_USER", "")
+	viper.SetDefault("SMTP_PASSWORD", "")
+	viper.SetDefault("SMTP_FROM", "")
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {

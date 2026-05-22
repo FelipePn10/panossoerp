@@ -51,6 +51,9 @@ func (uc *UpdateStructureComponentUseCase) Execute(
 		dto.LossPercentage,
 		dto.Position,
 		dto.Notes,
+		dto.StartDate,
+		dto.EndDate,
+		dto.LossFormula,
 	); err != nil {
 		return nil, err
 	}

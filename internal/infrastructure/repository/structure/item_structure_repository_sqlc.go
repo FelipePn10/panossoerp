@@ -3,7 +3,6 @@ package structure
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	maskservice "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/mask/service"
 	maskvo "github.com/FelipePn10/panossoerp/internal/domain/generate_mask_for_item/valueobject"
@@ -31,6 +30,10 @@ func (r *ItemStructureRepositorySQLC) Create(
 		Sequence:          int32(s.Sequence),
 		Notes:             stringPtrToPgText(s.Notes),
 		CreatedBy:         pgutil.ToPgUUID(s.CreatedBy),
+		Inherit:           s.Inherit,
+		StartDate:         pgutil.ToPgDateFromPtr(s.StartDate),
+		EndDate:           pgutil.ToPgDateFromPtr(s.EndDate),
+		LossFormula:       stringPtrToPgText(s.LossFormula),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("creating structure: %w", err)
@@ -54,6 +57,9 @@ func (r *ItemStructureRepositorySQLC) Update(
 		LossPercentage:    s.LossPercentage,
 		Sequence:          int32(s.Sequence),
 		Notes:             stringPtrToPgText(s.Notes),
+		StartDate:         pgutil.ToPgDateFromPtr(s.StartDate),
+		EndDate:           pgutil.ToPgDateFromPtr(s.EndDate),
+		LossFormula:       stringPtrToPgText(s.LossFormula),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("updating structure: %w", err)
@@ -125,8 +131,8 @@ func (r *ItemStructureRepositorySQLC) HasCyclicReference(
 ) (bool, error) {
 
 	return r.q.HasCyclicReference(ctx, sqlc.HasCyclicReferenceParams{
-		StartCode:  strconv.FormatInt(parentCode, 10),
-		TargetCode: strconv.FormatInt(childCode, 10),
+		Column1: parentCode,
+		Column2: childCode,
 	})
 }
 
@@ -209,9 +215,12 @@ func rowToEntity(row sqlc.ItemStructure) *entity.ItemStructure {
 		Health:            types.Health(row.Health),
 		Sequence:          int(row.Sequence),
 		IsActive:          row.IsActive,
+		Inherit:           row.Inherit,
 		CreatedBy:         pgutil.FromPgUUID(row.CreatedBy),
 		CreatedAt:         pgutil.FromPgTimestamptz(row.CreatedAt),
 		UpdatedAt:         pgutil.FromPgTimestamptz(row.UpdatedAt),
+		StartDate:         pgutil.FromPgDateToPtr(row.StartDate),
+		EndDate:           pgutil.FromPgDateToPtr(row.EndDate),
 	}
 
 	if row.ParentMask.Valid {
@@ -222,6 +231,11 @@ func rowToEntity(row sqlc.ItemStructure) *entity.ItemStructure {
 	if row.Notes.Valid {
 		v := row.Notes.String
 		e.Notes = &v
+	}
+
+	if row.LossFormula.Valid {
+		v := row.LossFormula.String
+		e.LossFormula = &v
 	}
 
 	return e
@@ -242,9 +256,12 @@ func mapDirectChildrenRows(rows []sqlc.GetAllDirectChildrenRow) []*entity.ItemSt
 			Health:            types.Health(row.Health),
 			Sequence:          int(row.Sequence),
 			IsActive:          row.IsActive,
+			Inherit:           row.Inherit,
 			CreatedBy:         pgutil.FromPgUUID(row.CreatedBy),
 			CreatedAt:         pgutil.FromPgTimestamptz(row.CreatedAt),
 			UpdatedAt:         pgutil.FromPgTimestamptz(row.UpdatedAt),
+			StartDate:         pgutil.FromPgDateToPtr(row.StartDate),
+			EndDate:           pgutil.FromPgDateToPtr(row.EndDate),
 		}
 
 		if row.ParentMask.Valid {
@@ -255,6 +272,11 @@ func mapDirectChildrenRows(rows []sqlc.GetAllDirectChildrenRow) []*entity.ItemSt
 		if row.Notes.Valid {
 			v := row.Notes.String
 			e.Notes = &v
+		}
+
+		if row.LossFormula.Valid {
+			v := row.LossFormula.String
+			e.LossFormula = &v
 		}
 
 		out = append(out, e)
@@ -278,6 +300,7 @@ func mapDirectChildrenWithMask(rows []sqlc.GetDirectChildrenForMaskRow) []*entit
 			Health:            types.Health(row.Health),
 			Sequence:          int(row.Sequence),
 			IsActive:          row.IsActive,
+			Inherit:           row.Inherit,
 			CreatedBy:         pgutil.FromPgUUID(row.CreatedBy),
 			CreatedAt:         pgutil.FromPgTimestamptz(row.CreatedAt),
 			UpdatedAt:         pgutil.FromPgTimestamptz(row.UpdatedAt),

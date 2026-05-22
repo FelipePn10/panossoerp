@@ -23,6 +23,11 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/question_option_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/question_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/restriction_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/aps_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/cost_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/crp_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/quality_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/routing_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/structure_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/user_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/warehouse_uc"
@@ -37,8 +42,10 @@ type ProductHandler struct {
 
 type ItemHandler struct {
 	*security.BaseHandler
-	createItemUC     *item_uc.CreateItemUseCase
-	findItemByCodeUC *item_uc.FindItemByCode
+	createItemUC         *item_uc.CreateItemUseCase
+	findItemByCodeUC     *item_uc.FindItemByCode
+	listItemsUC          *item_uc.ListItemsUseCase
+	listItemsWithMasksUC *item_uc.ListItemsWithMasksUseCase
 }
 
 type UserHandler struct {
@@ -57,13 +64,16 @@ type QuestionHandler struct {
 
 type QuestionOptionHandler struct {
 	*security.BaseHandler
-	createQuestionOptionUC *question_option_uc.CreateQuestionOptionUseCase
-	deleteQuestionOptionUC *question_option_uc.DeleteQuestionOptionUseCase
+	createQuestionOptionUC       *question_option_uc.CreateQuestionOptionUseCase
+	deleteQuestionOptionUC       *question_option_uc.DeleteQuestionOptionUseCase
+	listOptionsByQuestionUC      *question_option_uc.ListOptionsByQuestionUseCase
 }
 
 type AssociateByQuestionItemHandler struct {
 	*security.BaseHandler
 	associateByQuestionProductUC *question_uc.AssociateByQuestionItemUseCase
+	getQuestionsByItemUC         *question_uc.GetQuestionsByItemUseCase
+	listAllItemQuestionsUC       *question_uc.ListAllItemQuestionsUseCase
 }
 
 type GenerateMaskHandler struct {
@@ -122,7 +132,9 @@ type ItemStructureHandler struct {
 
 type ItemQueryStructureHandler struct {
 	*security.BaseHandler
-	resolveUC *structure_uc.ResolveStructureQueryUseCase
+	resolveUC   *structure_uc.ResolveStructureQueryUseCase
+	consultUC   *structure_uc.ConsultStructureUseCase
+	whereUsedUC *structure_uc.WhereUsedUseCase
 }
 
 type AllocationBaseHandler struct {
@@ -221,4 +233,31 @@ type RestrictionReasonHandler struct {
 	listUC   *restriction_uc.ListRestrictionReasonsUseCase
 	updateUC *restriction_uc.UpdateRestrictionReasonUseCase
 	deleteUC *restriction_uc.DeleteRestrictionReasonUseCase
+}
+
+type RoutingHandler struct {
+	*security.BaseHandler
+	operationUC *routing_uc.OperationUseCase
+	routeUC     *routing_uc.RouteUseCase
+	leadTimeUC  *routing_uc.LeadTimeUseCase
+}
+
+type QualityHandler struct {
+	*security.BaseHandler
+	uc *quality_uc.QualityUseCase
+}
+
+type StandardCostHandler struct {
+	*security.BaseHandler
+	uc *cost_uc.StandardCostUseCase
+}
+
+type CRPHandler struct {
+	*security.BaseHandler
+	uc *crp_uc.CRPUseCase
+}
+
+type APSHandler struct {
+	*security.BaseHandler
+	uc *aps_uc.APSUseCase
 }

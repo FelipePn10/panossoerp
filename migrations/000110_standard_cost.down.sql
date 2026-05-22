@@ -1,0 +1,6 @@
+BEGIN;
+DROP TABLE IF EXISTS item_purchase_costs CASCADE;
+DROP TABLE IF EXISTS cost_rollup_log CASCADE;
+DROP TABLE IF EXISTS work_center_costs CASCADE;
+DROP TABLE IF EXISTS item_standard_costs CASCADE;
+COMMIT;

@@ -79,6 +79,10 @@ func (uc *CreateStructureComponentUseCase) Execute(
 		dto.Sequence,
 		dto.Notes,
 		dto.IsActive,
+		dto.Inherit,
+		dto.StartDate,
+		dto.EndDate,
+		dto.LossFormula,
 		dto.CreatedBy,
 	)
 	if err != nil {

@@ -1,0 +1,213 @@
+package routing_uc
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/FelipePn10/panossoerp/internal/application/dto/request"
+	"github.com/FelipePn10/panossoerp/internal/application/dto/response"
+	"github.com/FelipePn10/panossoerp/internal/domain/routing/entity"
+	"github.com/FelipePn10/panossoerp/internal/domain/routing/repository"
+)
+
+type RouteUseCase struct {
+	repo repository.RoutingRepository
+}
+
+func NewRouteUseCase(repo repository.RoutingRepository) *RouteUseCase {
+	return &RouteUseCase{repo: repo}
+}
+
+func (uc *RouteUseCase) Create(ctx context.Context, dto request.CreateRouteDTO) (*response.ManufacturingRouteResponse, error) {
+	if dto.ItemCode <= 0 {
+		return nil, fmt.Errorf("item_code must be positive")
+	}
+	alt := dto.Alternative
+	if alt <= 0 {
+		alt = 1
+	}
+	code, err := uc.repo.NextRouteCode(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("generating route code: %w", err)
+	}
+
+	rt, err := entity.NewManufacturingRoute(code, dto.ItemCode, dto.Mask, alt, dto.Description, dto.IsStandard, dto.CreatedBy)
+	if err != nil {
+		return nil, err
+	}
+
+	created, err := uc.repo.CreateRoute(ctx, rt)
+	if err != nil {
+		return nil, err
+	}
+	return toRouteResponse(created), nil
+}
+
+func (uc *RouteUseCase) Update(ctx context.Context, dto request.UpdateRouteDTO) (*response.ManufacturingRouteResponse, error) {
+	rt, err := uc.repo.GetRouteByID(ctx, dto.ID)
+	if err != nil {
+		return nil, fmt.Errorf("route not found: %w", err)
+	}
+	rt.Description = dto.Description
+	rt.Situation = entity.RouteSituation(dto.Situation)
+	rt.IsStandard = dto.IsStandard
+
+	updated, err := uc.repo.UpdateRoute(ctx, rt)
+	if err != nil {
+		return nil, err
+	}
+	return toRouteResponse(updated), nil
+}
+
+func (uc *RouteUseCase) GetDetail(ctx context.Context, id int64) (*response.RouteDetailResponse, error) {
+	rt, err := uc.repo.GetRouteByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("route not found: %w", err)
+	}
+
+	ops, err := uc.repo.GetRouteOperations(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	edges, err := uc.repo.GetNetworkEdges(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	opResps := make([]response.RouteOperationResponse, 0, len(ops))
+	for _, op := range ops {
+		opResps = append(opResps, toRouteOpResponse(op))
+	}
+
+	edgeResps := make([]response.NetworkEdgeResponse, 0, len(edges))
+	for _, e := range edges {
+		edgeResps = append(edgeResps, response.NetworkEdgeResponse{
+			ID:            e.ID,
+			PredecessorID: e.PredecessorID,
+			SuccessorID:   e.SuccessorID,
+			OverlapPct:    e.OverlapPct,
+		})
+	}
+
+	return &response.RouteDetailResponse{
+		Route:      *toRouteResponse(rt),
+		Operations: opResps,
+		Network:    edgeResps,
+	}, nil
+}
+
+func (uc *RouteUseCase) ListByItem(ctx context.Context, itemCode int64) ([]*response.ManufacturingRouteResponse, error) {
+	routes, err := uc.repo.ListRoutesByItem(ctx, itemCode)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*response.ManufacturingRouteResponse, 0, len(routes))
+	for _, rt := range routes {
+		out = append(out, toRouteResponse(rt))
+	}
+	return out, nil
+}
+
+func (uc *RouteUseCase) Deactivate(ctx context.Context, id int64) error {
+	return uc.repo.DeactivateRoute(ctx, id)
+}
+
+func (uc *RouteUseCase) AddOperation(ctx context.Context, dto request.AddRouteOperationDTO) (*response.RouteOperationResponse, error) {
+	sit := entity.RouteOpSituation(dto.Situation)
+	if sit == "" {
+		sit = entity.RouteOpApproved
+	}
+	op, err := entity.NewRouteOperation(dto.RouteID, dto.Sequence, dto.OperationID,
+		dto.WorkCenterID, dto.StandardTime, dto.SetupTime, dto.Notes)
+	if err != nil {
+		return nil, err
+	}
+	op.Situation = sit
+
+	created, err := uc.repo.AddRouteOperation(ctx, op)
+	if err != nil {
+		return nil, err
+	}
+	r := toRouteOpResponse(created)
+	return &r, nil
+}
+
+func (uc *RouteUseCase) UpdateOperation(ctx context.Context, dto request.UpdateRouteOperationDTO) (*response.RouteOperationResponse, error) {
+	op := &entity.RouteOperation{
+		ID:           dto.ID,
+		WorkCenterID: dto.WorkCenterID,
+		StandardTime: dto.StandardTime,
+		SetupTime:    dto.SetupTime,
+		Situation:    entity.RouteOpSituation(dto.Situation),
+		Notes:        dto.Notes,
+	}
+	updated, err := uc.repo.UpdateRouteOperation(ctx, op)
+	if err != nil {
+		return nil, err
+	}
+	r := toRouteOpResponse(updated)
+	return &r, nil
+}
+
+func (uc *RouteUseCase) RemoveOperation(ctx context.Context, id int64) error {
+	return uc.repo.RemoveRouteOperation(ctx, id)
+}
+
+func (uc *RouteUseCase) SetEdge(ctx context.Context, dto request.SetNetworkEdgeDTO) (*response.NetworkEdgeResponse, error) {
+	if dto.OverlapPct < 0 || dto.OverlapPct > 100 {
+		return nil, fmt.Errorf("overlap_pct must be between 0 and 100")
+	}
+	edge := &entity.NetworkEdge{
+		PredecessorID: dto.PredecessorID,
+		SuccessorID:   dto.SuccessorID,
+		OverlapPct:    dto.OverlapPct,
+	}
+	saved, err := uc.repo.SetNetworkEdge(ctx, edge)
+	if err != nil {
+		return nil, err
+	}
+	return &response.NetworkEdgeResponse{
+		ID:            saved.ID,
+		PredecessorID: saved.PredecessorID,
+		SuccessorID:   saved.SuccessorID,
+		OverlapPct:    saved.OverlapPct,
+	}, nil
+}
+
+func (uc *RouteUseCase) DeleteEdge(ctx context.Context, dto request.DeleteNetworkEdgeDTO) error {
+	return uc.repo.DeleteNetworkEdge(ctx, dto.PredecessorID, dto.SuccessorID)
+}
+
+func toRouteResponse(rt *entity.ManufacturingRoute) *response.ManufacturingRouteResponse {
+	return &response.ManufacturingRouteResponse{
+		ID:          rt.ID,
+		Code:        rt.Code,
+		ItemCode:    rt.ItemCode,
+		Mask:        rt.Mask,
+		Alternative: rt.Alternative,
+		Description: rt.Description,
+		Situation:   string(rt.Situation),
+		IsStandard:  rt.IsStandard,
+		IsActive:    rt.IsActive,
+		CreatedAt:   rt.CreatedAt,
+	}
+}
+
+func toRouteOpResponse(op *entity.RouteOperation) response.RouteOperationResponse {
+	return response.RouteOperationResponse{
+		ID:               op.ID,
+		RouteID:          op.RouteID,
+		Sequence:         op.Sequence,
+		OperationID:      op.OperationID,
+		OperationName:    op.OperationName,
+		WorkCenterID:     op.WorkCenterID,
+		WorkCenterName:   op.WorkCenterName,
+		StandardTime:     op.StandardTime,
+		SetupTime:        op.SetupTime,
+		EffectiveStdTime: op.EffectiveStdTime,
+		EffectiveSetup:   op.EffectiveSetup,
+		Situation:        string(op.Situation),
+		Notes:            op.Notes,
+	}
+}

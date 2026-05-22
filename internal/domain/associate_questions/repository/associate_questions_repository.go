@@ -18,4 +18,6 @@ type AssociateQuestionsRepository interface {
 		itemID int64,
 		position int,
 	) (bool, error)
+	GetByItemCode(ctx context.Context, itemCode int64) ([]entity.AssociateQuestionDetail, error)
+	ListAll(ctx context.Context) ([]entity.ItemQuestionRow, error)
 }

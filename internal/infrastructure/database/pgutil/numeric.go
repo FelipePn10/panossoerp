@@ -42,3 +42,10 @@ func FromPgNumericToFloat64(v pgtype.Numeric) float64 {
 
 	return f
 }
+
+func ToPgNumericFromFloat64Ptr(v *float64) pgtype.Numeric {
+	if v == nil {
+		return pgtype.Numeric{}
+	}
+	return ToPgNumericFromFloat64(*v)
+}

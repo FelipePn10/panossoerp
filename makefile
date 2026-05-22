@@ -30,4 +30,8 @@ reset:
 print_db:
 	@echo $(DATABASE_URL)
 
-.PHONY: create_migration migrate_up migrate_down migrate_force reset print_db
+sqlc:
+	sqlc generate
+	go run scripts/fix_sqlc_output.go
+
+.PHONY: create_migration migrate_up migrate_down migrate_force reset print_db sqlc

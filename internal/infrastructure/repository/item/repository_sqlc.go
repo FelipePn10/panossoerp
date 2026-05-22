@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/FelipePn10/panossoerp/internal/domain/enums/types"
 	"github.com/FelipePn10/panossoerp/internal/domain/items/entity"
@@ -50,7 +51,6 @@ func (r *RepositoryItemSQLC) Create(
 		Complement: pgutil.ToPgTextFromPtr(item.Complement),
 
 		Nature:    int16(item.Nature),
-		Inherit:   item.Inherit,
 		Situation: int16(item.Situation),
 
 		Health: sqlc.HealthEnum(item.Health),
@@ -174,8 +174,6 @@ func mapDBItemToEntity(
 
 		Nature: entity.ItemNature(dbItem.Nature),
 
-		Inherit: dbItem.Inherit,
-
 		PDM: entity.PDM{
 			GroupCode:            int32(dbItem.PdmGroupCode),
 			ModifierCode:         int32(dbItem.PdmModifierCode),
@@ -259,4 +257,61 @@ func int64PtrToIntPtr(v *int64) *int {
 	value := int(*v)
 
 	return &value
+}
+
+func (r *RepositoryItemSQLC) ListAll(ctx context.Context) ([]*entity.Item, error) {
+	dbItems, err := r.q.ListItems(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list items: %w", err)
+	}
+
+	result := make([]*entity.Item, 0, len(dbItems))
+	for _, dbItem := range dbItems {
+		item, err := mapDBItemToEntity(dbItem)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, item)
+	}
+	return result, nil
+}
+
+func (r *RepositoryItemSQLC) ListAllWithMasks(ctx context.Context) ([]entity.ItemWithMasks, error) {
+	dbItems, err := r.q.ListItems(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list items: %w", err)
+	}
+
+	dbMasks, err := r.q.ListAllItemMasks(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list masks: %w", err)
+	}
+
+	// index masks by item_code (items.code)
+	masksByCode := make(map[int64][]entity.MaskSummary, len(dbMasks))
+	for _, m := range dbMasks {
+		var createdAt time.Time
+		if m.CreatedAt.Valid {
+			createdAt = m.CreatedAt.Time
+		}
+		masksByCode[m.ItemCode] = append(masksByCode[m.ItemCode], entity.MaskSummary{
+			ID:        m.ID,
+			Mask:      m.Mask,
+			MaskHash:  m.MaskHash,
+			CreatedAt: createdAt,
+		})
+	}
+
+	result := make([]entity.ItemWithMasks, 0, len(dbItems))
+	for _, dbItem := range dbItems {
+		item, err := mapDBItemToEntity(dbItem)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, entity.ItemWithMasks{
+			Item:  item,
+			Masks: masksByCode[dbItem.Code],
+		})
+	}
+	return result, nil
 }

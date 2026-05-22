@@ -18,6 +18,10 @@ func NewItemStructure(
 	sequence int,
 	notes *string,
 	isActive bool,
+	inherit bool,
+	startDate *time.Time,
+	endDate *time.Time,
+	lossFormula *string,
 	createdBy uuid.UUID,
 ) (*ItemStructure, error) {
 	if parentCode <= 0 {
@@ -38,6 +42,9 @@ func NewItemStructure(
 	if parentMask != nil && *parentMask == "" {
 		return nil, errors.New("parent_mask não pode ser uma string vazia; use nil para genérico")
 	}
+	if lossFormula != nil && *lossFormula == "" {
+		lossFormula = nil
+	}
 
 	return &ItemStructure{
 		ParentCode:        parentCode,
@@ -47,9 +54,13 @@ func NewItemStructure(
 		UnitOfMeasurement: uom,
 		Health:            health,
 		LossPercentage:    lossPercentage,
+		LossFormula:       lossFormula,
 		Sequence:          sequence,
 		Notes:             notes,
 		IsActive:          isActive,
+		Inherit:           inherit,
+		StartDate:         startDate,
+		EndDate:           endDate,
 		CreatedBy:         createdBy,
 		CreatedAt:         time.Now(),
 		UpdatedAt:         time.Now(),
@@ -61,8 +72,8 @@ func (s *ItemStructure) IsGeneric() bool {
 	return s.ParentMask == nil
 }
 
-// EffectiveQuantity retorna a quantidade já considerando o percentual de perda.
-// Ex.: 10 unidades com 5% de perda → 10.5
+// EffectiveQuantity retorna a quantidade considerando o percentual de perda.
+// Para avaliação de fórmula, use o pacote formula junto com os valores de máscara.
 func (s *ItemStructure) EffectiveQuantity() float64 {
 	return s.Quantity * (1 + s.LossPercentage/100.0)
 }
@@ -73,7 +84,17 @@ func (s *ItemStructure) Deactivate() {
 	s.UpdatedAt = time.Now()
 }
 
-func (s *ItemStructure) Update(quantity float64, uom types.TypeUnitOfMeasurementItem, health types.Health, lossPercentage float64, sequence int, notes *string) error {
+func (s *ItemStructure) Update(
+	quantity float64,
+	uom types.TypeUnitOfMeasurementItem,
+	health types.Health,
+	lossPercentage float64,
+	sequence int,
+	notes *string,
+	startDate *time.Time,
+	endDate *time.Time,
+	lossFormula *string,
+) error {
 	if quantity <= 0 {
 		return errors.New("quantity deve ser maior que zero")
 	}
@@ -83,12 +104,18 @@ func (s *ItemStructure) Update(quantity float64, uom types.TypeUnitOfMeasurement
 	if sequence < 1 {
 		sequence = 10
 	}
+	if lossFormula != nil && *lossFormula == "" {
+		lossFormula = nil
+	}
 	s.Quantity = quantity
 	s.UnitOfMeasurement = uom
 	s.Health = health
 	s.LossPercentage = lossPercentage
+	s.LossFormula = lossFormula
 	s.Sequence = sequence
 	s.Notes = notes
+	s.StartDate = startDate
+	s.EndDate = endDate
 	s.UpdatedAt = time.Now()
 	return nil
 }

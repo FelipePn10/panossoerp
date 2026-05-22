@@ -23,12 +23,35 @@ type ItemStructure struct {
 	ParentMask        *string // nil = genérico
 	Quantity          float64
 	LossPercentage    float64 // 0–100 (%)
+	LossFormula       *string // expressão matemática com variáveis de perguntas; substitui LossPercentage quando avaliável
 	UnitOfMeasurement types.TypeUnitOfMeasurementItem
 	Health            types.Health
 	Sequence          int
 	Notes             *string
+	StartDate         *time.Time // nil = sem restrição de início
+	EndDate           *time.Time // nil = sem restrição de fim
 	IsActive          bool
 	CreatedBy         uuid.UUID
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+}
+
+// ConsultRow estende ItemStructure com campos desnormalizados do item filho
+// retornados pela query de consulta de estrutura.
+type ConsultRow struct {
+	*ItemStructure
+	WarehouseCode int64
+	TypeStruct    int16
+}
+
+// WhereUsedRow representa uma linha do resultado da implosão de estrutura.
+type WhereUsedRow struct {
+	Level             int
+	ParentCode        int64
+	ChildCode         int64
+	ParentDescription string
+	Quantity          float64
+	LossPercentage    float64
+	ParentMask        *string
+	Sequence          int
 }

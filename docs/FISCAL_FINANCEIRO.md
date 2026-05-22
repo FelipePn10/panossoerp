@@ -13,7 +13,7 @@
 3. [Motor Tributário](#3-motor-tributário)
    - 3.1 [Gestão de Tabelas Tributárias](#31-gestão-de-tabelas-tributárias)
 4. [Módulo Fiscal — NF-e de Saída](#4-módulo-fiscal--nf-e-de-saída)
-5. [Módulo Fiscal — NF-e de Entrada](#5-módulo-fiscal--nf-e-de-entrada)
+5. [Módulo Fiscal — NF-e de Entrada](#5-módulo-fiscal--nf-e-de-entrada) *(inclui importação por chave de acesso via Focus)*
 6. [CT-e (Conhecimento de Transporte)](#6-ct-e-conhecimento-de-transporte)
 7. [Módulo Financeiro — Cadastros Base](#7-módulo-financeiro--cadastros-base)
 8. [Contas a Pagar](#8-contas-a-pagar)
@@ -645,6 +645,46 @@ Importa NF-e a partir do XML da SEFAZ.
 ```
 
 O sistema extrai automaticamente todos os campos do XML e cria a entrada.
+
+---
+
+### `POST /api/fiscal/entries/import-nfe`
+
+Importa uma NF-e de entrada diretamente pela **chave de acesso**, consultando a Focus NF-e. Não é necessário ter o XML em mãos — o sistema baixa, processa e já movimenta o estoque automaticamente.
+
+**Pré-requisito:** token Focus NF-e configurado em `PUT /api/fiscal/config` e ambiente correto.
+
+**Request:**
+```json
+{
+  "access_key": "35260512345678000100550010000012341123456789"
+}
+```
+
+**O que acontece internamente:**
+1. Consulta a Focus NF-e com a chave de acesso
+2. Baixa o XML e extrai todos os dados da NF-e (emitente, itens, impostos)
+3. Cria a nota de entrada com status `"aprovada"` (entrada direta, sem etapa de aprovação manual)
+4. Movimenta o estoque de cada item da nota
+
+**Resposta esperada (`201 Created`):**
+```json
+{
+  "id": 42,
+  "numero_nf": 12341,
+  "status": "aprovada",
+  "cnpj_emitente": "12345678000100",
+  "razao_social_emitente": "Fornecedor XYZ LTDA",
+  "valor_total": 5450.00
+}
+```
+
+**Erros comuns:**
+- `"token Focus NF-e não configurado"` → execute `PUT /api/fiscal/config` primeiro
+- `"chave de acesso inválida"` → a chave deve ter exatamente 44 dígitos
+- `"NF-e não encontrada"` → chave não existe na base Focus para o ambiente configurado
+
+> **Diferença em relação ao `upload-nfe`:** o `upload-nfe` recebe o XML bruto; o `import-nfe` recebe só a chave de 44 dígitos e busca o XML automaticamente via API Focus. Ambos criam a entrada, mas o `import-nfe` já aprova e movimenta o estoque na mesma operação.
 
 ---
 

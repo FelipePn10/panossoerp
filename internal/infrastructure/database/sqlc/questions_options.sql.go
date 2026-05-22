@@ -92,3 +92,36 @@ func (q *Queries) GetQuestionOptionByID(ctx context.Context, id int64) (Question
 	)
 	return i, err
 }
+
+const listOptionsByQuestionID = `-- name: ListOptionsByQuestionID :many
+SELECT id, question_id, value, created_at, created_by
+FROM question_options
+WHERE question_id = $1
+ORDER BY id
+`
+
+func (q *Queries) ListOptionsByQuestionID(ctx context.Context, questionID int64) ([]QuestionOption, error) {
+	rows, err := q.db.Query(ctx, listOptionsByQuestionID, questionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []QuestionOption
+	for rows.Next() {
+		var i QuestionOption
+		if err := rows.Scan(
+			&i.ID,
+			&i.QuestionID,
+			&i.Value,
+			&i.CreatedAt,
+			&i.CreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
