@@ -106,7 +106,7 @@ func (q *Queries) CreateMRPItemProfile(ctx context.Context, arg CreateMRPItemPro
 const createMRPPlannedSuggestion = `-- name: CreateMRPPlannedSuggestion :one
 INSERT INTO mrp_planned_suggestions (plan_code, item_code, quantity, need_date, start_date, order_type, demand_type, parent_item_code, llc)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    RETURNING code, plan_code, item_code, quantity, need_date, start_date, order_type, demand_type, parent_item_code, llc, created_at
+    RETURNING code, plan_code, item_code, quantity, need_date, start_date, order_type, demand_type, parent_item_code, llc, created_at, notes
 `
 
 type CreateMRPPlannedSuggestionParams struct {
@@ -146,6 +146,7 @@ func (q *Queries) CreateMRPPlannedSuggestion(ctx context.Context, arg CreateMRPP
 		&i.ParentItemCode,
 		&i.Llc,
 		&i.CreatedAt,
+		&i.Notes,
 	)
 	return i, err
 }
@@ -489,7 +490,7 @@ func (q *Queries) ListMRPCalculationLogsByPlan(ctx context.Context, planCode int
 }
 
 const listMRPPlannedSuggestions = `-- name: ListMRPPlannedSuggestions :many
-SELECT code, plan_code, item_code, quantity, need_date, start_date, order_type, demand_type, parent_item_code, llc, created_at FROM mrp_planned_suggestions WHERE plan_code = $1 ORDER BY llc, need_date
+SELECT code, plan_code, item_code, quantity, need_date, start_date, order_type, demand_type, parent_item_code, llc, created_at, notes FROM mrp_planned_suggestions WHERE plan_code = $1 ORDER BY llc, need_date
 `
 
 func (q *Queries) ListMRPPlannedSuggestions(ctx context.Context, planCode int64) ([]MrpPlannedSuggestion, error) {
@@ -513,6 +514,7 @@ func (q *Queries) ListMRPPlannedSuggestions(ctx context.Context, planCode int64)
 			&i.ParentItemCode,
 			&i.Llc,
 			&i.CreatedAt,
+			&i.Notes,
 		); err != nil {
 			return nil, err
 		}

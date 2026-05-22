@@ -55,3 +55,18 @@ func FromPgTimestamptz(v pgtype.Timestamptz) time.Time {
 	}
 	return v.Time
 }
+
+func ToPgDateFromPtr(t *time.Time) pgtype.Date {
+	if t == nil {
+		return pgtype.Date{}
+	}
+	return pgtype.Date{Time: *t, Valid: true}
+}
+
+func FromPgDateToPtr(v pgtype.Date) *time.Time {
+	if !v.Valid {
+		return nil
+	}
+	t := v.Time
+	return &t
+}

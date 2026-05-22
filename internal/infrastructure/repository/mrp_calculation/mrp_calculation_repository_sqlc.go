@@ -599,6 +599,7 @@ func suggestionToEntity(row sqlc.MrpPlannedSuggestion) *entity.PlannedOrderSugge
 		OrderType:  row.OrderType,
 		DemandType: row.DemandType,
 		LLC:        int(row.Llc),
+		Notes:      pgutil.FromPgTextPtr(row.Notes),
 	}
 
 	if sd := pgutil.FromPgDate(row.StartDate); !sd.IsZero() {

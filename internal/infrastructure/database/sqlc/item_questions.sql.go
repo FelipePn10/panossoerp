@@ -37,6 +37,48 @@ func (q *Queries) AssociateQuestionItem(ctx context.Context, arg AssociateQuesti
 	return err
 }
 
+const existsByItemAndPosition = `-- name: ExistsByItemAndPosition :one
+SELECT EXISTS (
+    SELECT 1
+    FROM item_questions
+    WHERE item_code = $1
+      AND position = $2
+)
+`
+
+type ExistsByItemAndPositionParams struct {
+	ItemCode int64
+	Position int32
+}
+
+func (q *Queries) ExistsByItemAndPosition(ctx context.Context, arg ExistsByItemAndPositionParams) (bool, error) {
+	row := q.db.QueryRow(ctx, existsByItemAndPosition, arg.ItemCode, arg.Position)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const existsByItemAndQuestion = `-- name: ExistsByItemAndQuestion :one
+SELECT EXISTS (
+    SELECT 1
+    FROM item_questions
+    WHERE item_code = $1
+      AND question_id = $2
+)
+`
+
+type ExistsByItemAndQuestionParams struct {
+	ItemCode   int64
+	QuestionID int64
+}
+
+func (q *Queries) ExistsByItemAndQuestion(ctx context.Context, arg ExistsByItemAndQuestionParams) (bool, error) {
+	row := q.db.QueryRow(ctx, existsByItemAndQuestion, arg.ItemCode, arg.QuestionID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const getQuestionsByItemCode = `-- name: GetQuestionsByItemCode :many
 SELECT iq.item_code, iq.question_id, iq.position, iq.created_at, q.name AS question_name
 FROM item_questions iq
@@ -54,8 +96,8 @@ type GetQuestionsByItemCodeRow struct {
 	QuestionName string
 }
 
-func (q *Queries) GetQuestionsByItemCode(ctx context.Context, itemCode int64) ([]GetQuestionsByItemCodeRow, error) {
-	rows, err := q.db.Query(ctx, getQuestionsByItemCode, itemCode)
+func (q *Queries) GetQuestionsByItemCode(ctx context.Context, code int64) ([]GetQuestionsByItemCodeRow, error) {
+	rows, err := q.db.Query(ctx, getQuestionsByItemCode, code)
 	if err != nil {
 		return nil, err
 	}
@@ -123,46 +165,4 @@ func (q *Queries) ListAllItemQuestions(ctx context.Context) ([]ListAllItemQuesti
 		return nil, err
 	}
 	return items, nil
-}
-
-const existsByItemAndPosition = `-- name: ExistsByItemAndPosition :one
-SELECT EXISTS (
-    SELECT 1
-    FROM item_questions
-    WHERE item_code = $1
-      AND position = $2
-)
-`
-
-type ExistsByItemAndPositionParams struct {
-	ItemCode int64
-	Position int32
-}
-
-func (q *Queries) ExistsByItemAndPosition(ctx context.Context, arg ExistsByItemAndPositionParams) (bool, error) {
-	row := q.db.QueryRow(ctx, existsByItemAndPosition, arg.ItemCode, arg.Position)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
-const existsByItemAndQuestion = `-- name: ExistsByItemAndQuestion :one
-SELECT EXISTS (
-    SELECT 1
-    FROM item_questions
-    WHERE item_code = $1
-      AND question_id = $2
-)
-`
-
-type ExistsByItemAndQuestionParams struct {
-	ItemCode   int64
-	QuestionID int64
-}
-
-func (q *Queries) ExistsByItemAndQuestion(ctx context.Context, arg ExistsByItemAndQuestionParams) (bool, error) {
-	row := q.db.QueryRow(ctx, existsByItemAndQuestion, arg.ItemCode, arg.QuestionID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
 }

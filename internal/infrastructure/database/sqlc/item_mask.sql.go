@@ -7,8 +7,6 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteItemMask = `-- name: DeleteItemMask :exec
@@ -55,7 +53,7 @@ func (q *Queries) ListAllItemMasks(ctx context.Context) ([]ItemMask, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var result []ItemMask
+	var items []ItemMask
 	for rows.Next() {
 		var i ItemMask
 		if err := rows.Scan(
@@ -68,13 +66,10 @@ func (q *Queries) ListAllItemMasks(ctx context.Context) ([]ItemMask, error) {
 		); err != nil {
 			return nil, err
 		}
-		result = append(result, i)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return items, nil
 }
-
-// keep pgtype import used by ItemMask.CreatedAt field
-var _ pgtype.Timestamptz

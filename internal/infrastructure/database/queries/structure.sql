@@ -10,15 +10,18 @@ INSERT INTO item_structures (
     health,
     notes,
     created_by,
-    inherit
+    inherit,
+    start_date,
+    end_date,
+    loss_formula
 ) VALUES (
-             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
          )
-    RETURNING *;
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit, start_date, end_date, loss_formula;
 
 
 -- name: GetStructureComponentByID :one
-SELECT *
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit, start_date, end_date, loss_formula
 FROM item_structures
 WHERE id = $1;
 
@@ -32,6 +35,7 @@ SELECT
     s.parent_mask,
     s.quantity,
     s.loss_percentage,
+    s.loss_formula,
     s.unit_of_measurement,
     s.health,
     s.sequence,
@@ -40,7 +44,9 @@ SELECT
     s.created_by,
     s.created_at,
     s.updated_at,
-    s.inherit
+    s.inherit,
+    s.start_date,
+    s.end_date
 FROM item_structures s
          JOIN items i ON i.code = s.child_code
 WHERE s.parent_code = $1
@@ -49,7 +55,7 @@ ORDER BY s.sequence, s.id;
 
 
 -- name: GetGenericChildren :many
-SELECT *
+SELECT id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit, start_date, end_date, loss_formula
 FROM item_structures
 WHERE parent_code = $1
   AND parent_mask IS NULL
@@ -97,6 +103,9 @@ SET
     sequence            = $7,
     health              = $8,
     notes               = $9,
+    start_date          = $10,
+    end_date            = $11,
+    loss_formula        = $12,
     updated_at          = NOW()
 WHERE parent_code = $1
   AND child_code  = $2
@@ -105,7 +114,7 @@ WHERE parent_code = $1
         OR (parent_mask IS NULL AND $3 IS NULL)
     )
   AND is_active = TRUE
-    RETURNING *;
+    RETURNING id, parent_mask, quantity, unit_of_measurement, loss_percentage, sequence, notes, is_active, created_by, created_at, updated_at, parent_code, child_code, health, inherit, start_date, end_date, loss_formula;
 
 -- name: DeactivateStructureComponent :exec
 UPDATE item_structures
@@ -131,7 +140,7 @@ SELECT EXISTS (
 ) AS "exists";
 
 -- name: HasCyclicReference :one
-SELECT has_cycle(sqlc.arg(start_code), sqlc.arg(target_code)) AS has_cycle;
+SELECT has_cycle($1::BIGINT, $2::BIGINT) AS has_cycle;
 
 -- name: GetItemMaskAnswersByValue :many
 SELECT

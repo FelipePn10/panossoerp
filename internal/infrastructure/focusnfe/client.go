@@ -236,6 +236,52 @@ func (c *Client) CancelarNFe(ctx context.Context, ref, justificativa string) (*N
 	return &resp, nil
 }
 
+// ─── NF-e de Entrada (Compra) ─────────────────────────────────────────────────
+
+// NFeEntradaItem represents one line in an incoming NF-e (purchase/entry).
+type NFeEntradaItem struct {
+	NumeroItem          int     `json:"numero_item"`
+	CodigoProduto       string  `json:"codigo_produto"`
+	Descricao           string  `json:"descricao"`
+	CFOP                string  `json:"cfop"`
+	UnidadeComercial    string  `json:"unidade_comercial"`
+	QuantidadeComercial float64 `json:"quantidade_comercial"`
+	ValorUnitario       float64 `json:"valor_unitario_comercial"`
+	ValorTotal          float64 `json:"valor_total"`
+}
+
+// NFeEntradaResponse is the Focus response for a consulted purchase NF-e.
+type NFeEntradaResponse struct {
+	Status        string           `json:"status"`
+	ChaveNFe      string           `json:"chave_nfe"`
+	NumeroNF      string           `json:"numero"`
+	Serie         string           `json:"serie"`
+	DataEmissao   string           `json:"data_emissao"`
+	CnpjEmitente  string           `json:"cnpj_emitente"`
+	NomeEmitente  string           `json:"nome_emitente"`
+	ValorTotal    float64          `json:"valor_total"`
+	Items         []NFeEntradaItem `json:"items"`
+}
+
+// ConsultarNFePorChave fetches an incoming NF-e by its 44-digit access key (chave de acesso).
+// Uses Focus NF-e endpoint GET /v2/nfe_entrada/{chave}.
+// Returns a parsed structure with line items for stock entry automation.
+func (c *Client) ConsultarNFePorChave(ctx context.Context, chaveAcesso string) (*NFeEntradaResponse, error) {
+	path := fmt.Sprintf("/nfe_entrada/%s", chaveAcesso)
+	body, statusCode, err := c.do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("consulting NF-e entrada: %w", err)
+	}
+	if statusCode == 404 {
+		return nil, fmt.Errorf("NF-e com chave %s não encontrada", chaveAcesso)
+	}
+	var resp NFeEntradaResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("unmarshaling NF-e entrada response (status %d): %w", statusCode, err)
+	}
+	return &resp, nil
+}
+
 // EmitirCCe sends POST /nfe/{ref}/carta_correcao.
 func (c *Client) EmitirCCe(ctx context.Context, ref, textoCorrecao string) (map[string]interface{}, error) {
 	payload := map[string]string{"descricao_correcao": textoCorrecao}

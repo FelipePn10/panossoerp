@@ -1,0 +1,3 @@
+BEGIN;
+DROP TABLE IF EXISTS capacity_requirements CASCADE;
+COMMIT;

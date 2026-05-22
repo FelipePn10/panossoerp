@@ -27,11 +27,13 @@ func (r *repositoryQuestionOptionsSQLC) Save(
 	}
 
 	return &entity.QuestionsOptions{
-		QuestionId: dbQuestionOption.ID,
+		ID:         dbQuestionOption.ID,
+		QuestionId: dbQuestionOption.QuestionID,
 		CreatedBy:  pgutil.FromPgUUID(dbQuestionOption.CreatedBy),
 		Value:      dbQuestionOption.Value,
 	}, nil
 }
+
 
 func (r *repositoryQuestionOptionsSQLC) ExistsQuestionOptionByValue(
 	ctx context.Context,
@@ -57,4 +59,25 @@ func (r *repositoryQuestionOptionsSQLC) Delete(
 	questionid int64,
 ) error {
 	return r.q.DeleteQuestionOption(ctx, questionid)
+}
+
+func (r *repositoryQuestionOptionsSQLC) ListByQuestionID(
+	ctx context.Context,
+	questionID int64,
+) ([]entity.QuestionsOptions, error) {
+	rows, err := r.q.ListOptionsByQuestionID(ctx, questionID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]entity.QuestionsOptions, 0, len(rows))
+	for _, row := range rows {
+		result = append(result, entity.QuestionsOptions{
+			ID:         row.ID,
+			QuestionId: row.QuestionID,
+			CreatedBy:  pgutil.FromPgUUID(row.CreatedBy),
+			Value:      row.Value,
+		})
+	}
+	return result, nil
 }

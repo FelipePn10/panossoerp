@@ -35,6 +35,13 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/question_option_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/question_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/restriction_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/aps_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/cost_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/crp_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/quality_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/maintenance_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/mrp_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/routing_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/sales_division_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/sales_forecast_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/sales_order_uc"
@@ -47,6 +54,7 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/config"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/database"
 	applogger "github.com/FelipePn10/panossoerp/internal/infrastructure/logger"
+	"github.com/FelipePn10/panossoerp/internal/infrastructure/notification"
 	fiscalRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/fiscal"
 	allocation "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/allocation_base"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/bom"
@@ -80,6 +88,12 @@ import (
 	purchaseOrderRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/purchase_order"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions"
 	questionsoptions "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/questions_options"
+	maintenanceRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/maintenance"
+	qualityRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/quality"
+	apsRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/aps"
+	crpRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/crp"
+	standardCostRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/standard_cost"
+	routingRepo "github.com/FelipePn10/panossoerp/internal/infrastructure/repository/routing"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/structure"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/structure_query"
 	"github.com/FelipePn10/panossoerp/internal/infrastructure/repository/user"
@@ -137,7 +151,8 @@ func (app *application) mount() chi.Router {
 	questionOptionRepo := questionsoptions.NewRepositoryQuestionOptionSQLC(queries)
 
 	createQuestionOptionUC := question_option_uc.NewCreateQuestionOptionUseCase(questionOptionRepo, authService)
-	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC)
+	listOptionsByQuestionUC := question_option_uc.NewListOptionsByQuestionUseCase(questionOptionRepo, authService)
+	questionOptionCreateHandler := handler.NewCreateQuestionOptionHandler(createQuestionOptionUC, listOptionsByQuestionUC)
 
 	// Item
 	itemRepo := item.NewRepositoryItemSQLC(queries)
@@ -171,7 +186,9 @@ func (app *application) mount() chi.Router {
 	// Item Structure Query
 	itemRepoStructureQuery := structure_query.NewStructureQueryRepository(queries)
 	queryStructureUc := structure_uc.NewResolveStructureQueryUseCase(itemRepoStructureQuery, authService)
-	queryStructureHandler := handler.NewQueryStructureHandler(queryStructureUc)
+	consultStructureUc := structure_uc.NewConsultStructureUseCase(itemRepoStructureQuery)
+	whereUsedUc := structure_uc.NewWhereUsedUseCase(itemRepoStructureQuery)
+	queryStructureHandler := handler.NewQueryStructureHandler(queryStructureUc, consultStructureUc, whereUsedUc)
 	// bom
 	bomRepo := bom.NewRepostioryBomSQLC(queries)
 
@@ -354,10 +371,38 @@ func (app *application) mount() chi.Router {
 		scheduleUC,
 	)
 
+	// routing (manufacturing routes)
+	rRepo := routingRepo.New(queries)
+	routingOperationUC := routing_uc.NewOperationUseCase(rRepo)
+	routingRouteUC := routing_uc.NewRouteUseCase(rRepo)
+	routingLeadTimeUC := routing_uc.NewLeadTimeUseCase(rRepo)
+	routingHandler := handler.NewRoutingHandler(routingOperationUC, routingRouteUC, routingLeadTimeUC)
+
+	// quality
+	qRepo := qualityRepo.New(queries)
+	qualityUC := quality_uc.New(qRepo)
+	qualityHandler := handler.NewQualityHandler(qualityUC)
+
+	// standard cost
+	scRepo := standardCostRepo.New(queries)
+	standardCostUC := cost_uc.New(scRepo)
+	standardCostHandler := handler.NewStandardCostHandler(standardCostUC)
+
+	// CRP
+	crpRepository := crpRepo.New(queries)
+	crpUC := crp_uc.New(crpRepository)
+	crpHandler := handler.NewCRPHandler(crpUC)
+	// maintenance repo wired after it is created (see below)
+
+	// APS
+	apsRepository := apsRepo.New(queries)
+	apsUC := aps_uc.New(apsRepository)
+	apsHandler := handler.NewAPSHandler(apsUC)
+
 	// mrp_calculation
 	mrpRepo := mrpCalculation.NewMRPCalculationRepositorySQLC(queries, app.db.Pool)
 	supplyPort := planned.NewPlannedOrderSupplyAdapter(queries)
-	mrpService := mrpservice.NewMRPService(mrpRepo, itemRepoStructure, independentDemandRepo, industrialCalendarRepo, itemRepo, supplyPort, productionPlanRepo, sfRepo, restrictionR)
+	mrpService := mrpservice.NewMRPService(mrpRepo, itemRepoStructure, independentDemandRepo, industrialCalendarRepo, itemRepo, supplyPort, productionPlanRepo, sfRepo, restrictionR, rRepo)
 	mrpRunUC := &mrp_calculation_uc.RunMRPCalculationUseCase{Service: mrpService, Auth: authService}
 	mrpGetProfileUC := &mrp_calculation_uc.GetItemProfileUseCase{Repo: mrpRepo, Auth: authService}
 	mrpCreateConfiguredRule := &mrp_calculation_uc.ManageConfiguredItemRulesUseCase{Repo: mrpRepo, Auth: authService}
@@ -397,12 +442,13 @@ func (app *application) mount() chi.Router {
 	prodOrderCancelUC := &productionOrderUc.CancelProductionOrderUseCase{Repo: prodOrderRepo, Auth: authService}
 	prodOrderGetAppointmentsUC := &productionOrderUc.GetAppointmentsUseCase{Repo: prodOrderRepo, Auth: authService}
 	prodOrderGetConsumptionsUC := &productionOrderUc.GetConsumptionsUseCase{Repo: prodOrderRepo, Auth: authService}
+	orderOpsUC := &productionOrderUc.OrderOperationsUseCase{Q: queries}
 	prodOrderHandler := handler.NewProductionOrderHandler(
 		prodOrderCreateUC, prodOrderGetByCodeUC, prodOrderListUC,
 		prodOrderStartUC, prodOrderAddAppointmentUC, prodOrderAddConsumptionUC,
 		prodOrderCompleteUC, prodOrderCloseUC, prodOrderCancelUC,
 		prodOrderGetAppointmentsUC, prodOrderGetConsumptionsUC,
-	)
+	).WithOrderOps(orderOpsUC)
 
 	// purchase order
 	poRepo := purchaseOrderRepo.NewPurchaseOrderRepositorySQLC(app.db.Pool)
@@ -543,6 +589,31 @@ func (app *application) mount() chi.Router {
 		&fiscalUC.ListCartasCorrecaoUseCase{Repo: fiscalRepository, Auth: authService},
 	)
 
+	// maintenance
+	maintRepo := maintenanceRepo.New(queries)
+	maintUC := maintenance_uc.New(maintRepo)
+	maintHandler := handler.NewMaintenanceHandler(maintUC)
+	crpUC.WithMaintenance(maintRepo)
+
+	// mrp exception notifications
+	emailSvc := notification.NewEmailService(notification.SMTPConfig{
+		Host:     app.config.SMTPHost,
+		Port:     app.config.SMTPPort,
+		User:     app.config.SMTPUser,
+		Password: app.config.SMTPPassword,
+		From:     app.config.SMTPFrom,
+	})
+	notifyExcUC := mrp_uc.NewNotifyExceptionsUseCase(mrpRepo, emailSvc)
+	mrpExcHandler := handler.NewMRPExceptionsHandler(notifyExcUC)
+
+	// NF-e purchase import
+	importNFeUC := &fiscalUC.ImportNFePurchaseUseCase{
+		FiscalRepo: fiscalRepository,
+		StockRepo:  stockRepository,
+		Auth:       authService,
+	}
+	importNFeHandler := handler.NewImportNFePurchaseHandler(importNFeUC)
+
 	// routes
 	r.Group(func(r chi.Router) {
 		r.Use(httpmw.JWT(app.config.JWTSecret, app.logger))
@@ -560,6 +631,8 @@ func (app *application) mount() chi.Router {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Put("/update", structureHandler.Update)
 				//r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{parentItemCode}/children", structureHandler.GetAllDirectChildren)
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/resolve/{itemCode}", queryStructureHandler.ResolveStructure)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/consult", queryStructureHandler.ConsultStructure)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/where-used/{itemCode}", queryStructureHandler.WhereUsed)
 			})
 		})
 		r.Route("/api/allocations", func(r chi.Router) {
@@ -654,12 +727,16 @@ func (app *application) mount() chi.Router {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/{id}/cancel", prodOrderHandler.Cancel)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}/appointments", prodOrderHandler.GetAppointments)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}/consumptions", prodOrderHandler.GetConsumptions)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/operations/explode", prodOrderHandler.ExplodeRoute)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}/operations", prodOrderHandler.ListOrderOperations)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/operations/advance", prodOrderHandler.AdvanceOperation)
 		})
 		r.Route("/api/questions", func(r chi.Router) {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", questionCreateHandler.CreateQuestion)
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", findQuestionByNameHandler.FindQuestionByName)
 			r.Route("/options", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/create", questionOptionCreateHandler.CreateQuestionOptionHandler)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{questionID}", questionOptionCreateHandler.ListByQuestion)
 			})
 			r.Route("/associate", func(r chi.Router) {
 				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", associateByQuestionItemHandler.AssociateQuestions)
@@ -871,6 +948,105 @@ func (app *application) mount() chi.Router {
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/relatorios/compras-periodo", financialHandler.GetComprasPeriodo)
 			// Bank statement reconciliation
 			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/conciliacao/{conta_id}/importar-ofx", financialHandler.ImportarOFX)
+		})
+		r.Route("/api/routing", func(r chi.Router) {
+			r.Route("/operations", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", routingHandler.CreateOperation)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", routingHandler.ListOperations)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}", routingHandler.GetOperation)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Put("/{id}", routingHandler.UpdateOperation)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", routingHandler.DeactivateOperation)
+			})
+			r.Route("/routes", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", routingHandler.CreateRoute)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", routingHandler.ListRoutesByItem)
+				r.Route("/{id}", func(r chi.Router) {
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", routingHandler.GetRouteDetail)
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Put("/", routingHandler.UpdateRoute)
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/", routingHandler.DeactivateRoute)
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/lead-time", routingHandler.GetLeadTime)
+				})
+			})
+			r.Route("/route-operations", func(r chi.Router) {
+				r.Route("/{routeId}", func(r chi.Router) {
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", routingHandler.AddRouteOperation)
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Put("/{opId}", routingHandler.UpdateRouteOperation)
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{opId}", routingHandler.RemoveRouteOperation)
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/network/set", routingHandler.SetNetworkEdge)
+					r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/network", routingHandler.DeleteNetworkEdge)
+				})
+			})
+		})
+		r.Route("/api/aps", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/sequence", apsHandler.SequenceOrders)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/gantt/order/{orderID}", apsHandler.GetGanttByOrder)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/gantt/work-center", apsHandler.GetGanttByWorkCenter)
+		})
+		r.Route("/api/crp", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/calculate", crpHandler.CalculateCRP)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{planCode}", crpHandler.ListByPlan)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{planCode}/overloaded", crpHandler.ListOverloadedByPlan)
+		})
+		r.Route("/api/standard-cost", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/rollup", standardCostHandler.RollUp)
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/items/{itemCode}", standardCostHandler.GetStandardCost)
+			r.Route("/work-center-costs", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", standardCostHandler.UpsertWorkCenterCost)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", standardCostHandler.ListWorkCenterCosts)
+			})
+			r.Route("/purchase-costs", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", standardCostHandler.UpsertItemPurchaseCost)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{itemCode}", standardCostHandler.GetItemPurchaseCost)
+			})
+		})
+		r.Route("/api/quality", func(r chi.Router) {
+			r.Route("/plans", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", qualityHandler.CreatePlan)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}", qualityHandler.GetPlan)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", qualityHandler.DeactivatePlan)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/by-item/{itemCode}", qualityHandler.ListPlansByItem)
+			})
+			r.Route("/characteristics", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", qualityHandler.AddCharacteristic)
+			})
+			r.Route("/records", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", qualityHandler.CreateRecord)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}", qualityHandler.GetRecord)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/by-order/{orderID}", qualityHandler.ListRecordsByOrder)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/by-item/{itemCode}", qualityHandler.ListRecordsByItem)
+			})
+			r.Route("/non-conformances", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", qualityHandler.CreateNC)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/open", qualityHandler.ListOpenNCs)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}", qualityHandler.GetNC)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/by-item/{itemCode}", qualityHandler.ListNCsByItem)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/{id}/disposition", qualityHandler.DispositionNC)
+			})
+		})
+		r.Route("/api/maintenance", func(r chi.Router) {
+			r.Route("/plans", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", maintHandler.CreatePlan)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/", maintHandler.ListPlans)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/{id}", maintHandler.GetPlan)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Delete("/{id}", maintHandler.DeactivatePlan)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/by-machine/{machineId}", maintHandler.ListPlansByMachine)
+			})
+			r.Route("/orders", func(r chi.Router) {
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", maintHandler.CreateOrder)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/advance", maintHandler.AdvanceOrder)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/generate", maintHandler.GenerateOrders)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/by-plan/{planId}", maintHandler.ListOrdersByPlan)
+				r.With(httpmw.RequireRole("ADMIN", "USER")).Get("/by-work-center/{wcId}", maintHandler.ListOrdersByWorkCenter)
+			})
+		})
+		r.Route("/api/forecast", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/statistical", handler.StatisticalForecastHandler)
+		})
+		r.Route("/api/mrp-calculation/exceptions", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/notify", mrpExcHandler.Notify)
+		})
+		r.Route("/api/fiscal/entries/import-nfe", func(r chi.Router) {
+			r.With(httpmw.RequireRole("ADMIN", "USER")).Post("/", importNFeHandler.Import)
 		})
 	})
 	// Health check

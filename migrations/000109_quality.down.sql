@@ -1,0 +1,11 @@
+BEGIN;
+DROP TABLE IF EXISTS non_conformances CASCADE;
+DROP TABLE IF EXISTS quality_measurements CASCADE;
+DROP TABLE IF EXISTS quality_records CASCADE;
+DROP TABLE IF EXISTS inspection_plan_characteristics CASCADE;
+DROP TABLE IF EXISTS inspection_plans CASCADE;
+DROP TYPE IF EXISTS nc_disposition_enum;
+DROP TYPE IF EXISTS nc_severity_enum;
+DROP TYPE IF EXISTS inspection_result_enum;
+DROP TYPE IF EXISTS inspection_point_type;
+COMMIT;

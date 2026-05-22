@@ -143,6 +143,93 @@ func (ns NullHealthEnum) Value() (driver.Value, error) {
 	return string(ns.HealthEnum), nil
 }
 
+type InspectionPointType string
+
+const (
+	InspectionPointTypeRECEBIMENTO InspectionPointType = "RECEBIMENTO"
+	InspectionPointTypePROCESSO    InspectionPointType = "PROCESSO"
+	InspectionPointTypeEXPEDICAO   InspectionPointType = "EXPEDICAO"
+)
+
+func (e *InspectionPointType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = InspectionPointType(s)
+	case string:
+		*e = InspectionPointType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for InspectionPointType: %T", src)
+	}
+	return nil
+}
+
+type NullInspectionPointType struct {
+	InspectionPointType InspectionPointType
+	Valid               bool // Valid is true if InspectionPointType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullInspectionPointType) Scan(value interface{}) error {
+	if value == nil {
+		ns.InspectionPointType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.InspectionPointType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullInspectionPointType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.InspectionPointType), nil
+}
+
+type InspectionResultEnum string
+
+const (
+	InspectionResultEnumAPROVADO    InspectionResultEnum = "APROVADO"
+	InspectionResultEnumREJEITADO   InspectionResultEnum = "REJEITADO"
+	InspectionResultEnumCONDICIONAL InspectionResultEnum = "CONDICIONAL"
+	InspectionResultEnumPENDENTE    InspectionResultEnum = "PENDENTE"
+)
+
+func (e *InspectionResultEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = InspectionResultEnum(s)
+	case string:
+		*e = InspectionResultEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for InspectionResultEnum: %T", src)
+	}
+	return nil
+}
+
+type NullInspectionResultEnum struct {
+	InspectionResultEnum InspectionResultEnum
+	Valid                bool // Valid is true if InspectionResultEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullInspectionResultEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.InspectionResultEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.InspectionResultEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullInspectionResultEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.InspectionResultEnum), nil
+}
+
 type MachineCapacityUnitEnum string
 
 const (
@@ -239,6 +326,182 @@ func (ns NullMachineTypeEnum) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.MachineTypeEnum), nil
+}
+
+type MaintenanceFrequencyEnum string
+
+const (
+	MaintenanceFrequencyEnumDAILY      MaintenanceFrequencyEnum = "DAILY"
+	MaintenanceFrequencyEnumWEEKLY     MaintenanceFrequencyEnum = "WEEKLY"
+	MaintenanceFrequencyEnumMONTHLY    MaintenanceFrequencyEnum = "MONTHLY"
+	MaintenanceFrequencyEnumCUSTOMDAYS MaintenanceFrequencyEnum = "CUSTOM_DAYS"
+)
+
+func (e *MaintenanceFrequencyEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MaintenanceFrequencyEnum(s)
+	case string:
+		*e = MaintenanceFrequencyEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MaintenanceFrequencyEnum: %T", src)
+	}
+	return nil
+}
+
+type NullMaintenanceFrequencyEnum struct {
+	MaintenanceFrequencyEnum MaintenanceFrequencyEnum
+	Valid                    bool // Valid is true if MaintenanceFrequencyEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMaintenanceFrequencyEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.MaintenanceFrequencyEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MaintenanceFrequencyEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMaintenanceFrequencyEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MaintenanceFrequencyEnum), nil
+}
+
+type MaintenanceOrderStatusEnum string
+
+const (
+	MaintenanceOrderStatusEnumPLANNED    MaintenanceOrderStatusEnum = "PLANNED"
+	MaintenanceOrderStatusEnumINPROGRESS MaintenanceOrderStatusEnum = "IN_PROGRESS"
+	MaintenanceOrderStatusEnumDONE       MaintenanceOrderStatusEnum = "DONE"
+	MaintenanceOrderStatusEnumCANCELLED  MaintenanceOrderStatusEnum = "CANCELLED"
+)
+
+func (e *MaintenanceOrderStatusEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MaintenanceOrderStatusEnum(s)
+	case string:
+		*e = MaintenanceOrderStatusEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MaintenanceOrderStatusEnum: %T", src)
+	}
+	return nil
+}
+
+type NullMaintenanceOrderStatusEnum struct {
+	MaintenanceOrderStatusEnum MaintenanceOrderStatusEnum
+	Valid                      bool // Valid is true if MaintenanceOrderStatusEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMaintenanceOrderStatusEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.MaintenanceOrderStatusEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MaintenanceOrderStatusEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMaintenanceOrderStatusEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MaintenanceOrderStatusEnum), nil
+}
+
+type NcDispositionEnum string
+
+const (
+	NcDispositionEnumSUCATA              NcDispositionEnum = "SUCATA"
+	NcDispositionEnumRETRABALHO          NcDispositionEnum = "RETRABALHO"
+	NcDispositionEnumAPROVADOCONDICIONAL NcDispositionEnum = "APROVADO_CONDICIONAL"
+	NcDispositionEnumDEVOLVIDO           NcDispositionEnum = "DEVOLVIDO"
+)
+
+func (e *NcDispositionEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = NcDispositionEnum(s)
+	case string:
+		*e = NcDispositionEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for NcDispositionEnum: %T", src)
+	}
+	return nil
+}
+
+type NullNcDispositionEnum struct {
+	NcDispositionEnum NcDispositionEnum
+	Valid             bool // Valid is true if NcDispositionEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullNcDispositionEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.NcDispositionEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.NcDispositionEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullNcDispositionEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.NcDispositionEnum), nil
+}
+
+type NcSeverityEnum string
+
+const (
+	NcSeverityEnumCRITICA    NcSeverityEnum = "CRITICA"
+	NcSeverityEnumMAIOR      NcSeverityEnum = "MAIOR"
+	NcSeverityEnumMENOR      NcSeverityEnum = "MENOR"
+	NcSeverityEnumOBSERVACAO NcSeverityEnum = "OBSERVACAO"
+)
+
+func (e *NcSeverityEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = NcSeverityEnum(s)
+	case string:
+		*e = NcSeverityEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for NcSeverityEnum: %T", src)
+	}
+	return nil
+}
+
+type NullNcSeverityEnum struct {
+	NcSeverityEnum NcSeverityEnum
+	Valid          bool // Valid is true if NcSeverityEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullNcSeverityEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.NcSeverityEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.NcSeverityEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullNcSeverityEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.NcSeverityEnum), nil
 }
 
 type OrderStatusEnum string
@@ -962,6 +1225,17 @@ type BomItem struct {
 	MaskComponent int64
 }
 
+type CapacityRequirement struct {
+	ID             int64
+	PlanCode       int64
+	WorkCenterID   int64
+	ReqDate        pgtype.Date
+	RequiredHours  pgtype.Numeric
+	AvailableHours pgtype.Numeric
+	LoadPct        pgtype.Numeric
+	CreatedAt      pgtype.Timestamptz
+}
+
 type CartaCorrecao struct {
 	ID            int64
 	FiscalExitID  int64
@@ -1145,6 +1419,17 @@ type CostCenter struct {
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
 	CreatedBy   pgtype.UUID
+}
+
+type CostRollupLog struct {
+	ID           int64
+	ItemCode     int64
+	Mask         string
+	BomLevel     int32
+	MaterialCost pgtype.Numeric
+	LaborCost    pgtype.Numeric
+	OverheadCost pgtype.Numeric
+	RunAt        pgtype.Timestamptz
 }
 
 type CteNfeAssociation struct {
@@ -1498,6 +1783,32 @@ type IndustrialCalendar struct {
 	UpdatedAt   pgtype.Timestamptz
 }
 
+type InspectionPlan struct {
+	ID               int64
+	ItemCode         int64
+	RouteOperationID *int64
+	PointType        InspectionPointType
+	Description      string
+	SampleSize       pgtype.Numeric
+	AcceptanceLevel  pgtype.Numeric
+	Instructions     pgtype.Text
+	IsActive         bool
+	CreatedAt        pgtype.Timestamptz
+	UpdatedAt        pgtype.Timestamptz
+	CreatedBy        pgtype.UUID
+}
+
+type InspectionPlanCharacteristic struct {
+	ID             int64
+	PlanID         int64
+	Name           string
+	Nominal        pgtype.Numeric
+	ToleranceUpper pgtype.Numeric
+	ToleranceLower pgtype.Numeric
+	Unit           pgtype.Text
+	IsCritical     bool
+}
+
 type Item struct {
 	ID                                   int64
 	WarehouseCode                        int64
@@ -1589,6 +1900,15 @@ type ItemPlanningExtra struct {
 	UseTankDate  bool
 }
 
+type ItemPurchaseCost struct {
+	ID        int64
+	ItemCode  int64
+	UnitCost  pgtype.Numeric
+	Currency  string
+	UpdatedAt pgtype.Timestamptz
+	UpdatedBy pgtype.UUID
+}
+
 type ItemQuestion struct {
 	ItemCode   int64
 	QuestionID int64
@@ -1603,6 +1923,19 @@ type ItemQuestionAnswer struct {
 	Answer     string
 	CreatedBy  pgtype.UUID
 	CreatedAt  pgtype.Timestamptz
+}
+
+type ItemStandardCost struct {
+	ID           int64
+	ItemCode     int64
+	Mask         string
+	MaterialCost pgtype.Numeric
+	LaborCost    pgtype.Numeric
+	OverheadCost pgtype.Numeric
+	TotalCost    pgtype.Numeric
+	Currency     string
+	CalculatedAt pgtype.Timestamptz
+	CalculatedBy pgtype.UUID
 }
 
 type ItemStructure struct {
@@ -1621,6 +1954,9 @@ type ItemStructure struct {
 	ChildCode         int64
 	Health            HealthEnum
 	Inherit           bool
+	StartDate         pgtype.Date
+	EndDate           pgtype.Date
+	LossFormula       pgtype.Text
 }
 
 type KanbanCard struct {
@@ -1677,6 +2013,55 @@ type MachineType struct {
 	Description pgtype.Text
 	Type        MachineTypeEnum
 	SetupTime   pgtype.Numeric
+	IsActive    bool
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+	CreatedBy   pgtype.UUID
+}
+
+type MaintenanceOrder struct {
+	ID             int64
+	PlanID         int64
+	WorkCenterID   *int64
+	ScheduledDate  pgtype.Date
+	EstimatedHours float64
+	ActualHours    pgtype.Float8
+	Status         MaintenanceOrderStatusEnum
+	StartedAt      pgtype.Timestamptz
+	CompletedAt    pgtype.Timestamptz
+	Notes          pgtype.Text
+	IsActive       bool
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+	MachineID      *int64
+}
+
+type MaintenancePlan struct {
+	ID              int64
+	Code            int64
+	MachineID       int64
+	WorkCenterID    *int64
+	Description     string
+	Frequency       MaintenanceFrequencyEnum
+	FrequencyDays   int32
+	EstimatedHours  float64
+	LastExecutedAt  pgtype.Timestamptz
+	NextScheduledAt pgtype.Timestamptz
+	IsActive        bool
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	CreatedBy       pgtype.UUID
+}
+
+type ManufacturingRoute struct {
+	ID          int64
+	Code        int64
+	ItemCode    int64
+	Mask        pgtype.Text
+	Alternative int16
+	Description pgtype.Text
+	Situation   interface{}
+	IsStandard  bool
 	IsActive    bool
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
@@ -1776,6 +2161,7 @@ type MrpPlannedSuggestion struct {
 	ParentItemCode *int64
 	Llc            int32
 	CreatedAt      pgtype.Timestamptz
+	Notes          pgtype.Text
 }
 
 type NcmTaxTable struct {
@@ -1792,10 +2178,41 @@ type NcmTaxTable struct {
 	CreatedAt   pgtype.Timestamptz
 }
 
+type NonConformance struct {
+	ID                int64
+	Code              int64
+	QualityRecordID   *int64
+	ProductionOrderID *int64
+	ItemCode          int64
+	Lot               pgtype.Text
+	NonconformQty     pgtype.Numeric
+	Description       string
+	Severity          NcSeverityEnum
+	RootCause         pgtype.Text
+	CorrectiveAction  pgtype.Text
+	Disposition       NullNcDispositionEnum
+	DisposedAt        pgtype.Timestamptz
+	DisposedBy        pgtype.UUID
+	IsOpen            bool
+	CreatedAt         pgtype.Timestamptz
+	UpdatedAt         pgtype.Timestamptz
+	CreatedBy         pgtype.UUID
+}
+
 type Operation struct {
-	ID   int64
-	Code string
-	Name string
+	ID                  int64
+	Code                int64
+	Name                string
+	Description         pgtype.Text
+	Origin              interface{}
+	Situation           interface{}
+	DefaultWorkCenterID *int64
+	StandardTime        pgtype.Numeric
+	SetupTime           pgtype.Numeric
+	IsActive            bool
+	CreatedAt           pgtype.Timestamptz
+	UpdatedAt           pgtype.Timestamptz
+	CreatedBy           pgtype.UUID
 }
 
 type OrderPriority struct {
@@ -1973,6 +2390,7 @@ type ProductionAppointment struct {
 	CreatedAt         pgtype.Timestamptz
 	UpdatedAt         pgtype.Timestamptz
 	CreatedBy         pgtype.UUID
+	OperationID       *int64
 }
 
 type ProductionConsumption struct {
@@ -2010,6 +2428,25 @@ type ProductionOrder struct {
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
 	CreatedBy      pgtype.UUID
+	RouteID        *int64
+}
+
+type ProductionOrderOperation struct {
+	ID                int64
+	ProductionOrderID int64
+	RouteOperationID  *int64
+	Sequence          int16
+	OperationName     string
+	WorkCenterID      *int64
+	PlannedHours      pgtype.Numeric
+	SetupHours        pgtype.Numeric
+	ActualHours       pgtype.Numeric
+	Status            string
+	StartedAt         pgtype.Timestamptz
+	CompletedAt       pgtype.Timestamptz
+	Notes             pgtype.Text
+	CreatedAt         pgtype.Timestamptz
+	UpdatedAt         pgtype.Timestamptz
 }
 
 type ProductionPlan struct {
@@ -2028,6 +2465,19 @@ type ProductionPlan struct {
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz
 	CreatedBy           pgtype.UUID
+}
+
+type ProductionSequence struct {
+	ID                int64
+	ProductionOrderID int64
+	OperationID       *int64
+	WorkCenterID      int64
+	SequencePosition  int32
+	ScheduledStart    pgtype.Timestamptz
+	ScheduledEnd      pgtype.Timestamptz
+	Status            string
+	CreatedAt         pgtype.Timestamptz
+	UpdatedAt         pgtype.Timestamptz
 }
 
 type PurchaseOrder struct {
@@ -2078,6 +2528,31 @@ type PurchaseOrderItem struct {
 type PurchaseOrderSequence struct {
 	EnterpriseCode int64
 	LastNumber     int64
+}
+
+type QualityMeasurement struct {
+	ID               int64
+	RecordID         int64
+	CharacteristicID int64
+	MeasuredValue    pgtype.Numeric
+	IsConformant     bool
+}
+
+type QualityRecord struct {
+	ID                int64
+	PlanID            int64
+	ProductionOrderID *int64
+	Lot               pgtype.Text
+	ItemCode          int64
+	InspectedQty      pgtype.Numeric
+	ApprovedQty       pgtype.Numeric
+	RejectedQty       pgtype.Numeric
+	Result            InspectionResultEnum
+	InspectorID       *int64
+	InspectedAt       pgtype.Timestamptz
+	Notes             pgtype.Text
+	CreatedAt         pgtype.Timestamptz
+	CreatedBy         pgtype.UUID
 }
 
 type Question struct {
@@ -2136,6 +2611,29 @@ type RestrictionReason struct {
 	Situation   string
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
+}
+
+type RouteOperation struct {
+	ID           int64
+	RouteID      int64
+	Sequence     int16
+	OperationID  int64
+	WorkCenterID *int64
+	StandardTime pgtype.Numeric
+	SetupTime    pgtype.Numeric
+	Situation    interface{}
+	Notes        pgtype.Text
+	IsActive     bool
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
+}
+
+type RouteOperationNetwork struct {
+	ID            int64
+	PredecessorID int64
+	SuccessorID   int64
+	OverlapPct    pgtype.Numeric
+	CreatedAt     pgtype.Timestamptz
 }
 
 type SaldoConta struct {
@@ -2430,4 +2928,13 @@ type Warehouse struct {
 	Type                interface{}
 	Disposition         bool
 	ReservationsAllowed bool
+}
+
+type WorkCenterCost struct {
+	ID           int64
+	WorkCenterID int64
+	CostPerHour  pgtype.Numeric
+	Currency     string
+	UpdatedAt    pgtype.Timestamptz
+	UpdatedBy    pgtype.UUID
 }

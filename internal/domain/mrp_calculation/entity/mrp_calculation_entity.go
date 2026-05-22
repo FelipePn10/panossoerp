@@ -106,6 +106,7 @@ type PlannedOrderSuggestion struct {
 	MachineID      *int64
 	ProductionTime *float64
 	Priority       *string
+	Notes          *string
 }
 
 // ExceptionMessageType classifies an MRP exception so planners can act

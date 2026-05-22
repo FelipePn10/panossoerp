@@ -7,7 +7,121 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const getChildrenForConsult = `-- name: GetChildrenForConsult :many
+SELECT
+    s.id,
+    s.parent_code,
+    s.child_code,
+    i.pdm_description_technique AS child_description,
+    s.parent_mask,
+    s.quantity,
+    s.loss_percentage,
+    s.loss_formula,
+    s.unit_of_measurement,
+    s.health,
+    s.sequence,
+    s.notes,
+    s.is_active,
+    s.created_by,
+    s.created_at,
+    s.updated_at,
+    s.inherit,
+    s.start_date,
+    s.end_date,
+    i.warehouse_code,
+    i.engineering_type_struct
+FROM item_structures s
+         JOIN items i ON i.code = s.child_code
+WHERE s.parent_code = $1
+  AND s.is_active = TRUE
+  AND (s.parent_mask IS NULL OR s.parent_mask = $2)
+  AND (s.start_date IS NULL OR $3::date IS NULL OR s.start_date <= $3::date)
+  AND (s.end_date   IS NULL OR $3::date IS NULL OR s.end_date   >= $3::date)
+ORDER BY
+    CASE WHEN s.parent_mask IS NOT NULL THEN 0 ELSE 1 END,
+    s.sequence,
+    s.id
+`
+
+type GetChildrenForConsultParams struct {
+	ParentCode int64
+	ParentMask pgtype.Text
+	Column3    pgtype.Date
+}
+
+type GetChildrenForConsultRow struct {
+	ID                    int64
+	ParentCode            int64
+	ChildCode             int64
+	ChildDescription      string
+	ParentMask            pgtype.Text
+	Quantity              float64
+	LossPercentage        float64
+	LossFormula           pgtype.Text
+	UnitOfMeasurement     UnitOfMeasurementEnum
+	Health                HealthEnum
+	Sequence              int32
+	Notes                 pgtype.Text
+	IsActive              bool
+	CreatedBy             pgtype.UUID
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
+	Inherit               bool
+	StartDate             pgtype.Date
+	EndDate               pgtype.Date
+	WarehouseCode         int64
+	EngineeringTypeStruct int16
+}
+
+// Consulta de estrutura VENG0401: retorna filhos diretos com campos de data,
+// fórmula de perda e dados do item filho (almoxarifado, tipo de estrutura).
+// $1 = parent_code, $2 = parent_mask (NULL → apenas genéricos),
+// $3 = effectiveness_date (NULL → sem filtro de data).
+func (q *Queries) GetChildrenForConsult(ctx context.Context, arg GetChildrenForConsultParams) ([]GetChildrenForConsultRow, error) {
+	rows, err := q.db.Query(ctx, getChildrenForConsult, arg.ParentCode, arg.ParentMask, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetChildrenForConsultRow
+	for rows.Next() {
+		var i GetChildrenForConsultRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentCode,
+			&i.ChildCode,
+			&i.ChildDescription,
+			&i.ParentMask,
+			&i.Quantity,
+			&i.LossPercentage,
+			&i.LossFormula,
+			&i.UnitOfMeasurement,
+			&i.Health,
+			&i.Sequence,
+			&i.Notes,
+			&i.IsActive,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Inherit,
+			&i.StartDate,
+			&i.EndDate,
+			&i.WarehouseCode,
+			&i.EngineeringTypeStruct,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getMaskAnswersByItemAndValue = `-- name: GetMaskAnswersByItemAndValue :many
 SELECT
@@ -51,6 +165,144 @@ func (q *Queries) GetMaskAnswersByItemAndValue(ctx context.Context, arg GetMaskA
 			&i.OptionID,
 			&i.Position,
 			&i.OptionValue,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMaskAnswersWithNames = `-- name: GetMaskAnswersWithNames :many
+SELECT
+    q.name          AS question_name,
+    qo.value        AS option_value,
+    ima.position
+FROM item_masks im
+         JOIN item_mask_answers ima ON ima.mask_id  = im.id
+         JOIN question_options   qo ON qo.id        = ima.option_id
+         JOIN questions           q  ON q.id         = ima.question_id
+WHERE im.item_code = $1
+  AND im.mask      = $2
+ORDER BY ima.position
+`
+
+type GetMaskAnswersWithNamesParams struct {
+	ItemCode int64
+	Mask     string
+}
+
+type GetMaskAnswersWithNamesRow struct {
+	QuestionName string
+	OptionValue  string
+	Position     int32
+}
+
+// Retorna question_name + option_value para resolução de variáveis em fórmulas.
+func (q *Queries) GetMaskAnswersWithNames(ctx context.Context, arg GetMaskAnswersWithNamesParams) ([]GetMaskAnswersWithNamesRow, error) {
+	rows, err := q.db.Query(ctx, getMaskAnswersWithNames, arg.ItemCode, arg.Mask)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMaskAnswersWithNamesRow
+	for rows.Next() {
+		var i GetMaskAnswersWithNamesRow
+		if err := rows.Scan(&i.QuestionName, &i.OptionValue, &i.Position); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getWhereUsed = `-- name: GetWhereUsed :many
+WITH RECURSIVE where_used AS (
+    SELECT
+        s.parent_code,
+        s.child_code,
+        s.quantity,
+        s.loss_percentage,
+        s.parent_mask,
+        s.sequence,
+        s.is_active,
+        1 AS level
+    FROM item_structures s
+    WHERE s.child_code = $1
+      AND s.is_active = TRUE
+
+    UNION ALL
+
+    SELECT
+        s.parent_code,
+        s.child_code,
+        s.quantity,
+        s.loss_percentage,
+        s.parent_mask,
+        s.sequence,
+        s.is_active,
+        wu.level + 1
+    FROM item_structures s
+    JOIN where_used wu ON wu.parent_code = s.child_code
+    WHERE s.is_active = TRUE
+      AND ($2::int = 0 OR wu.level < $2::int)
+)
+SELECT
+    wu.level,
+    wu.parent_code,
+    wu.child_code,
+    p.pdm_description_technique AS parent_description,
+    wu.quantity,
+    wu.loss_percentage,
+    wu.parent_mask,
+    wu.sequence
+FROM where_used wu
+JOIN items p ON p.code = wu.parent_code
+ORDER BY wu.level, wu.parent_code, wu.sequence
+`
+
+type GetWhereUsedParams struct {
+	ChildCode int64
+	Column2   int32
+}
+
+type GetWhereUsedRow struct {
+	Level             int32
+	ParentCode        int64
+	ChildCode         int64
+	ParentDescription string
+	Quantity          pgtype.Numeric
+	LossPercentage    pgtype.Numeric
+	ParentMask        pgtype.Text
+	Sequence          int32
+}
+
+// Implosão de estrutura: retorna todos os pais que utilizam o item $1,
+// recursivamente até o nível $2 (0 = todos).
+func (q *Queries) GetWhereUsed(ctx context.Context, arg GetWhereUsedParams) ([]GetWhereUsedRow, error) {
+	rows, err := q.db.Query(ctx, getWhereUsed, arg.ChildCode, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetWhereUsedRow
+	for rows.Next() {
+		var i GetWhereUsedRow
+		if err := rows.Scan(
+			&i.Level,
+			&i.ParentCode,
+			&i.ChildCode,
+			&i.ParentDescription,
+			&i.Quantity,
+			&i.LossPercentage,
+			&i.ParentMask,
+			&i.Sequence,
 		); err != nil {
 			return nil, err
 		}

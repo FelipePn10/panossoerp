@@ -27,6 +27,11 @@ import (
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/question_option_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/question_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/restriction_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/aps_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/cost_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/crp_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/quality_uc"
+	"github.com/FelipePn10/panossoerp/internal/application/usecase/routing_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/sales_order_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/structure_uc"
 	"github.com/FelipePn10/panossoerp/internal/application/usecase/user_uc"
@@ -95,9 +100,11 @@ func NewDeleteQuestionHandler(
 
 func NewCreateQuestionOptionHandler(
 	createQuestionOptionUC *question_option_uc.CreateQuestionOptionUseCase,
+	listOptionsByQuestionUC *question_option_uc.ListOptionsByQuestionUseCase,
 ) *QuestionOptionHandler {
 	return &QuestionOptionHandler{
-		createQuestionOptionUC: createQuestionOptionUC,
+		createQuestionOptionUC:  createQuestionOptionUC,
+		listOptionsByQuestionUC: listOptionsByQuestionUC,
 	}
 }
 
@@ -225,9 +232,13 @@ func NewItemStructureHandler(
 
 func NewQueryStructureHandler(
 	resolveUc *structure_uc.ResolveStructureQueryUseCase,
+	consultUc *structure_uc.ConsultStructureUseCase,
+	whereUsedUc *structure_uc.WhereUsedUseCase,
 ) *ItemQueryStructureHandler {
 	return &ItemQueryStructureHandler{
-		resolveUC: resolveUc,
+		resolveUC:   resolveUc,
+		consultUC:   consultUc,
+		whereUsedUC: whereUsedUc,
 	}
 }
 
@@ -489,6 +500,34 @@ func NewRestrictionReasonHandler(
 	}
 }
 
+func NewRoutingHandler(
+	operationUC *routing_uc.OperationUseCase,
+	routeUC *routing_uc.RouteUseCase,
+	leadTimeUC *routing_uc.LeadTimeUseCase,
+) *RoutingHandler {
+	return &RoutingHandler{
+		operationUC: operationUC,
+		routeUC:     routeUC,
+		leadTimeUC:  leadTimeUC,
+	}
+}
+
+func NewQualityHandler(uc *quality_uc.QualityUseCase) *QualityHandler {
+	return &QualityHandler{uc: uc}
+}
+
+func NewStandardCostHandler(uc *cost_uc.StandardCostUseCase) *StandardCostHandler {
+	return &StandardCostHandler{uc: uc}
+}
+
+func NewCRPHandler(uc *crp_uc.CRPUseCase) *CRPHandler {
+	return &CRPHandler{uc: uc}
+}
+
+func NewAPSHandler(uc *aps_uc.APSUseCase) *APSHandler {
+	return &APSHandler{uc: uc}
+}
+
 func NewProductionOrderHandler(
 	createUC *production_order_uc.CreateProductionOrderUseCase,
 	getByCodeUC *production_order_uc.GetProductionOrderUseCase,
@@ -514,5 +553,12 @@ func NewProductionOrderHandler(
 		cancelUC:          cancelUC,
 		getAppointmentsUC: getAppointmentsUC,
 		getConsumptionsUC: getConsumptionsUC,
+		orderOpsUC:        nil, // set separately via WithOrderOps
 	}
+}
+
+// WithOrderOps attaches the order operations use case to the handler.
+func (h *ProductionOrderHandler) WithOrderOps(uc *production_order_uc.OrderOperationsUseCase) *ProductionOrderHandler {
+	h.orderOpsUC = uc
+	return h
 }

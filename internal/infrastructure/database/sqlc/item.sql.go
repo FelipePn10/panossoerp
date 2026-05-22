@@ -260,7 +260,7 @@ func (q *Queries) ListItems(ctx context.Context) ([]Item, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var result []Item
+	var items []Item
 	for rows.Next() {
 		var i Item
 		if err := rows.Scan(
@@ -298,10 +298,10 @@ func (q *Queries) ListItems(ctx context.Context) ([]Item, error) {
 		); err != nil {
 			return nil, err
 		}
-		result = append(result, i)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return items, nil
 }

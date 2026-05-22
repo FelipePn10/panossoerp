@@ -22,6 +22,8 @@ import (
 	planentity "github.com/FelipePn10/panossoerp/internal/domain/production_plan/entity"
 	planrepo "github.com/FelipePn10/panossoerp/internal/domain/production_plan/repository"
 	restrictionrepo "github.com/FelipePn10/panossoerp/internal/domain/restriction/repository"
+	routingentity "github.com/FelipePn10/panossoerp/internal/domain/routing/entity"
+	routingrepo "github.com/FelipePn10/panossoerp/internal/domain/routing/repository"
 	forecastrepo "github.com/FelipePn10/panossoerp/internal/domain/sales_forecast/repository"
 	structentity "github.com/FelipePn10/panossoerp/internal/domain/structure/entity"
 	structrepo "github.com/FelipePn10/panossoerp/internal/domain/structure/repository"
@@ -49,6 +51,7 @@ type MRPServiceImpl struct {
 	ForecastRepo    forecastrepo.SalesForecastRepository
 	RestrictionRepo restrictionrepo.RestrictionRepository
 	SupplyPort      ports.PlannedOrderSupplyPort
+	RoutingRepo     routingrepo.RoutingRepository // nil = fallback to configured lead time
 }
 
 func NewMRPService(
@@ -61,6 +64,7 @@ func NewMRPService(
 	planRepo planrepo.ProductionPlanRepository,
 	forecastRepo forecastrepo.SalesForecastRepository,
 	restrictionRepo restrictionrepo.RestrictionRepository,
+	routingRepo routingrepo.RoutingRepository,
 ) MRPService {
 	return &MRPServiceImpl{
 		MRPRepo:         mrpRepo,
@@ -72,6 +76,7 @@ func NewMRPService(
 		PlanRepo:        planRepo,
 		ForecastRepo:    forecastRepo,
 		RestrictionRepo: restrictionRepo,
+		RoutingRepo:     routingRepo,
 	}
 }
 
@@ -997,18 +1002,40 @@ func (s *MRPServiceImpl) calcNetReqFast(
 	}
 
 	output.NetRequirement = netReq
-	output.PlannedOrders = []*entity.PlannedOrderSuggestion{
-		{
-			PlanCode:       input.PlanCode,
-			ItemCode:       input.ItemCode,
-			Quantity:       netReq,
-			NeedDate:       input.NeedDate,
-			StartDate:      &startDate,
-			OrderType:      orderType,
-			DemandType:     demandType,
-			ParentItemCode: input.ParentItemCode,
-			LLC:            input.LLC,
-		},
+	mainOrder := &entity.PlannedOrderSuggestion{
+		PlanCode:       input.PlanCode,
+		ItemCode:       input.ItemCode,
+		Quantity:       netReq,
+		NeedDate:       input.NeedDate,
+		StartDate:      &startDate,
+		OrderType:      orderType,
+		DemandType:     demandType,
+		ParentItemCode: input.ParentItemCode,
+		LLC:            input.LLC,
+	}
+	output.PlannedOrders = []*entity.PlannedOrderSuggestion{mainOrder}
+
+	// When a FABRICACAO order is planned and the item has external/third-party
+	// route operations, generate a SERVICO order for each external op so the
+	// planner knows a purchase order for the service is required.
+	if orderType == "FABRICACAO" && s.RoutingRepo != nil {
+		extOps, _ := s.RoutingRepo.GetExternalOpsByItem(ctx, input.ItemCode)
+		for _, op := range extOps {
+			note := fmt.Sprintf("Op. externa: %s (%.2fh)", op.OperationName, op.EffectiveHours)
+			serviceOrder := &entity.PlannedOrderSuggestion{
+				PlanCode:       input.PlanCode,
+				ItemCode:       input.ItemCode,
+				Quantity:       netReq,
+				NeedDate:       input.NeedDate,
+				StartDate:      &startDate,
+				OrderType:      "SERVICO",
+				DemandType:     "EXTERNA",
+				ParentItemCode: input.ParentItemCode,
+				LLC:            input.LLC,
+				Notes:          &note,
+			}
+			output.PlannedOrders = append(output.PlannedOrders, serviceOrder)
+		}
 	}
 
 	return output, nil
@@ -1255,9 +1282,27 @@ func (s *MRPServiceImpl) ruleMatchesMask(rule *entity.ConfiguredItemRule, mask s
 	}
 }
 
-// getLeadTimeDays extrai o lead_time das regras configuradas para um item.
-// Obtém o maior lead_time dentre todas as regras aplicáveis.
+// getLeadTimeDays returns the lead time for an item in working days.
+// Priority: routing critical-path (hours → days at 8h/day) > configured rule > 0.
 func (s *MRPServiceImpl) getLeadTimeDays(rulesMap map[int64][]*entity.ConfiguredItemRule, itemCode int64) int {
+	// 1. Try routing lead time (critical-path through operation network).
+	if s.RoutingRepo != nil {
+		route, err := s.RoutingRepo.GetRouteForItem(context.Background(), itemCode, "")
+		if err == nil && route != nil {
+			ops, err := s.RoutingRepo.GetRouteOperations(context.Background(), route.ID)
+			if err == nil && len(ops) > 0 {
+				edges, _ := s.RoutingRepo.GetNetworkEdges(context.Background(), route.ID)
+				totalHours := criticalPathHours(ops, edges)
+				if totalHours > 0 {
+					days := int(math.Ceil(totalHours / 8.0)) // 8h = 1 dia útil
+					if days > 0 {
+						return days
+					}
+				}
+			}
+		}
+	}
+	// 2. Fallback: configured rule.
 	maxLead := 0
 	for _, rule := range rulesMap[itemCode] {
 		if rule.FieldName == "lead_time" {
@@ -1658,4 +1703,60 @@ func mpsPeriodToDate(periodType string, periodValue, year int) time.Time {
 	default:
 		return time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)
 	}
+}
+
+// criticalPathHours computes the CPM critical-path total hours from route ops + network edges.
+// Mirrors the algorithm in routing_uc/lead_time_uc.go but works directly on domain entities.
+func criticalPathHours(ops []*routingentity.RouteOperation, edges []*routingentity.NetworkEdge) float64 {
+	successors := make(map[int64][]int64)
+	predecessors := make(map[int64][]int64)
+	overlapByEdge := make(map[[2]int64]float64)
+	for _, e := range edges {
+		successors[e.PredecessorID] = append(successors[e.PredecessorID], e.SuccessorID)
+		predecessors[e.SuccessorID] = append(predecessors[e.SuccessorID], e.PredecessorID)
+		overlapByEdge[[2]int64{e.PredecessorID, e.SuccessorID}] = e.OverlapPct
+	}
+	inDegree := make(map[int64]int, len(ops))
+	for _, op := range ops {
+		inDegree[op.ID] = len(predecessors[op.ID])
+	}
+	queue := make([]int64, 0)
+	for id, deg := range inDegree {
+		if deg == 0 {
+			queue = append(queue, id)
+		}
+	}
+	opByID := make(map[int64]*routingentity.RouteOperation, len(ops))
+	for _, op := range ops {
+		opByID[op.ID] = op
+	}
+	earlyFinish := make(map[int64]float64, len(ops))
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		op := opByID[cur]
+		opTime := op.EffectiveStdTime + op.EffectiveSetup
+		ef := opTime
+		for _, predID := range predecessors[cur] {
+			overlap := overlapByEdge[[2]int64{predID, cur}] / 100.0
+			c := earlyFinish[predID]*(1-overlap) + opTime
+			if c > ef {
+				ef = c
+			}
+		}
+		earlyFinish[cur] = ef
+		for _, sucID := range successors[cur] {
+			inDegree[sucID]--
+			if inDegree[sucID] == 0 {
+				queue = append(queue, sucID)
+			}
+		}
+	}
+	var maxEF float64
+	for _, ef := range earlyFinish {
+		if ef > maxEF {
+			maxEF = ef
+		}
+	}
+	return maxEF
 }

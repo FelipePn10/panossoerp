@@ -26,3 +26,9 @@ SELECT EXISTS (
     WHERE value = $1
       AND question_id = $2
 );
+
+-- name: ListOptionsByQuestionID :many
+SELECT id, question_id, value, created_at, created_by
+FROM question_options
+WHERE question_id = $1
+ORDER BY id;

@@ -24,6 +24,7 @@ type ProductionOrderHandler struct {
 	cancelUC         *production_order_uc.CancelProductionOrderUseCase
 	getAppointmentsUC *production_order_uc.GetAppointmentsUseCase
 	getConsumptionsUC *production_order_uc.GetConsumptionsUseCase
+	orderOpsUC       *production_order_uc.OrderOperationsUseCase
 }
 
 func (h *ProductionOrderHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -192,4 +193,60 @@ func (h *ProductionOrderHandler) GetConsumptions(w http.ResponseWriter, r *http.
 		return
 	}
 	security.RespondJSON(w, http.StatusOK, results)
+}
+
+// ─── order operations (route explosion) ──────────────────────────────────────
+
+func (h *ProductionOrderHandler) ExplodeRoute(w http.ResponseWriter, r *http.Request) {
+	if h.orderOpsUC == nil {
+		security.RespondError(w, http.StatusNotImplemented, "order operations not configured")
+		return
+	}
+	var dto request.ExplodeRouteDTO
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		security.RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	result, err := h.orderOpsUC.ExplodeRoute(r.Context(), dto.OrderID, dto.RouteID)
+	if err != nil {
+		security.RespondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+	security.RespondJSON(w, http.StatusCreated, result)
+}
+
+func (h *ProductionOrderHandler) ListOrderOperations(w http.ResponseWriter, r *http.Request) {
+	if h.orderOpsUC == nil {
+		security.RespondError(w, http.StatusNotImplemented, "order operations not configured")
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		security.RespondError(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+	result, err := h.orderOpsUC.ListOperations(r.Context(), id)
+	if err != nil {
+		security.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	security.RespondJSON(w, http.StatusOK, result)
+}
+
+func (h *ProductionOrderHandler) AdvanceOperation(w http.ResponseWriter, r *http.Request) {
+	if h.orderOpsUC == nil {
+		security.RespondError(w, http.StatusNotImplemented, "order operations not configured")
+		return
+	}
+	var dto request.AdvanceOperationDTO
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		security.RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	result, err := h.orderOpsUC.AdvanceOperation(r.Context(), dto)
+	if err != nil {
+		security.RespondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+	security.RespondJSON(w, http.StatusOK, result)
 }
